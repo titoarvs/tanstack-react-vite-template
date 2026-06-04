@@ -4,7 +4,27 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&display=swap"
+      rel="stylesheet"
+    />
+    <title>TitoHRIS</title>
+    <script>
+      ;(function () {
+        var key = "titohris-theme"
+        var valid = ["light", "dark", "tito", "tito-dark"]
+        var theme = localStorage.getItem(key) || "light"
+        if (valid.indexOf(theme) === -1) theme = "light"
+        document.documentElement.setAttribute("data-theme", theme)
+        if (theme === "dark" || theme === "tito-dark") {
+          document.documentElement.classList.add("dark")
+        }
+        document.documentElement.style.colorScheme =
+          theme === "dark" || theme === "tito-dark" ? "dark" : "light"
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>
