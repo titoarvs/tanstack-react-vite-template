@@ -10,11 +10,21 @@ module.exports = {
   parser: "@typescript-eslint/parser",
   parserOptions: { ecmaVersion: "latest", sourceType: "module", ecmaFeatures: { jsx: true } },
   settings: { react: { version: "detect" } },
-  plugins: ["react-refresh", "@typescript-eslint"],
+  plugins: ["react-refresh", "@typescript-eslint", "unused-imports"],
   rules: {
     "react-refresh/only-export-components": "warn",
     "react/prop-types": "off",
-    "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+    "@typescript-eslint/no-unused-vars": "off",
+    "unused-imports/no-unused-imports": "error",
+    "unused-imports/no-unused-vars": [
+      "error",
+      {
+        vars: "all",
+        varsIgnorePattern: "^_",
+        args: "after-used",
+        argsIgnorePattern: "^_",
+      },
+    ],
   },
   overrides: [
     {

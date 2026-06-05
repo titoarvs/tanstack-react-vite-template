@@ -270,14 +270,73 @@
   }
 
   .profile-tabs-scroll {
-    @apply -mx-4 overflow-x-auto px-4 sm:-mx-6 sm:px-6;
-    -ms-overflow-style: none;
-    scrollbar-width: none;
+    @apply -mx-1 min-w-0 overflow-x-auto px-1;
   }
 
-  .profile-tabs-scroll::-webkit-scrollbar {
-    display: none;
+  .scroll-area {
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(
+        in oklch,
+        var(--muted-foreground) 35%,
+        transparent
+      )
+      transparent;
+    scroll-behavior: smooth;
   }
+
+  .scroll-area::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scroll-area::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scroll-area::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    background-color: color-mix(
+      in oklch,
+      var(--muted-foreground) 28%,
+      transparent
+    );
+  }
+
+  .scroll-area:hover::-webkit-scrollbar-thumb {
+    background-color: color-mix(
+      in oklch,
+      var(--muted-foreground) 45%,
+      transparent
+    );
+  }
+  /* 
+  .scroll-area-x {
+    scrollbar-gutter: stable;
+    scrollbar-width: thin;
+    scrollbar-color: color-mix(in oklch, var(--muted-foreground) 35%, transparent) transparent;
+    scroll-behavior: smooth;
+  }
+
+  .scroll-area-x::-webkit-scrollbar {
+    height: 5px;
+  }
+
+  .scroll-area-x::-webkit-scrollbar-track {
+    margin-inline: 0.25rem;
+    background: transparent;
+  }
+
+  .scroll-area-x::-webkit-scrollbar-thumb {
+    border-radius: 9999px;
+    background-color: color-mix(in oklch, var(--muted-foreground) 28%, transparent);
+  }
+
+  .scroll-area-x:hover::-webkit-scrollbar-thumb {
+    background-color: color-mix(in oklch, var(--muted-foreground) 45%, transparent);
+  } */
 
   .onboarding-step-item-active {
     @apply bg-accent/40;

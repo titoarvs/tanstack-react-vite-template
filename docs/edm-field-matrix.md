@@ -2,7 +2,7 @@
 
 Employee Data Management fields are defined in `src/features/employees/edm/fieldRegistry.ts` with RBAC in `roleMatrix.ts` and enforcement in `fieldPolicy.ts`.
 
-## Profile tabs (7 EDM + 2 legacy)
+## Profile tabs (7 EDM)
 
 | Tab | EDM fields |
 |-----|------------|
@@ -13,8 +13,6 @@ Employee Data Management fields are defined in `src/features/employees/edm/field
 | Documents | uploaded files, metadata, onboarding checklist |
 | Compliance | privacy consent, data subject access, retention/deletion, audit trail |
 | Access & Systems | system access, request status, provision/deprovision dates |
-| Time Off | *(legacy mock — outside EDM spec)* |
-| Performance | *(legacy mock — outside EDM spec)* |
 
 ## Roles
 

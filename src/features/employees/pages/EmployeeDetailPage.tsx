@@ -1,4 +1,5 @@
 import { Link, useParams, useRouterState } from "@tanstack/react-router"
+import { ChevronLeft } from "lucide-react"
 import { useEffect, useMemo, useRef, useState } from "react"
 import { recordEmployeeViewed } from "@/features/audit/auditLogger"
 import {
@@ -22,15 +23,9 @@ import { EdmEmploymentTab } from "../components/detail/edm/EdmEmploymentTab"
 import { EdmGovernmentTab } from "../components/detail/edm/EdmGovernmentTab"
 import { EdmPersonalTab } from "../components/detail/edm/EdmPersonalTab"
 import type { ProfileTabValue } from "../components/detail/EmployeeProfileHeader"
-import { EmployeeProfileHero } from "../components/detail/EmployeeProfileHero"
+import { EmployeeProfileSidePanel } from "../components/detail/EmployeeProfileSidePanel"
 import { EmployeeProfileToolbar } from "../components/detail/EmployeeProfileToolbar"
 import { ProfileAccessDenied } from "../components/detail/ProfileAccessDenied"
-import { EmployeePerformanceTab } from "../components/detail/EmployeePerformanceTab"
-import { EmployeeTimeOffTab } from "../components/detail/EmployeeTimeOffTab"
-import {
-  countDirectReports,
-  getEmployeeInsights,
-} from "../data/mockEmployeeInsights"
 import { fetchEmployeePayInsights } from "../api/employeeApi"
 import { useEmployeeProfileNav } from "../hooks/useEmployeeProfileNav"
 import { useEmployee, useEmployees } from "../hooks/useEmployees"
@@ -48,13 +43,17 @@ function useEmployeeIdFromRoute(): string | undefined {
 
 function DetailPageSkeleton() {
   return (
-    <div className="mx-auto max-w-6xl animate-pulse space-y-4">
-      <div className="h-4 w-24 rounded bg-muted" />
-      <div className="h-48 rounded-xl bg-muted sm:h-56" />
-      <div className="h-24 rounded-xl bg-muted" />
-      <div className="grid gap-4 lg:grid-cols-2">
-        <div className="h-64 rounded-xl bg-muted" />
-        <div className="h-64 rounded-xl bg-muted" />
+    <div className="mx-auto max-w-7xl animate-pulse">
+      <div className="mb-4 h-4 w-24 rounded bg-muted" />
+      <div className="grid gap-6 lg:grid-cols-[minmax(17rem,20rem)_1fr]">
+        <div className="h-[32rem] rounded-xl bg-muted" />
+        <div className="space-y-4">
+          <div className="h-24 rounded-xl bg-muted" />
+          <div className="grid gap-4 lg:grid-cols-2">
+            <div className="h-64 rounded-xl bg-muted" />
+            <div className="h-64 rounded-xl bg-muted" />
+          </div>
+        </div>
       </div>
     </div>
   )
@@ -115,9 +114,6 @@ export function EmployeeDetailPage() {
   const canViewPayroll = employee
     ? canViewPayrollHistory(user, employee.id, employee)
     : false
-  const canViewPerformance = employee
-    ? canViewProfileTab(user, employee.id, "performance", employee)
-    : false
 
   let pay: ReturnType<typeof fetchEmployeePayInsights> | null = null
   let payError = false
@@ -174,121 +170,104 @@ export function EmployeeDetailPage() {
   }
 
   const manager = allEmployees?.find(e => e.id === employee.managerId)
-  const insights = getEmployeeInsights(employee.id)
-  const directReports = countDirectReports(employee.id, allEmployees ?? [])
   const showSelfService = canUseSelfService(user, employee.id)
 
   return (
-    <PageContent className="bg-container">
-      <div className="mx-auto min-w-0 max-w-6xl">
-        <Tabs
-          value={activeTab}
-          onValueChange={v => setActiveTab(v as ProfileTabValue)}
-          className="space-y-4 sm:space-y-6"
+    <PageContent className="bg-container flex min-h-0 flex-1 flex-col lg:overflow-hidden">
+      <div className="mx-auto flex min-h-0 w-full min-w-0 max-w-7xl flex-1 flex-col">
+        <Link
+          to={backTo}
+          className="mb-4 inline-flex w-fit shrink-0 items-center gap-1 rounded-lg px-1 py-0.5 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
         >
-          <EmployeeProfileHero
-            employee={employee}
-            manager={manager}
-            backTo={backTo}
-            backLabel={backLabel}
-          />
+          <ChevronLeft className="h-4 w-4" />
+          {backLabel}
+        </Link>
 
-          <EmployeeProfileToolbar
-            employee={employee}
-            nav={nav}
-            visibleTabs={visibleTabs}
-            showSelfService={showSelfService}
-            showPayPeriod={canViewPayroll}
-            periodEndLabel={pay?.periodEndLabel ?? "—"}
-          />
+        <div className="grid min-h-0 flex-1 gap-6 lg:grid-cols-[minmax(17rem,20rem)_1fr] lg:overflow-hidden">
+          <EmployeeProfileSidePanel employee={employee} manager={manager} />
 
-          <div className="min-w-0 pb-8">
-            <TabsContent value="personal" className="mt-0 outline-none">
-              {canViewProfileTab(user, employee.id, "personal", employee) ? (
-                <EdmPersonalTab employee={employee} />
-              ) : (
-                <ProfileAccessDenied />
-              )}
-            </TabsContent>
+          <div className="scroll-area flex min-h-0 min-w-0 flex-col lg:overflow-y-auto lg:overscroll-contain">
+            <Tabs
+              value={activeTab}
+              onValueChange={v => setActiveTab(v as ProfileTabValue)}
+              className="space-y-4"
+            >
+              <EmployeeProfileToolbar
+                employee={employee}
+                nav={nav}
+                visibleTabs={visibleTabs}
+                showSelfService={showSelfService}
+                showPayPeriod={canViewPayroll}
+                periodEndLabel={pay?.periodEndLabel ?? "—"}
+              />
 
-            <TabsContent value="employment" className="mt-0 outline-none">
-              {canViewProfileTab(user, employee.id, "employment", employee) ? (
-                <EdmEmploymentTab employee={employee} manager={manager} />
-              ) : (
-                <ProfileAccessDenied />
-              )}
-            </TabsContent>
+              <div className="min-w-0 pb-8">
+                <TabsContent value="personal" className="mt-0 outline-none">
+                  {canViewProfileTab(user, employee.id, "personal", employee) ? (
+                    <EdmPersonalTab employee={employee} />
+                  ) : (
+                    <ProfileAccessDenied />
+                  )}
+                </TabsContent>
 
-            <TabsContent value="compensation" className="mt-0 outline-none">
-              {canViewCompensation ? (
-                <EdmCompensationTab
-                  employee={employee}
-                  pay={payError ? null : pay}
-                  showPayrollHistory={canViewPayroll && !payError}
-                />
-              ) : (
-                <ProfileAccessDenied
-                  title="Compensation restricted"
-                  description="Compensation details are only available on your own profile or with HR administrator access."
-                />
-              )}
-            </TabsContent>
+                <TabsContent value="employment" className="mt-0 outline-none">
+                  {canViewProfileTab(user, employee.id, "employment", employee) ? (
+                    <EdmEmploymentTab employee={employee} />
+                  ) : (
+                    <ProfileAccessDenied />
+                  )}
+                </TabsContent>
 
-            <TabsContent value="government" className="mt-0 outline-none">
-              {canViewProfileTab(user, employee.id, "government", employee) ? (
-                <EdmGovernmentTab employee={employee} />
-              ) : (
-                <ProfileAccessDenied />
-              )}
-            </TabsContent>
+                <TabsContent value="compensation" className="mt-0 outline-none">
+                  {canViewCompensation ? (
+                    <EdmCompensationTab
+                      employee={employee}
+                      pay={payError ? null : pay}
+                      showPayrollHistory={canViewPayroll && !payError}
+                    />
+                  ) : (
+                    <ProfileAccessDenied
+                      title="Compensation restricted"
+                      description="Compensation details are only available on your own profile or with HR administrator access."
+                    />
+                  )}
+                </TabsContent>
 
-            <TabsContent value="documents" className="mt-0 outline-none">
-              {canViewProfileTab(user, employee.id, "documents", employee) ? (
-                <EdmDocumentsTab employee={employee} />
-              ) : (
-                <ProfileAccessDenied />
-              )}
-            </TabsContent>
+                <TabsContent value="government" className="mt-0 outline-none">
+                  {canViewProfileTab(user, employee.id, "government", employee) ? (
+                    <EdmGovernmentTab employee={employee} />
+                  ) : (
+                    <ProfileAccessDenied />
+                  )}
+                </TabsContent>
 
-            <TabsContent value="compliance" className="mt-0 outline-none">
-              {canViewProfileTab(user, employee.id, "compliance", employee) ? (
-                <EdmComplianceTab employee={employee} />
-              ) : (
-                <ProfileAccessDenied />
-              )}
-            </TabsContent>
+                <TabsContent value="documents" className="mt-0 outline-none">
+                  {canViewProfileTab(user, employee.id, "documents", employee) ? (
+                    <EdmDocumentsTab employee={employee} />
+                  ) : (
+                    <ProfileAccessDenied />
+                  )}
+                </TabsContent>
 
-            <TabsContent value="access" className="mt-0 outline-none">
-              {canViewProfileTab(user, employee.id, "access", employee) ? (
-                <EdmAccessTab employee={employee} />
-              ) : (
-                <ProfileAccessDenied />
-              )}
-            </TabsContent>
+                <TabsContent value="compliance" className="mt-0 outline-none">
+                  {canViewProfileTab(user, employee.id, "compliance", employee) ? (
+                    <EdmComplianceTab employee={employee} />
+                  ) : (
+                    <ProfileAccessDenied />
+                  )}
+                </TabsContent>
 
-            <TabsContent value="time-off" className="mt-0 outline-none">
-              {canViewProfileTab(user, employee.id, "time-off", employee) ? (
-                <EmployeeTimeOffTab insights={insights} />
-              ) : (
-                <ProfileAccessDenied />
-              )}
-            </TabsContent>
-
-            <TabsContent value="performance" className="mt-0 outline-none">
-              {canViewPerformance ? (
-                <EmployeePerformanceTab
-                  insights={insights}
-                  directReports={directReports}
-                />
-              ) : (
-                <ProfileAccessDenied
-                  title="Performance restricted"
-                  description="Performance details are only available on your own profile, for your direct reports (managers), or with HR administrator access."
-                />
-              )}
-            </TabsContent>
+                <TabsContent value="access" className="mt-0 outline-none">
+                  {canViewProfileTab(user, employee.id, "access", employee) ? (
+                    <EdmAccessTab employee={employee} />
+                  ) : (
+                    <ProfileAccessDenied />
+                  )}
+                </TabsContent>
+              </div>
+            </Tabs>
           </div>
-        </Tabs>
+        </div>
       </div>
     </PageContent>
   )

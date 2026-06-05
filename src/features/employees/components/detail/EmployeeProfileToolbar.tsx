@@ -1,21 +1,12 @@
-import { Link, useNavigate } from "@tanstack/react-router"
-import { Calendar, ChevronDown } from "lucide-react"
+import { useNavigate } from "@tanstack/react-router"
 import { useState } from "react"
-import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { TabsList, TabsTrigger } from "@/components/ui/tabs"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+
 import { cn } from "@/lib/utils"
 import type { ProfileTabValue } from "./EmployeeProfileHeader"
 import type { Employee } from "../../types"
 import { getFullName } from "../../types"
-import { EmployeeActionsMenu } from "../EmployeeActionsMenu"
 import { EmployeeDeleteDialog } from "../EmployeeDeleteDialog"
 import { useDeleteEmployee } from "../../hooks/useEmployees"
 import type { useEmployeeProfileNav } from "../../hooks/useEmployeeProfileNav"
@@ -36,11 +27,7 @@ interface EmployeeProfileToolbarProps {
 
 export function EmployeeProfileToolbar({
   employee,
-  nav,
   visibleTabs,
-  showSelfService,
-  showPayPeriod,
-  periodEndLabel,
 }: EmployeeProfileToolbarProps) {
   const navigate = useNavigate()
   const [confirmDelete, setConfirmDelete] = useState(false)
@@ -49,7 +36,7 @@ export function EmployeeProfileToolbar({
 
   return (
     <>
-      <Card className="sticky top-0 z-10 overflow-hidden border-border/80 shadow-sm">
+      <Card className="sticky top-0 z-10 overflow-hidden border-border/80 bg-card shadow-sm">
         <div className="flex flex-col gap-3 p-3 sm:p-4">
           <div className="profile-tabs-scroll -mx-1 min-w-0 px-1">
             <TabsList className="inline-flex h-auto w-max gap-1 rounded-lg bg-muted/40 p-1">
@@ -68,7 +55,7 @@ export function EmployeeProfileToolbar({
             </TabsList>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-border/60 pt-3 sm:flex-row sm:items-center sm:justify-between">
+          {/* <div className="flex flex-col gap-3 border-t border-border/60 pt-3 sm:flex-row sm:items-center sm:justify-between">
             {nav.total > 0 && (
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                 <span>
@@ -135,7 +122,7 @@ export function EmployeeProfileToolbar({
                 onDelete={() => setConfirmDelete(true)}
               />
             </div>
-          </div>
+          </div> */}
         </div>
       </Card>
 

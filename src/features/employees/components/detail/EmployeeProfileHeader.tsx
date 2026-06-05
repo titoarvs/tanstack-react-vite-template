@@ -7,8 +7,6 @@ export const PROFILE_TABS = [
   { value: "documents", label: "Documents" },
   { value: "compliance", label: "Compliance" },
   { value: "access", label: "Access & Systems" },
-  { value: "time-off", label: "Time Off" },
-  { value: "performance", label: "Performance" },
 ] as const
 
 export type ProfileTabValue = (typeof PROFILE_TABS)[number]["value"]

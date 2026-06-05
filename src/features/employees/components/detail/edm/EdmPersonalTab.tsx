@@ -1,9 +1,5 @@
-import { Mail, Phone, UserRound } from "lucide-react"
-import { EmployeeAvatar } from "@/components/ui/avatar"
-import {
-  getFullName,
-  type Employee,
-} from "../../../types"
+import { MapPin, Phone, UserRound } from "lucide-react"
+import type { Employee } from "../../../types"
 import { ProfileFieldGrid } from "../EmployeeProfileFields"
 import { ProfileInfoCard } from "../ProfileInfoCard"
 import { EdmProfileField } from "./EdmProfileField"
@@ -21,37 +17,10 @@ interface EdmPersonalTabProps {
 }
 
 export function EdmPersonalTab({ employee }: EdmPersonalTabProps) {
-  const fullName = getFullName(employee)
-
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <ProfileInfoCard title="Identity" icon={UserRound}>
-        <div className="mb-4 flex items-center gap-4">
-          <EmployeeAvatar
-            name={fullName}
-            src={employee.photoUrl}
-            className="h-16 w-16"
-          />
-        </div>
+      <ProfileInfoCard title="Demographics" icon={UserRound}>
         <ProfileFieldGrid>
-          <EdmProfileField
-            employee={employee}
-            fieldKey="employeeId"
-            label="Employee ID"
-            value={employee.employeeId}
-          />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="name"
-            label="Full name"
-            value={fullName}
-          />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="preferredName"
-            label="Preferred name"
-            value={employee.preferredName}
-          />
           <EdmProfileField
             employee={employee}
             fieldKey="demographics"
@@ -79,20 +48,8 @@ export function EdmPersonalTab({ employee }: EdmPersonalTabProps) {
         </ProfileFieldGrid>
       </ProfileInfoCard>
 
-      <ProfileInfoCard title="Contact" icon={Mail}>
+      <ProfileInfoCard title="Address" icon={MapPin}>
         <ProfileFieldGrid>
-          <EdmProfileField
-            employee={employee}
-            fieldKey="contact"
-            label="Work email"
-            value={employee.contact.email}
-          />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="contact"
-            label="Phone"
-            value={employee.contact.phone}
-          />
           <EdmProfileField
             employee={employee}
             fieldKey="address"

@@ -16,8 +16,6 @@ const TAB_PERMISSION: Partial<
   documents: PERMISSIONS.EMPLOYEES_PROFILE_DOCUMENTS,
   compliance: PERMISSIONS.EMPLOYEES_PROFILE_COMPLIANCE,
   access: PERMISSIONS.EMPLOYEES_PROFILE_ACCESS,
-  "time-off": PERMISSIONS.EMPLOYEES_PROFILE_TIME_OFF,
-  performance: PERMISSIONS.EMPLOYEES_PROFILE_PERFORMANCE,
 }
 
 const EDM_TABS: readonly ProfileTabValue[] = [
@@ -30,7 +28,7 @@ const EDM_TABS: readonly ProfileTabValue[] = [
   "access",
 ]
 
-const SENSITIVE_TABS: readonly ProfileTabValue[] = ["compensation", "performance"]
+const SENSITIVE_TABS: readonly ProfileTabValue[] = ["compensation"]
 
 export function isSelf(user: AuthUser | null | undefined, employeeId: string): boolean {
   return Boolean(user?.employeeId && user.employeeId === employeeId)
@@ -38,20 +36,6 @@ export function isSelf(user: AuthUser | null | undefined, employeeId: string): b
 
 export function isDirectReport(user: AuthUser | null | undefined, employee: Employee): boolean {
   return Boolean(user?.employeeId && employee.managerId === user.employeeId)
-}
-
-function hasSensitiveTabAccess(
-  user: AuthUser,
-  targetEmployeeId: string,
-  tab: ProfileTabValue,
-  employee?: Employee
-): boolean {
-  if (tab === "performance") {
-    if (isSelf(user, targetEmployeeId)) return true
-    if (user.role === "manager" && employee && isDirectReport(user, employee)) return true
-    return user.role === "hris_admin" || user.role === "hris_super_admin"
-  }
-  return false
 }
 
 export function canViewEmployeeRecord(
@@ -100,7 +84,6 @@ export function canViewProfileTab(
       }
       return false
     }
-    return hasSensitiveTabAccess(user, targetEmployeeId, tab, employee)
   }
 
   if (edmTab && employee) {
@@ -147,8 +130,6 @@ export function getDefaultProfileTab(
     "documents",
     "compliance",
     "access",
-    "time-off",
-    "performance",
   ]
   for (const tab of preferred) {
     if (visible.some(t => t.value === tab)) return tab

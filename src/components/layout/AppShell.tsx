@@ -35,7 +35,7 @@ function AppShellInner() {
         <MobileHeader title={title} />
         <AuditTrailListener />
         <SubscriptionBanner />
-        <main className="min-w-0 max-h-[100vh] flex-1 overflow-x-hidden overflow-y-auto bg-background">
+        <main className="flex min-h-0 min-w-0 max-h-[100vh] flex-1 flex-col overflow-x-clip overflow-y-auto bg-background">
           <Outlet />
         </main>
       </div>

@@ -1,10 +1,5 @@
 import { Briefcase, CalendarRange } from "lucide-react"
-import {
-  getEmploymentTypeLabel,
-  getEmployeeStatusLabel,
-  getFullName,
-  type Employee,
-} from "../../../types"
+import type { Employee } from "../../../types"
 import { getWorkLocationLabel } from "../../../data/masterData"
 import { ProfileFieldGrid } from "../EmployeeProfileFields"
 import { ProfileInfoCard } from "../ProfileInfoCard"
@@ -12,47 +7,13 @@ import { EdmProfileField } from "./EdmProfileField"
 
 interface EdmEmploymentTabProps {
   employee: Employee
-  manager?: Employee
 }
 
-export function EdmEmploymentTab({ employee, manager }: EdmEmploymentTabProps) {
-  const managerRecord = manager
-  const managerEmployeeId = managerRecord?.employeeId
-
+export function EdmEmploymentTab({ employee }: EdmEmploymentTabProps) {
   return (
     <div className="grid gap-4 lg:grid-cols-2">
-      <ProfileInfoCard title="Role & organisation" icon={Briefcase}>
+      <ProfileInfoCard title="Organisation" icon={Briefcase}>
         <ProfileFieldGrid>
-          <EdmProfileField
-            employee={employee}
-            fieldKey="employeeStatus"
-            label="Status"
-            value={getEmployeeStatusLabel(employee.status)}
-          />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="departmentPosition"
-            label="Department"
-            value={employee.department}
-          />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="departmentPosition"
-            label="Position"
-            value={employee.position}
-          />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="supervisor"
-            label="Supervisor"
-            value={managerRecord ? getFullName(managerRecord) : undefined}
-          />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="managerEmployeeId"
-            label="Manager employee ID"
-            value={managerEmployeeId}
-          />
           <EdmProfileField
             employee={employee}
             fieldKey="orgStructure"
@@ -80,18 +41,6 @@ export function EdmEmploymentTab({ employee, manager }: EdmEmploymentTabProps) {
                 ? getWorkLocationLabel(employee.workLocation)
                 : employee.officeBranch
             }
-          />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="employmentType"
-            label="Employment type"
-            value={getEmploymentTypeLabel(employee.employmentType)}
-          />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="workLocation"
-            label="Office branch"
-            value={employee.officeBranch}
           />
         </ProfileFieldGrid>
       </ProfileInfoCard>
