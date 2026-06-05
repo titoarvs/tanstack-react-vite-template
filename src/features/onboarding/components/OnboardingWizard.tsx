@@ -8,6 +8,12 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card"
 import { Form } from "@/components/ui/form"
 import { suggestEmployeeId } from "@/features/employees/api/employeeApi"
 import { useCreateEmployee } from "@/features/employees/hooks/useEmployees"
+import { provisionPortalUser } from "@/features/auth/provisionedUserStorage"
+import {
+  resolveOrganizationId,
+  resolveOrganizationName,
+} from "@/features/billing/organization"
+import { useAuth } from "@/features/auth/useAuth"
 import { toGender } from "@/features/employees/lib/normalizeEmployee"
 import type { CreateEmployeeInput, EmploymentType } from "@/features/employees/types"
 import type { WorkLocation } from "@/features/employees/data/masterData"
@@ -39,6 +45,7 @@ export function OnboardingWizard() {
   const [step, setStep] = useState(0)
   const [maxReachedStep, setMaxReachedStep] = useState(0)
   const navigate = useNavigate()
+  const { user } = useAuth()
   const createEmployee = useCreateEmployee()
   const [submitError, setSubmitError] = useState<string | null>(null)
 
@@ -50,7 +57,6 @@ export function OnboardingWizard() {
       firstName: "",
       lastName: "",
       email: "",
-      phone: "",
       hireDate: new Date().toISOString().slice(0, 10),
     },
     mode: "onBlur",
@@ -92,11 +98,8 @@ export function OnboardingWizard() {
       },
       contact: {
         email: data.email,
-        phone: data.phone,
-        address: data.address || undefined,
-        province: data.province || undefined,
+        phone: "",
       },
-      photoUrl: data.photoUrl,
       department: data.department,
       position: data.position,
       managerId: data.managerId || undefined,
@@ -109,12 +112,22 @@ export function OnboardingWizard() {
         contractStartDate: data.contractStartDate || undefined,
         contractEndDate: data.contractEndDate || undefined,
       },
-      status: "active",
+      status: "onboarding",
       officeBranch: data.officeBranch,
+      profileOnboardingComplete: false,
     }
 
     try {
-      await createEmployee.mutateAsync(input)
+      const created = await createEmployee.mutateAsync(input)
+      if (user) {
+        provisionPortalUser({
+          email: data.email,
+          employeeId: created.id,
+          name: `${data.firstName} ${data.lastName}`.trim(),
+          organizationId: resolveOrganizationId(user),
+          organizationName: resolveOrganizationName(user),
+        })
+      }
       navigate({ to: "/employees/directory" })
     } catch (e) {
       setSubmitError(

@@ -36,6 +36,7 @@ export function EmployeeProfileSidePanel({
   const name = getFullName(employee)
   const displayName = getDisplayName(employee)
   const isActive = employee.status === "active"
+  const isOnboarding = employee.status === "onboarding"
 
   return (
     <aside
@@ -64,7 +65,7 @@ export function EmployeeProfileSidePanel({
           )}
           <p className="mt-1 text-sm text-muted-foreground">{employee.position}</p>
           <div className="mt-3 flex flex-wrap justify-center gap-1.5">
-            <Badge variant={isActive ? "active" : "inactive"}>
+            <Badge variant={isActive ? "active" : isOnboarding ? "secondary" : "inactive"}>
               {getEmployeeStatusLabel(employee.status)}
             </Badge>
             <Badge variant="outline">{getEmploymentTypeLabel(employee.employmentType)}</Badge>

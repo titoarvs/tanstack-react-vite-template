@@ -31,12 +31,15 @@ export function OnboardingPage() {
             {ONBOARDING_STEP_COUNT}-step wizard
           </p>
           <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Onboard new employee
+            Express hire
           </h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            Add a new team member to the directory. Progress is saved as you
-            move through each step—you can go back to edit earlier sections
-            anytime.
+            Directly create an employee record when pre-employment data was collected offline.
+            New hires still complete welcome onboarding before HRIS access. Prefer{" "}
+            <Link to="/employees/pre-employment" className="font-medium text-primary hover:underline">
+              pre-employment invites
+            </Link>{" "}
+            for the standard flow.
           </p>
         </header>
 

@@ -14,7 +14,7 @@ import {
 import { usePagination } from "@/lib/pagination/usePagination"
 import { useDeleteEmployee } from "../hooks/useEmployees"
 import type { Employee } from "../types"
-import { getEmploymentTypeLabel, getFullName } from "../types"
+import { getEmploymentTypeLabel, getEmployeeStatusLabel, getFullName } from "../types"
 import { EmployeeActionsMenu } from "./EmployeeActionsMenu"
 import { EmployeeDeleteDialog } from "./EmployeeDeleteDialog"
 
@@ -55,8 +55,16 @@ function EmployeeTableRow({ employee }: { employee: Employee }) {
           </p>
         </TableCell>
         <TableCell>
-          <Badge variant={employee.status === "active" ? "active" : "inactive"}>
-            {employee.status === "active" ? "Active" : "Inactive"}
+          <Badge
+            variant={
+              employee.status === "active"
+                ? "active"
+                : employee.status === "onboarding"
+                  ? "secondary"
+                  : "inactive"
+            }
+          >
+            {getEmployeeStatusLabel(employee.status)}
           </Badge>
         </TableCell>
         <TableCell className="hidden lg:table-cell">

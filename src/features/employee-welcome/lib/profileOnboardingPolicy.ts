@@ -7,13 +7,15 @@ export function getLinkedEmployee(user: AuthUser | null | undefined): Employee |
   return employeeStore.getByIdSync(user.employeeId)
 }
 
-/** New hires (employee role) must finish welcome onboarding before the app shell */
+/** New hires must finish welcome onboarding before the app shell */
 export function needsEmployeeWelcomeOnboarding(
   user: AuthUser | null | undefined
 ): boolean {
   if (!user || user.role !== "employee" || !user.employeeId) return false
   const employee = getLinkedEmployee(user)
   if (!employee) return false
+  if (employee.preEmploymentCompletedAt) return false
+  if (employee.status === "onboarding") return true
   return employee.profileOnboardingComplete !== true
 }
 

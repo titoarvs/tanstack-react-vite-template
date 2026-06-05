@@ -1,42 +1,59 @@
 # Employee onboarding (TitoHRIS)
 
-This document describes the onboarding flows and how they map to the **EDM field model**. For EDM tab/RBAC details see [edm-field-matrix.md](./edm-field-matrix.md).
+This document describes onboarding flows and how they map to the **EDM field model**. For EDM tab/RBAC details see [edm-field-matrix.md](./edm-field-matrix.md).
 
 ## Overview
 
-Onboarding is **two connected flows**:
+Onboarding has **three connected paths**:
 
-1. **HR wizard** — HRIS Admin or SuperAdmin creates employees at `/employees/onboarding` (3-step wizard).
-2. **Employee welcome** — After HR create, the hire signs in with their **work email** (mock-provisioned) and completes `/welcome` before the app shell.
+1. **Pre-employment invite (primary)** — HR sends a link; candidate completes forms **before** any employee record or HRIS access exists.
+2. **Express hire** — HR creates an employee directly at `/employees/onboarding` when data was collected offline; hire completes `/welcome` before HRIS.
+3. **Employee welcome** — Provisioned employees finish self-service fields at `/welcome` before the app shell unlocks.
 
 **Mock constraints:**
 
-- Employee records live in [`employeeStore.ts`](../src/lib/mock/employeeStore.ts); data resets on page refresh.
+- Employee records live in [`employeeStore.ts`](../src/lib/mock/employeeStore.ts); pre-employment invites in [`preEmploymentStore.ts`](../src/lib/mock/preEmploymentStore.ts). Data resets on page refresh.
 - Auth users (`AuthUser`) and HR records (`Employee`) are separate until mock provisioning links them.
 - Session is stored in `localStorage` (`titohris-auth-session`).
+
+## Pre-employment flow (primary)
+
+| Step | Actor | Route | Outcome |
+|------|-------|-------|---------|
+| 1 | HR | `/employees/pre-employment` | Creates invite + copy link `/join/{token}` |
+| 2 | Candidate | `/join/{token}` | 4-step wizard; progressive save; submit |
+| 3 | Candidate | `/join/{token}/submitted` | Waiting screen — no HRIS access |
+| 4 | HR | `/employees/pre-employment/{inviteId}` | Review submission; approve or request changes |
+| 5 | System | — | Creates employee, provisions portal login |
+| 6 | Employee | `/login` → `/dashboard` | HRIS access (welcome skipped when pre-employment captured policies) |
+
+**Demo invite:** `/join/demo-token` (candidate: Alex Rivera)
+
+**HR invite fields:** email, name, intended department/position/hire date
+
+**Candidate portal fields:** phone, address, province, demographics, emergency contact, preferred name, personal email, photo, policy acknowledgements
+
+## Express hire (`/employees/onboarding`)
+
+**Steps:** Personal → Employment → Review
+
+**HR fields only:** employee ID, name, demographics, work email, employment master data
+
+**On submit:** `status: onboarding`, `profileOnboardingComplete: false`, mock portal provisioning
+
+## Employee welcome (`/welcome`)
+
+**When required:** Express-hire employees and legacy demo `newhire@` (`EMP-011`)
+
+**On submit:** Updates contact, emergency contact, preferred name, photo, compliance; sets `status: active`
 
 ## Pre-Day 0 field split (EDM)
 
 | Flow | Collects | Authority |
 |------|----------|-----------|
-| HR wizard | Employee ID, name, demographics, contact, employment master data | HRIS Admin+ |
-| Employee welcome | Phone, address, province, emergency contact, preferred name, photo, privacy compliance | Employee self-service |
-
-Restricted fields (gov IDs, compensation, documents, system access) are **not** collected in onboarding—they appear on the employment profile when authorized roles populate them.
-
-## HR wizard (`/employees/onboarding`)
-
-**Steps:** Personal → Employment → Review
-
-**Personal fields:** `employeeId`, `firstName`, `middleName`, `lastName`, `suffix`, demographics, `email`, `phone`, `address`, `province`, `photoUrl`
-
-**Employment fields:** `department`, `position` (master lists), `managerId`, `orgLevel`, `workLocation`, `employmentType`, `hireDate`, probation/contract dates, `officeBranch`
-
-**On submit:** `createEmployee()` with `status: active`, `profileOnboardingComplete: false`, mock portal provisioning.
-
-## Employee welcome (`/welcome`)
-
-**On submit:** Updates contact, emergency contact, preferred name, photo, and maps policy acknowledgements to `compliance.privacyConsentSigned` / `dataSubjectAccessSigned`.
+| HR invite / express hire | Employee ID, name, demographics, work email, employment master data | HRIS Admin+ |
+| Pre-employment portal | Phone, address, province, emergency contact, preferred name, photo, privacy compliance | Candidate self-service |
+| Employee welcome | Residual self-service fields not yet captured | Employee self-service |
 
 ## Demo accounts (6 EDM roles)
 
@@ -56,8 +73,9 @@ Legacy alias: `admin@titohris.com` → HRIS SuperAdmin.
 
 | Area | Path |
 |------|------|
+| Pre-employment | `src/features/pre-employment/` |
 | EDM policy | `src/features/employees/edm/` |
-| HR wizard | `src/features/onboarding/` |
+| Express hire wizard | `src/features/onboarding/` |
 | Employee welcome | `src/features/employee-welcome/` |
 | Profile tabs | `src/features/employees/components/detail/edm/` |
 | Permissions | `src/features/auth/permissions.ts` |

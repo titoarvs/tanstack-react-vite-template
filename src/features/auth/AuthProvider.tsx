@@ -1,7 +1,8 @@
-import { useCallback, useMemo, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
 import { can, hasAnyRole, hasRole } from "./permissions"
 import type { Permission } from "./permissions"
 import { AuthContext } from "./authContextState"
+import { RBAC_UPDATED_EVENT } from "./rbac/rbacStorage"
 import { recordLogin, recordLogout } from "@/features/audit/auditLogger"
 import {
   clearSession,
@@ -14,6 +15,13 @@ import type { UserRole } from "./types"
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => getSession())
+  const [rbacRevision, setRbacRevision] = useState(0)
+
+  useEffect(() => {
+    const handler = () => setRbacRevision(revision => revision + 1)
+    window.addEventListener(RBAC_UPDATED_EVENT, handler)
+    return () => window.removeEventListener(RBAC_UPDATED_EVENT, handler)
+  }, [])
 
   const login = useCallback((email: string, password: string) => {
     const session = mockLogin(email, password)
@@ -47,7 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       hasRole: (role: UserRole) => hasRole(user, role),
       hasAnyRole: (roles: readonly UserRole[]) => hasAnyRole(user, roles),
     }),
-    [user, login, logout]
+    [user, login, logout, rbacRevision]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -13,6 +13,7 @@ function getMobileTitle(pathname: string) {
   if (pathname.startsWith("/billing")) return "Billing"
   if (pathname.startsWith("/checkout")) return "Checkout"
   if (pathname.startsWith("/settings")) return "Settings"
+  if (pathname.startsWith("/users-access")) return "Users & access"
   if (pathname.startsWith("/dashboard")) return "Dashboard"
   if (pathname.includes("/onboarding")) return "Onboard Employee"
   if (pathname.match(/\/employees\/[^/]+$/)) return "Employee Details"

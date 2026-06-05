@@ -46,7 +46,6 @@ export function createOnboardingDraft(): OnboardingDraft {
       firstName: "",
       lastName: "",
       email: "",
-      phone: "",
       hireDate: new Date().toISOString().slice(0, 10),
     },
   }

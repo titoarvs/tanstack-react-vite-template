@@ -256,7 +256,7 @@ export const seedEmployees: Employee[] = [
     position: "UI Designer",
     employmentType: "regular",
     lifecycle: { hireDate: "2026-06-01" },
-    status: "active",
+    status: "onboarding",
     officeBranch: "Jakarta",
     managerId: "3",
     profileOnboardingComplete: false,

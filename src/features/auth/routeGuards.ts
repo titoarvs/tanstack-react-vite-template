@@ -20,10 +20,11 @@ import {
   hasSubscriptionFeature,
   isSubscriptionUsable,
 } from "@/features/billing/subscriptionPolicy"
-import type { SubscriptionFeature } from "@/features/billing/types"
 import { getSession, isAuthenticated } from "./authStorage"
+import type { SubscriptionFeature } from "@/features/billing/types"
+import { canManageRbac } from "./rbac/rbacPolicy"
 
-const SUBSCRIPTION_EXEMPT_PREFIXES = ["/billing", "/checkout", "/settings", "/welcome"]
+const SUBSCRIPTION_EXEMPT_PREFIXES = ["/billing", "/checkout", "/settings", "/welcome", "/join"]
 
 function getOrgSubscriptionForSession() {
   const user = getSession()
@@ -109,6 +110,20 @@ export function requireStaticModule({
   }
 }
 
+/** RBAC configuration — HRIS Super Admin only */
+export function requireRbacManage() {
+  return () => {
+    const user = getSession()
+    if (!user || !canManageRbac(user)) {
+      throw redirect({ to: "/dashboard" })
+    }
+    const subscription = getOrgSubscriptionForSession()
+    if (!hasSubscriptionFeature(subscription, "user_management")) {
+      throw redirect({ to: "/billing", search: { reason: "upgrade_required" } })
+    }
+  }
+}
+
 /** Enterprise audit trail — admin + active subscription */
 export function requireAuditLogAccess() {
   return () => {
@@ -162,7 +177,8 @@ export function requireEmployeeRecordAccess({
     throw redirect({ to: "/login" })
   }
   const { employeeId } = params
-  if (employeeId === "directory" || employeeId === "onboarding") return
+  if (employeeId === "directory" || employeeId === "onboarding" || employeeId === "pre-employment")
+    return
 
   if (canViewEmployeeRecord(user, employeeId)) return
 

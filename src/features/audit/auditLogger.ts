@@ -194,3 +194,46 @@ export function recordOnboardingCompleted(employeeId: string) {
     metadata: { employeeId },
   })
 }
+
+export function recordPreEmploymentInvited(email: string, name: string) {
+  recordAudit({
+    category: "employee",
+    action: "pre_employment.invited",
+    summary: `Sent pre-employment invite to ${name}`,
+    pathname: "/employees/pre-employment",
+    metadata: { email, name },
+  })
+}
+
+export function recordPreEmploymentSubmitted(email: string, name: string) {
+  recordAudit({
+    category: "employee",
+    action: "pre_employment.submitted",
+    summary: `${name} submitted pre-employment forms`,
+    pathname: "/join",
+    metadata: { email, name },
+  })
+}
+
+export function recordPreEmploymentApproved(email: string, name: string) {
+  recordAudit({
+    category: "employee",
+    action: "pre_employment.approved",
+    summary: `Approved pre-employment for ${name}`,
+    pathname: "/employees/pre-employment",
+    metadata: { email, name },
+  })
+}
+
+export function recordRbacUpdated(role: string, permissionCount: number) {
+  recordAudit({
+    category: "security",
+    action: "rbac.updated",
+    summary: `Updated RBAC permissions for ${role}`,
+    pathname: "/users-access",
+    metadata: {
+      role,
+      permissionCount: String(permissionCount),
+    },
+  })
+}

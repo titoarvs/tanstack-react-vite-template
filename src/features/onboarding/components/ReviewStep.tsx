@@ -2,7 +2,6 @@ import { Pencil } from "lucide-react"
 import type { ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { EmployeeAvatar } from "@/components/ui/avatar"
 import { getEmploymentTypeLabel, type EmploymentType } from "@/features/employees/types"
 import { useManagers } from "@/features/employees/hooks/useEmployees"
 import { ONBOARDING_STEPS } from "../lib/onboardingSteps"
@@ -72,12 +71,7 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
       title={step.label}
       description={step.description}
     >
-      <div className="flex flex-col items-center gap-4 rounded-xl border border-border/80 bg-accent/25 p-6 sm:flex-row sm:items-center sm:text-left">
-        <EmployeeAvatar
-          src={data.photoUrl}
-          name={fullName || "Employee"}
-          className="h-16 w-16 shrink-0 ring-2 ring-border"
-        />
+      <div className="rounded-xl border border-border/80 bg-accent/25 p-6">
         <div className="min-w-0 text-center sm:text-left">
           <p className="text-lg font-bold text-foreground">{fullName || "New employee"}</p>
           <p className="text-sm text-muted-foreground">
@@ -95,10 +89,7 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
           <ReviewRow label="Gender" value={formatGender(data.gender)} />
           <ReviewRow label="Nationality" value={data.nationality} />
           <ReviewRow label="Marital status" value={data.maritalStatus} />
-          <ReviewRow label="Email" value={data.email} />
-          <ReviewRow label="Phone" value={data.phone} />
-          <ReviewRow label="Address" value={data.address} />
-          <ReviewRow label="Province" value={data.province} />
+          <ReviewRow label="Work email" value={data.email} />
         </ReviewBlock>
 
         <ReviewBlock title="Employment" onEdit={() => onEditStep(1)}>

@@ -15,12 +15,22 @@ import { EmployeeDirectoryPage } from "../features/employees/pages/EmployeeDirec
 import { LandingPage } from "../features/marketing/pages/LandingPage"
 import { WelcomeOnboardingPage } from "../features/employee-welcome/pages/WelcomeOnboardingPage"
 import { requireWelcomeOnboardingAccess } from "../features/employee-welcome/routeGuards"
+import { JoinPortalPage } from "../features/pre-employment/pages/JoinPortalPage"
+import { JoinSubmittedPage } from "../features/pre-employment/pages/JoinSubmittedPage"
+import {
+  requireJoinPortalAccess,
+  requireJoinSubmittedAccess,
+} from "../features/pre-employment/routeGuards"
+import { PreEmploymentHubPage } from "../features/pre-employment/pages/PreEmploymentHubPage"
+import { PreEmploymentReviewPage } from "../features/pre-employment/pages/PreEmploymentReviewPage"
 import { OnboardingPage } from "../features/onboarding/pages/OnboardingPage"
 import { StaticModulePage } from "../features/placeholders/pages/StaticModulePage"
+import { UsersAccessPage } from "../features/users-access/pages/UsersAccessPage"
 import { SettingsPage } from "../features/settings/pages/SettingsPage"
 import {
   requireActiveSubscription,
   requireAuditLogAccess,
+  requireRbacManage,
   requireStaticModule,
 } from "../features/auth/routeGuards"
 import { AuditLogDetailPage } from "../features/audit/pages/AuditLogDetailPage"
@@ -62,6 +72,20 @@ export const welcomeRoute = new Route({
   path: "/welcome",
   component: WelcomeOnboardingPage,
   beforeLoad: requireWelcomeOnboardingAccess,
+})
+
+export const joinRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/join/$token",
+  component: JoinPortalPage,
+  beforeLoad: requireJoinPortalAccess,
+})
+
+export const joinSubmittedRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/join/$token/submitted",
+  component: JoinSubmittedPage,
+  beforeLoad: requireJoinSubmittedAccess,
 })
 
 export const appLayoutRoute = new Route({
@@ -121,6 +145,13 @@ export const checkoutRoute = new Route({
   }),
 })
 
+export const usersAccessRoute = new Route({
+  getParentRoute: () => appLayoutRoute,
+  path: "/users-access",
+  component: UsersAccessPage,
+  beforeLoad: requireRbacManage(),
+})
+
 export const staticModuleRoute = new Route({
   getParentRoute: () => appLayoutRoute,
   path: "/modules/$moduleId",
@@ -153,6 +184,25 @@ export const onboardingRoute = new Route({
   beforeLoad: requirePermission(PERMISSIONS.EMPLOYEES_CREATE),
 })
 
+export const preEmploymentRoute = new Route({
+  getParentRoute: () => employeesRoute,
+  path: "/pre-employment",
+})
+
+export const preEmploymentIndexRoute = new Route({
+  getParentRoute: () => preEmploymentRoute,
+  path: "/",
+  component: PreEmploymentHubPage,
+  beforeLoad: requirePermission(PERMISSIONS.EMPLOYEES_CREATE),
+})
+
+export const preEmploymentReviewRoute = new Route({
+  getParentRoute: () => preEmploymentRoute,
+  path: "/$inviteId",
+  component: PreEmploymentReviewPage,
+  beforeLoad: requirePermission(PERMISSIONS.EMPLOYEES_CREATE),
+})
+
 export const employeeDetailRoute = new Route({
   getParentRoute: () => employeesRoute,
   path: "/$employeeId",
@@ -165,17 +215,24 @@ export const routeTree = rootRoute.addChildren([
   pricingRoute,
   loginRoute,
   welcomeRoute,
+  joinRoute,
+  joinSubmittedRoute,
   appLayoutRoute.addChildren([
     dashboardRoute,
     settingsRoute,
     auditLogRoute.addChildren([auditLogIndexRoute, auditLogDetailRoute]),
     billingRoute,
     checkoutRoute,
+    usersAccessRoute,
     staticModuleRoute,
     employeesRoute.addChildren([
       employeesIndexRoute,
       directoryRoute,
       onboardingRoute,
+      preEmploymentRoute.addChildren([
+        preEmploymentIndexRoute,
+        preEmploymentReviewRoute,
+      ]),
       employeeDetailRoute,
     ]),
   ]),

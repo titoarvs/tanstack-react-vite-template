@@ -21,6 +21,10 @@ export type AuditAction =
   | "billing.reactivated"
   | "settings.theme_changed"
   | "onboarding.completed"
+  | "pre_employment.invited"
+  | "pre_employment.submitted"
+  | "pre_employment.approved"
+  | "rbac.updated"
 
 export interface AuditLogEntry {
   id: string

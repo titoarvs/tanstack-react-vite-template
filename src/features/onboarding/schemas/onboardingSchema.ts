@@ -30,10 +30,6 @@ export const personalInfoSchema = z.object({
   nationality: z.string().optional(),
   maritalStatus: z.string().optional(),
   email: z.string().email("Valid email is required"),
-  phone: z.string().min(8, "Phone must be at least 8 characters"),
-  address: z.string().optional(),
-  province: z.string().optional(),
-  photoUrl: z.string().optional(),
 })
 
 export const employmentInfoSchema = z
@@ -116,10 +112,6 @@ export const personalInfoFields = [
   "nationality",
   "maritalStatus",
   "email",
-  "phone",
-  "address",
-  "province",
-  "photoUrl",
 ] as const
 
 export const employmentInfoFields = [

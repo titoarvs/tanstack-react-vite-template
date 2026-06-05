@@ -42,6 +42,7 @@ export type LegacyEmploymentType = "full-time" | "internship" | "contract"
 
 export const EMPLOYEE_STATUSES = [
   { value: "active", label: "Active" },
+  { value: "onboarding", label: "Onboarding" },
   { value: "on_leave", label: "On Leave" },
   { value: "resigned", label: "Resigned" },
   { value: "terminated", label: "Terminated" },

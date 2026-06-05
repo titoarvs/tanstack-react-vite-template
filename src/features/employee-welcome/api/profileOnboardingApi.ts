@@ -54,6 +54,7 @@ export async function completeProfileOnboarding(
       },
       profileOnboardingComplete: true,
       profileOnboardingCompletedAt: now,
+      status: "active",
     },
     user.email
   )

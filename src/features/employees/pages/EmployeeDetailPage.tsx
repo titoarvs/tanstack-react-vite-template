@@ -31,7 +31,7 @@ import { useEmployeeProfileNav } from "../hooks/useEmployeeProfileNav"
 import { useEmployee, useEmployees } from "../hooks/useEmployees"
 import { getFullName } from "../types"
 
-const RESERVED_SEGMENTS = new Set(["directory", "onboarding"])
+const RESERVED_SEGMENTS = new Set(["directory", "onboarding", "pre-employment"])
 
 function useEmployeeIdFromRoute(): string | undefined {
   const params = useParams({ strict: false }) as { employeeId?: string }

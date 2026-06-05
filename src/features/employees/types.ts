@@ -106,6 +106,7 @@ export interface Employee {
   audit?: EmployeeAudit
   profileOnboardingComplete?: boolean
   profileOnboardingCompletedAt?: string
+  preEmploymentCompletedAt?: string
   preferredName?: string
   personalEmail?: string
   emergencyContact?: EmployeeEmergencyContact
@@ -153,6 +154,7 @@ export function getEmploymentTypeLabel(type: EmploymentType) {
 export function getEmployeeStatusLabel(status: EmployeeStatus) {
   const labels: Record<EmployeeStatus, string> = {
     active: "Active",
+    onboarding: "Onboarding",
     on_leave: "On Leave",
     resigned: "Resigned",
     terminated: "Terminated",

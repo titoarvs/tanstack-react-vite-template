@@ -110,7 +110,7 @@ export const STATIC_MODULES: Record<string, StaticModuleMeta> = {
     title: "Users & access",
     description:
       "Manage application users, roles, and invitations. Mock sign-in uses fixed demo accounts until an identity provider is wired.",
-    roles: PRIVILEGED_ADMIN_ROLES,
+    roles: ["hris_super_admin"],
   },
 }
 

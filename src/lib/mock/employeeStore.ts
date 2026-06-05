@@ -46,6 +46,7 @@ export type EmployeeUpdatePatch = {
   documents?: EmployeeDocument[]
   profileOnboardingComplete?: boolean
   profileOnboardingCompletedAt?: string
+  preEmploymentCompletedAt?: string
 }
 
 class EmployeeStore {
@@ -75,8 +76,8 @@ class EmployeeStore {
     const id = crypto.randomUUID()
     const now = new Date().toISOString()
     const employee = normalizeEmployee({
-      profileOnboardingComplete: false,
       ...input,
+      profileOnboardingComplete: input.profileOnboardingComplete ?? false,
       id,
       createdAt: now,
       updatedAt: now,

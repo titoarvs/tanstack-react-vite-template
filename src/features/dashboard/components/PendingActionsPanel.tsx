@@ -63,14 +63,22 @@ export function PendingActionsPanel({
         <CardContent className="grid gap-2">
           {isHr && (
             <Button variant="outline" asChild className="justify-start">
-              <Link to="/employees/onboarding">
+              <Link to="/employees/pre-employment">
                 <ClipboardCheck className="h-4 w-4" />
-                Onboard employee
+                Pre-employment queue
                 {onboardingInProgress > 0 && (
                   <Badge variant="secondary" className="ml-auto">
-                    {onboardingInProgress} in progress
+                    {onboardingInProgress} need attention
                   </Badge>
                 )}
+              </Link>
+            </Button>
+          )}
+          {isHr && (
+            <Button variant="outline" asChild className="justify-start">
+              <Link to="/employees/onboarding">
+                <ClipboardCheck className="h-4 w-4" />
+                Express hire
               </Link>
             </Button>
           )}
