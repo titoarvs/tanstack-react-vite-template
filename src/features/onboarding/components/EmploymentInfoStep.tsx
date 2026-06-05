@@ -1,3 +1,4 @@
+import { useEffect } from "react"
 import { useFormContext } from "react-hook-form"
 import {
   FormControl,
@@ -8,24 +9,30 @@ import {
 } from "@/components/ui/form"
 import { FormSelectField } from "@/components/ui/form-select-field"
 import { Input } from "@/components/ui/input"
-import { DEPARTMENTS, OFFICE_BRANCHES } from "@/features/employees/api/employeeApi"
+import {
+  DEPARTMENTS,
+  EMPLOYMENT_TYPES,
+  getPositionsForDepartment,
+  OFFICE_BRANCHES,
+  ORG_LEVELS,
+  WORK_LOCATIONS,
+} from "@/features/employees/api/employeeApi"
 import { useManagers } from "@/features/employees/hooks/useEmployees"
 import { ONBOARDING_STEPS } from "../lib/onboardingSteps"
 import type { OnboardingFormData } from "../schemas/onboardingSchema"
 import { OnboardingFormSection, OnboardingStepShell } from "./OnboardingStepShell"
 
-const departmentOptions = [
-  ...DEPARTMENTS.map(d => ({ value: d, label: d })),
-  { value: "Other", label: "Other" },
-]
-
-const employmentTypeOptions = [
-  { value: "full-time", label: "Full-Time" },
-  { value: "internship", label: "Internship" },
-  { value: "contract", label: "Contract" },
-]
-
+const departmentOptions = DEPARTMENTS.map(d => ({ value: d, label: d }))
+const employmentTypeOptions = EMPLOYMENT_TYPES.map(t => ({
+  value: t.value,
+  label: t.label,
+}))
 const branchOptions = OFFICE_BRANCHES.map(b => ({ value: b, label: b }))
+const orgLevelOptions = ORG_LEVELS.map(o => ({ value: o, label: o }))
+const workLocationOptions = WORK_LOCATIONS.map(w => ({
+  value: w.value,
+  label: w.label,
+}))
 const step = ONBOARDING_STEPS[1]
 
 export function EmploymentInfoStep() {
@@ -33,6 +40,18 @@ export function EmploymentInfoStep() {
   const employmentType = form.watch("employmentType")
   const department = form.watch("department")
   const managers = useManagers()
+
+  const positionOptions = getPositionsForDepartment(department).map(p => ({
+    value: p,
+    label: p,
+  }))
+
+  useEffect(() => {
+    const current = form.getValues("position")
+    if (current && !positionOptions.some(o => o.value === current)) {
+      form.setValue("position", positionOptions[0]?.value ?? "")
+    }
+  }, [department, form, positionOptions])
 
   const managerOptions = [
     { value: "", label: "No manager" },
@@ -54,38 +73,25 @@ export function EmploymentInfoStep() {
           label="Department"
           options={departmentOptions}
         />
-        {department === "Other" && (
-          <FormField
-            control={form.control}
-            name="departmentOther"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Department name</FormLabel>
-                <FormControl>
-                  <Input {...field} className="bg-card" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        <FormField
-          control={form.control}
+        <FormSelectField<OnboardingFormData>
           name="position"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Position</FormLabel>
-              <FormControl>
-                <Input {...field} className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Position"
+          options={positionOptions}
         />
         <FormSelectField<OnboardingFormData>
           name="managerId"
           label="Manager"
           options={managerOptions}
+        />
+        <FormSelectField<OnboardingFormData>
+          name="orgLevel"
+          label="Organization level"
+          options={orgLevelOptions}
+        />
+        <FormSelectField<OnboardingFormData>
+          name="workLocation"
+          label="Work location"
+          options={workLocationOptions}
         />
         <FormSelectField<OnboardingFormData>
           name="employmentType"
@@ -113,7 +119,7 @@ export function EmploymentInfoStep() {
             </FormItem>
           )}
         />
-        {employmentType === "full-time" && (
+        {(employmentType === "regular" || employmentType === "probationary") && (
           <FormField
             control={form.control}
             name="probationEndDate"

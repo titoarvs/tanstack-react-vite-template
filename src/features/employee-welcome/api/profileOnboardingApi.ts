@@ -3,12 +3,8 @@ import { employeeStore } from "@/lib/mock/employeeStore"
 import { ForbiddenError, requireSessionUser } from "@/features/auth/authErrors"
 import { needsEmployeeWelcomeOnboarding } from "../lib/profileOnboardingPolicy"
 import type { ProfileOnboardingFormData } from "../schemas/profileOnboardingSchema"
-import type { Employee, Gender } from "@/features/employees/types"
-
-function toGender(value?: string): Gender | undefined {
-  const allowed: Gender[] = ["male", "female", "other", "prefer-not-to-say"]
-  return value && allowed.includes(value as Gender) ? (value as Gender) : undefined
-}
+import { toGender } from "@/features/employees/lib/normalizeEmployee"
+import type { Employee } from "@/features/employees/types"
 
 export async function completeProfileOnboarding(
   data: ProfileOnboardingFormData
@@ -33,24 +29,34 @@ export async function completeProfileOnboarding(
         }
       : undefined
 
-  const updated = await employeeStore.updateProfile(user.employeeId, {
-    contact: {
-      phone: data.phone,
-      address: data.address?.trim() || undefined,
+  const updated = await employeeStore.updateEmployee(
+    user.employeeId,
+    {
+      contact: {
+        phone: data.phone,
+        address: data.address?.trim() || undefined,
+        province: data.province?.trim() || undefined,
+      },
+      demographics: {
+        dateOfBirth: data.dateOfBirth || undefined,
+        gender: toGender(data.gender),
+        nationality: data.nationality?.trim() || undefined,
+        maritalStatus: data.maritalStatus?.trim() || undefined,
+      },
+      preferredName: data.preferredName?.trim() || undefined,
+      personalEmail: data.personalEmail?.trim() || undefined,
+      photoUrl: data.photoUrl || undefined,
+      emergencyContact: emergency,
+      compliance: {
+        privacyConsentSigned: data.acknowledgePrivacy,
+        privacyConsentDate: data.acknowledgePrivacy ? now.slice(0, 10) : undefined,
+        dataSubjectAccessSigned: data.acknowledgePrivacy,
+      },
+      profileOnboardingComplete: true,
+      profileOnboardingCompletedAt: now,
     },
-    demographics: {
-      dateOfBirth: data.dateOfBirth || undefined,
-      gender: toGender(data.gender),
-      nationality: data.nationality?.trim() || undefined,
-      maritalStatus: data.maritalStatus?.trim() || undefined,
-    },
-    preferredName: data.preferredName?.trim() || undefined,
-    personalEmail: data.personalEmail?.trim() || undefined,
-    photoUrl: data.photoUrl || undefined,
-    emergencyContact: emergency,
-    profileOnboardingComplete: true,
-    profileOnboardingCompletedAt: now,
-  })
+    user.email
+  )
   recordOnboardingCompleted(user.employeeId)
   return updated
 }

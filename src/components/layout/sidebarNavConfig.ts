@@ -21,6 +21,12 @@ import {
   Wallet,
 } from "lucide-react"
 import { PERMISSIONS, type Permission } from "@/features/auth/permissions"
+import {
+  HR_OPS_ROLES,
+  HR_WRITE_ROLES_LIST,
+  PRIVILEGED_ADMIN_ROLES,
+  WORKSPACE_ROLES,
+} from "@/features/auth/roles"
 import type { UserRole } from "@/features/auth/types"
 
 export type SidebarNavItem = {
@@ -73,7 +79,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: Inbox,
         to: modulePath("inbox"),
         staticModuleId: "inbox",
-        roles: ["employee", "manager", "hr_admin", "admin"],
+        roles: WORKSPACE_ROLES,
         isActive: moduleActive("inbox"),
       },
     ],
@@ -101,7 +107,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: UserPlus,
         to: "/employees/onboarding",
         permission: PERMISSIONS.EMPLOYEES_CREATE,
-        roles: ["hr_admin", "admin"],
+        roles: HR_WRITE_ROLES_LIST,
         isActive: pathname => pathname.includes("/employees/onboarding"),
       },
       {
@@ -110,7 +116,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: UsersRound,
         to: modulePath("team"),
         staticModuleId: "team",
-        roles: ["manager", "hr_admin", "admin"],
+        roles: ["manager", ...HR_OPS_ROLES],
         isActive: moduleActive("team"),
       },
       {
@@ -119,7 +125,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: Briefcase,
         to: modulePath("recruitment"),
         staticModuleId: "recruitment",
-        roles: ["hr_admin", "admin"],
+        roles: HR_WRITE_ROLES_LIST,
         isActive: moduleActive("recruitment"),
       },
     ],
@@ -134,7 +140,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: Palmtree,
         to: modulePath("time-off"),
         staticModuleId: "time-off",
-        roles: ["employee", "manager", "hr_admin", "admin"],
+        roles: WORKSPACE_ROLES,
         isActive: moduleActive("time-off"),
       },
       {
@@ -143,7 +149,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: Clock,
         to: modulePath("attendance"),
         staticModuleId: "attendance",
-        roles: ["employee", "manager", "hr_admin", "admin"],
+        roles: WORKSPACE_ROLES,
         isActive: moduleActive("attendance"),
       },
       {
@@ -162,7 +168,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: CalendarClock,
         to: modulePath("leave"),
         staticModuleId: "leave",
-        roles: ["hr_admin", "admin"],
+        roles: HR_WRITE_ROLES_LIST,
         isActive: moduleActive("leave"),
       },
     ],
@@ -187,7 +193,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: Wallet,
         to: modulePath("payroll"),
         staticModuleId: "payroll",
-        roles: ["hr_admin", "admin"],
+        roles: HR_WRITE_ROLES_LIST,
         isActive: moduleActive("payroll"),
       },
       {
@@ -205,7 +211,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: BarChart3,
         to: modulePath("reports"),
         staticModuleId: "reports",
-        roles: ["manager", "hr_admin", "admin"],
+        roles: ["manager", ...HR_OPS_ROLES],
         isActive: moduleActive("reports"),
       },
     ],
@@ -220,7 +226,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: CreditCard,
         to: "/billing",
         permission: PERMISSIONS.BILLING_MANAGE,
-        roles: ["hr_admin", "admin"],
+        roles: HR_WRITE_ROLES_LIST,
         isActive: pathname => pathname.startsWith("/billing") || pathname.startsWith("/checkout"),
       },
       {
@@ -229,7 +235,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: Shield,
         to: modulePath("compliance"),
         staticModuleId: "compliance",
-        roles: ["hr_admin", "admin"],
+        roles: HR_WRITE_ROLES_LIST,
         isActive: moduleActive("compliance"),
       },
       {
@@ -238,7 +244,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: UserRound,
         to: modulePath("users"),
         staticModuleId: "users",
-        roles: ["admin"],
+        roles: PRIVILEGED_ADMIN_ROLES,
         permission: PERMISSIONS.USERS_MANAGE,
         isActive: moduleActive("users"),
       },
@@ -248,7 +254,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: ScrollText,
         to: "/audit-log",
         permission: PERMISSIONS.AUDIT_VIEW,
-        roles: ["admin"],
+        roles: PRIVILEGED_ADMIN_ROLES,
         isActive: pathname =>
           pathname === "/audit-log" || pathname.startsWith("/audit-log/"),
       },
@@ -264,7 +270,7 @@ export const sidebarSections: SidebarNavSection[] = [
         icon: HelpCircle,
         to: modulePath("help"),
         staticModuleId: "help",
-        roles: ["employee", "manager", "hr_admin", "admin"],
+        roles: WORKSPACE_ROLES,
         isActive: moduleActive("help"),
       },
       {

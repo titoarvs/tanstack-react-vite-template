@@ -3,7 +3,7 @@ import type { ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
 import { Button } from "@/components/ui/button"
 import { EmployeeAvatar } from "@/components/ui/avatar"
-import { getEmploymentTypeLabel } from "@/features/employees/types"
+import { getEmploymentTypeLabel, type EmploymentType } from "@/features/employees/types"
 import { useManagers } from "@/features/employees/hooks/useEmployees"
 import { ONBOARDING_STEPS } from "../lib/onboardingSteps"
 import type { OnboardingFormData } from "../schemas/onboardingSchema"
@@ -61,9 +61,10 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
   const data = watch()
   const managers = useManagers()
   const manager = managers.find(m => m.id === data.managerId)
-  const department =
-    data.department === "Other" ? data.departmentOther ?? "" : data.department
-  const fullName = `${data.firstName} ${data.lastName}`.trim()
+  const department = data.department
+  const fullName = [data.firstName, data.middleName, data.lastName, data.suffix]
+    .filter(Boolean)
+    .join(" ")
 
   return (
     <OnboardingStepShell
@@ -97,6 +98,7 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
           <ReviewRow label="Email" value={data.email} />
           <ReviewRow label="Phone" value={data.phone} />
           <ReviewRow label="Address" value={data.address} />
+          <ReviewRow label="Province" value={data.province} />
         </ReviewBlock>
 
         <ReviewBlock title="Employment" onEdit={() => onEditStep(1)}>
@@ -106,8 +108,13 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
             label="Manager"
             value={manager ? `${manager.firstName} ${manager.lastName}` : undefined}
           />
-          <ReviewRow label="Type" value={getEmploymentTypeLabel(data.employmentType)} />
-          <ReviewRow label="Branch" value={data.officeBranch} />
+          <ReviewRow
+            label="Type"
+            value={getEmploymentTypeLabel(data.employmentType as EmploymentType)}
+          />
+          <ReviewRow label="Org level" value={data.orgLevel} />
+          <ReviewRow label="Work location" value={data.workLocation} />
+          <ReviewRow label="Office branch" value={data.officeBranch} />
           <ReviewRow label="Hire date" value={data.hireDate} />
           <ReviewRow label="Probation end" value={data.probationEndDate} />
           <ReviewRow label="Contract start" value={data.contractStartDate} />

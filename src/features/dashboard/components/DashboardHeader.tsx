@@ -57,7 +57,8 @@ export function DashboardHeader({ user, variant, can }: DashboardHeaderProps) {
             </Link>
           </Button>
         )}
-        {variant === "admin" && can(PERMISSIONS.USERS_MANAGE) && (
+        {(variant === "hris_super_admin" || variant === "system_admin") &&
+          can(PERMISSIONS.USERS_MANAGE) && (
           <Button asChild variant="outline">
             <Link to="/settings">
               <Settings className="h-4 w-4" />

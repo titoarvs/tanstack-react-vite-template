@@ -1,7 +1,13 @@
 /**
- * Application user roles. Extend this union when adding new role types.
+ * Application user roles aligned with EDM RBAC matrix.
  */
-export type UserRole = "employee" | "manager" | "hr_admin" | "admin"
+export type UserRole =
+  | "system_admin"
+  | "hris_super_admin"
+  | "hris_admin"
+  | "hrbp"
+  | "manager"
+  | "employee"
 
 /**
  * Signed-in application user (distinct from HR `Employee` records).

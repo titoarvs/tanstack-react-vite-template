@@ -9,18 +9,23 @@ import {
   getDefaultProfileTab,
   getVisibleProfileTabs,
 } from "@/features/auth/accessPolicy"
+import { canViewPayrollHistory } from "@/features/employees/edm/fieldPolicy"
 import { canViewEmployeeDirectory } from "@/features/auth/permissions"
 import { useAuth } from "@/features/auth/useAuth"
 import { PageContent } from "@/components/layout/PageContent"
 import { Tabs, TabsContent } from "@/components/ui/tabs"
-import { EmployeeJobTab } from "../components/detail/EmployeeJobTab"
-import { EmployeePayInfoTab } from "../components/detail/EmployeePayInfoTab"
-import { EmployeePerformanceTab } from "../components/detail/EmployeePerformanceTab"
-import { EmployeePersonalTab } from "../components/detail/EmployeePersonalTab"
+import { EdmAccessTab } from "../components/detail/edm/EdmAccessTab"
+import { EdmCompensationTab } from "../components/detail/edm/EdmCompensationTab"
+import { EdmComplianceTab } from "../components/detail/edm/EdmComplianceTab"
+import { EdmDocumentsTab } from "../components/detail/edm/EdmDocumentsTab"
+import { EdmEmploymentTab } from "../components/detail/edm/EdmEmploymentTab"
+import { EdmGovernmentTab } from "../components/detail/edm/EdmGovernmentTab"
+import { EdmPersonalTab } from "../components/detail/edm/EdmPersonalTab"
 import type { ProfileTabValue } from "../components/detail/EmployeeProfileHeader"
 import { EmployeeProfileHero } from "../components/detail/EmployeeProfileHero"
 import { EmployeeProfileToolbar } from "../components/detail/EmployeeProfileToolbar"
 import { ProfileAccessDenied } from "../components/detail/ProfileAccessDenied"
+import { EmployeePerformanceTab } from "../components/detail/EmployeePerformanceTab"
 import { EmployeeTimeOffTab } from "../components/detail/EmployeeTimeOffTab"
 import {
   countDirectReports,
@@ -104,8 +109,11 @@ export function EmployeeDetailPage() {
     }
   }, [employee, user, visibleTabs, activeTab])
 
-  const canViewPay = employee
-    ? canViewProfileTab(user, employee.id, "pay-info", employee)
+  const canViewCompensation = employee
+    ? canViewProfileTab(user, employee.id, "compensation", employee)
+    : false
+  const canViewPayroll = employee
+    ? canViewPayrollHistory(user, employee.id, employee)
     : false
   const canViewPerformance = employee
     ? canViewProfileTab(user, employee.id, "performance", employee)
@@ -113,7 +121,7 @@ export function EmployeeDetailPage() {
 
   let pay: ReturnType<typeof fetchEmployeePayInsights> | null = null
   let payError = false
-  if (employee && canViewPay) {
+  if (employee && canViewPayroll) {
     try {
       pay = fetchEmployeePayInsights(employee.id, employee)
     } catch {
@@ -190,45 +198,69 @@ export function EmployeeDetailPage() {
             nav={nav}
             visibleTabs={visibleTabs}
             showSelfService={showSelfService}
-            showPayPeriod={canViewPay}
+            showPayPeriod={canViewPayroll}
             periodEndLabel={pay?.periodEndLabel ?? "—"}
           />
 
           <div className="min-w-0 pb-8">
             <TabsContent value="personal" className="mt-0 outline-none">
               {canViewProfileTab(user, employee.id, "personal", employee) ? (
-                <EmployeePersonalTab
-                  personal={{
-                    employeeId: employee.employeeId,
-                    dateOfBirth: employee.demographics.dateOfBirth,
-                    gender: employee.demographics.gender,
-                    nationality: employee.demographics.nationality,
-                    maritalStatus: employee.demographics.maritalStatus,
-                    email: employee.contact.email,
-                    phone: employee.contact.phone,
-                    address: employee.contact.address,
-                  }}
-                />
+                <EdmPersonalTab employee={employee} />
               ) : (
                 <ProfileAccessDenied />
               )}
             </TabsContent>
 
-            <TabsContent value="job" className="mt-0 outline-none">
-              {canViewProfileTab(user, employee.id, "job", employee) ? (
-                <EmployeeJobTab
-                  employment={{
-                    department: employee.department,
-                    position: employee.position,
-                    managerName: manager ? getFullName(manager) : undefined,
-                    officeBranch: employee.officeBranch,
-                    hireDate: employee.lifecycle.hireDate,
-                    probationEndDate: employee.lifecycle.probationEndDate,
-                    contractStartDate: employee.lifecycle.contractStartDate,
-                    contractEndDate: employee.lifecycle.contractEndDate,
-                    status: employee.status,
-                  }}
+            <TabsContent value="employment" className="mt-0 outline-none">
+              {canViewProfileTab(user, employee.id, "employment", employee) ? (
+                <EdmEmploymentTab employee={employee} manager={manager} />
+              ) : (
+                <ProfileAccessDenied />
+              )}
+            </TabsContent>
+
+            <TabsContent value="compensation" className="mt-0 outline-none">
+              {canViewCompensation ? (
+                <EdmCompensationTab
+                  employee={employee}
+                  pay={payError ? null : pay}
+                  showPayrollHistory={canViewPayroll && !payError}
                 />
+              ) : (
+                <ProfileAccessDenied
+                  title="Compensation restricted"
+                  description="Compensation details are only available on your own profile or with HR administrator access."
+                />
+              )}
+            </TabsContent>
+
+            <TabsContent value="government" className="mt-0 outline-none">
+              {canViewProfileTab(user, employee.id, "government", employee) ? (
+                <EdmGovernmentTab employee={employee} />
+              ) : (
+                <ProfileAccessDenied />
+              )}
+            </TabsContent>
+
+            <TabsContent value="documents" className="mt-0 outline-none">
+              {canViewProfileTab(user, employee.id, "documents", employee) ? (
+                <EdmDocumentsTab employee={employee} />
+              ) : (
+                <ProfileAccessDenied />
+              )}
+            </TabsContent>
+
+            <TabsContent value="compliance" className="mt-0 outline-none">
+              {canViewProfileTab(user, employee.id, "compliance", employee) ? (
+                <EdmComplianceTab employee={employee} />
+              ) : (
+                <ProfileAccessDenied />
+              )}
+            </TabsContent>
+
+            <TabsContent value="access" className="mt-0 outline-none">
+              {canViewProfileTab(user, employee.id, "access", employee) ? (
+                <EdmAccessTab employee={employee} />
               ) : (
                 <ProfileAccessDenied />
               )}
@@ -239,17 +271,6 @@ export function EmployeeDetailPage() {
                 <EmployeeTimeOffTab insights={insights} />
               ) : (
                 <ProfileAccessDenied />
-              )}
-            </TabsContent>
-
-            <TabsContent value="pay-info" className="mt-0 outline-none">
-              {canViewPay && pay && !payError ? (
-                <EmployeePayInfoTab pay={pay} />
-              ) : (
-                <ProfileAccessDenied
-                  title="Pay information restricted"
-                  description="Pay details are only available on your own profile, for your direct reports (managers), or with HR administrator access."
-                />
               )}
             </TabsContent>
 

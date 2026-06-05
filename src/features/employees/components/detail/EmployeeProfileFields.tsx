@@ -9,10 +9,12 @@ export function ProfileField({
   label,
   value,
   className,
+  suffix,
 }: {
   label: string
   value?: string
   className?: string
+  suffix?: ReactNode
 }) {
   return (
     <div
@@ -23,6 +25,7 @@ export function ProfileField({
     >
       <dt className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
         {label}
+        {suffix}
       </dt>
       <dd
         className={cn(

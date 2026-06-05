@@ -24,17 +24,37 @@ function demoUser(
   return { id, email, name, role, employeeId, ...DEMO_ORG }
 }
 
-/** Known demo accounts — one per role for testing RBAC */
+/** Known demo accounts — one per EDM role for testing RBAC */
 export const DEMO_ACCOUNTS: DemoAccount[] = [
   {
-    email: "admin@titohris.com",
+    email: "superadmin@titohris.com",
     password: DEMO_PASSWORD,
-    user: demoUser("user-admin", "admin@titohris.com", "Angeline Nathania", "admin"),
+    user: demoUser(
+      "user-superadmin",
+      "superadmin@titohris.com",
+      "Angeline Nathania",
+      "hris_super_admin"
+    ),
   },
   {
     email: "hr@titohris.com",
     password: DEMO_PASSWORD,
-    user: demoUser("user-hr", "hr@titohris.com", "Dorothy Chou", "hr_admin", "3"),
+    user: demoUser("user-hr", "hr@titohris.com", "Dorothy Chou", "hris_admin", "3"),
+  },
+  {
+    email: "hrbp@titohris.com",
+    password: DEMO_PASSWORD,
+    user: demoUser("user-hrbp", "hrbp@titohris.com", "Carlos Mendoza", "hrbp", "3"),
+  },
+  {
+    email: "sysadmin@titohris.com",
+    password: DEMO_PASSWORD,
+    user: demoUser(
+      "user-sysadmin",
+      "sysadmin@titohris.com",
+      "IT Systems Admin",
+      "system_admin"
+    ),
   },
   {
     email: "manager@titohris.com",
@@ -63,6 +83,17 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
       "11"
     ),
   },
+  /** Legacy alias — maps to HRIS SuperAdmin */
+  {
+    email: "admin@titohris.com",
+    password: DEMO_PASSWORD,
+    user: demoUser(
+      "user-admin",
+      "admin@titohris.com",
+      "Angeline Nathania",
+      "hris_super_admin"
+    ),
+  },
 ]
 
 /** Default account shown on login form */
@@ -79,10 +110,6 @@ export function findDemoAccount(email: string, password: string): AuthUser | nul
   return match ? { ...match.user, email: normalizedEmail } : null
 }
 
-/**
- * Fallback login for any email/password (min 4 chars) — assigns employee role.
- * Useful for quick demos without memorizing accounts.
- */
 export function mockAdHocUser(email: string): AuthUser {
   const normalizedEmail = email.trim().toLowerCase()
   const localPart = normalizedEmail.split("@")[0] ?? "user"
@@ -96,5 +123,6 @@ export function mockAdHocUser(email: string): AuthUser {
     email: normalizedEmail,
     name: name || "TitoHRIS User",
     role: "employee",
+    ...DEMO_ORG,
   }
 }

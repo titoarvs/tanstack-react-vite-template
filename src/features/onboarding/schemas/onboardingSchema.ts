@@ -1,9 +1,30 @@
 import { z } from "zod"
+import {
+  DEPARTMENTS,
+  EMPLOYMENT_TYPES,
+  OFFICE_BRANCHES,
+  ORG_LEVELS,
+  WORK_LOCATIONS,
+} from "@/features/employees/data/masterData"
+
+const departmentValues = DEPARTMENTS as unknown as [string, ...string[]]
+const employmentTypeValues = EMPLOYMENT_TYPES.map(t => t.value) as [
+  string,
+  ...string[],
+]
+const officeValues = OFFICE_BRANCHES as unknown as [string, ...string[]]
+const workLocationValues = WORK_LOCATIONS.map(w => w.value) as [
+  string,
+  ...string[],
+]
+const orgLevelValues = ORG_LEVELS as unknown as [string, ...string[]]
 
 export const personalInfoSchema = z.object({
   employeeId: z.string().min(1, "Employee ID is required"),
   firstName: z.string().min(1, "First name is required"),
+  middleName: z.string().optional(),
   lastName: z.string().min(1, "Last name is required"),
+  suffix: z.string().optional(),
   dateOfBirth: z.string().optional(),
   gender: z.string().optional(),
   nationality: z.string().optional(),
@@ -11,30 +32,25 @@ export const personalInfoSchema = z.object({
   email: z.string().email("Valid email is required"),
   phone: z.string().min(8, "Phone must be at least 8 characters"),
   address: z.string().optional(),
+  province: z.string().optional(),
   photoUrl: z.string().optional(),
 })
 
 export const employmentInfoSchema = z
   .object({
-    department: z.string().min(1, "Department is required"),
-    departmentOther: z.string().optional(),
+    department: z.enum(departmentValues),
     position: z.string().min(1, "Position is required"),
     managerId: z.string().optional(),
-    employmentType: z.enum(["full-time", "internship", "contract"]),
+    orgLevel: z.enum(orgLevelValues).optional(),
+    workLocation: z.enum(workLocationValues).optional(),
+    employmentType: z.enum(employmentTypeValues),
     hireDate: z.string().min(1, "Hire date is required"),
     probationEndDate: z.string().optional(),
     contractStartDate: z.string().optional(),
     contractEndDate: z.string().optional(),
-    officeBranch: z.string().min(1, "Office branch is required"),
+    officeBranch: z.enum(officeValues),
   })
   .superRefine((data, ctx) => {
-    if (data.department === "Other" && !data.departmentOther?.trim()) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "Please specify department",
-        path: ["departmentOther"],
-      })
-    }
     if (data.employmentType === "contract" || data.employmentType === "internship") {
       if (!data.contractStartDate) {
         ctx.addIssue({
@@ -74,7 +90,6 @@ export const employmentInfoSchema = z
     }
   })
 
-/** Full onboarding form validated on submit via zodResolver */
 export const onboardingSchema = personalInfoSchema.and(employmentInfoSchema)
 
 export type PersonalInfoForm = z.infer<typeof personalInfoSchema>
@@ -82,17 +97,20 @@ export type EmploymentInfoForm = z.infer<typeof employmentInfoSchema>
 export type OnboardingFormData = z.infer<typeof onboardingSchema>
 
 export const onboardingDefaults: Partial<OnboardingFormData> = {
-  employmentType: "full-time",
+  employmentType: "regular",
   gender: undefined,
   managerId: "",
   department: "Engineering",
   officeBranch: "Jakarta",
+  workLocation: "office",
 }
 
 export const personalInfoFields = [
   "employeeId",
   "firstName",
+  "middleName",
   "lastName",
+  "suffix",
   "dateOfBirth",
   "gender",
   "nationality",
@@ -100,14 +118,16 @@ export const personalInfoFields = [
   "email",
   "phone",
   "address",
+  "province",
   "photoUrl",
 ] as const
 
 export const employmentInfoFields = [
   "department",
-  "departmentOther",
   "position",
   "managerId",
+  "orgLevel",
+  "workLocation",
   "employmentType",
   "hireDate",
   "probationEndDate",

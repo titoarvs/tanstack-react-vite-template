@@ -6,8 +6,10 @@ import type { UserRole } from "../types"
 const ROLE_VARIANT: Record<UserRole, string> = {
   employee: "border-border bg-muted text-muted-foreground",
   manager: "border-transparent bg-secondary text-secondary-foreground",
-  hr_admin: "border-transparent bg-accent text-accent-foreground",
-  admin: "border-transparent bg-primary text-primary-foreground",
+  hrbp: "border-transparent bg-accent/80 text-accent-foreground",
+  hris_admin: "border-transparent bg-accent text-accent-foreground",
+  hris_super_admin: "border-transparent bg-primary text-primary-foreground",
+  system_admin: "border-transparent bg-muted-foreground/20 text-foreground",
 }
 
 interface RoleBadgeProps {

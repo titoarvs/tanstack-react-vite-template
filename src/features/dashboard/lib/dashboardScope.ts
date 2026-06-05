@@ -2,11 +2,7 @@ import {
   filterEmployeesForUser,
   isDirectReport,
 } from "@/features/auth/accessPolicy"
-import {
-  canViewEmployeeDirectory,
-  PERMISSIONS,
-  can,
-} from "@/features/auth/permissions"
+import { isHrWriteRole, canViewEmployeeDirectory } from "@/features/auth/permissions"
 import type { AuthUser } from "@/features/auth/types"
 import type { UserRole } from "@/features/auth/types"
 import type { Employee } from "@/features/employees/types"
@@ -24,16 +20,29 @@ export function getDashboardVariant(
   return user?.role ?? "employee"
 }
 
+export function isHrDashboardRole(role: UserRole): boolean {
+  return (
+    role === "hris_admin" ||
+    role === "hris_super_admin" ||
+    role === "hrbp" ||
+    role === "system_admin"
+  )
+}
+
 export function getDashboardTitle(variant: DashboardVariant): string {
   switch (variant) {
     case "employee":
       return "My workspace"
     case "manager":
       return "Team overview"
-    case "hr_admin":
+    case "hrbp":
+      return "HRBP dashboard"
+    case "hris_admin":
       return "HR dashboard"
-    case "admin":
-      return "Admin dashboard"
+    case "hris_super_admin":
+      return "HRIS SuperAdmin dashboard"
+    case "system_admin":
+      return "System admin dashboard"
     default:
       return "Dashboard"
   }
@@ -45,10 +54,14 @@ export function getDashboardSubtitle(variant: DashboardVariant): string {
       return "Your employment at a glance"
     case "manager":
       return "Monitor your direct reports and team activity"
-    case "hr_admin":
+    case "hrbp":
+      return "Workforce insights for your business units"
+    case "hris_admin":
       return "Workforce metrics and people operations"
-    case "admin":
+    case "hris_super_admin":
       return "Full workspace access and system overview"
+    case "system_admin":
+      return "IT operations and access governance"
     default:
       return "Your workspace overview"
   }
@@ -106,14 +119,17 @@ export function getWelcomeBannerMessage(
             : `You have ${n} direct reports on your team.`
       return `${team} Review attendance, leave, and updates below.`
     }
-    case "hr_admin": {
+    case "hrbp":
+    case "hris_admin": {
       const n = ctx.orgCount
       return n != null && n > 0
         ? `Tracking ${n} employee${n === 1 ? "" : "s"} across the organization. People ops at a glance.`
         : "People operations and workforce metrics at a glance."
     }
-    case "admin":
+    case "hris_super_admin":
       return "You have full access to HRIS settings, users, and organization data."
+    case "system_admin":
+      return "Monitor system access provisioning and workspace governance."
     default:
       return "Here's your workspace for today."
   }
@@ -157,7 +173,7 @@ export function filterPendingLeaveForUser(
   employees: Employee[]
 ): PendingLeaveRequest[] {
   if (!user) return []
-  if (can(user, PERMISSIONS.EMPLOYEES_CREATE)) return requests
+  if (isHrWriteRole(user.role)) return requests
 
   if (user.role === "manager") {
     const teamNames = new Set(
@@ -179,7 +195,7 @@ export function filterActivitiesForUser(
 ): DashboardActivity[] {
   if (!user) return []
 
-  if (can(user, PERMISSIONS.EMPLOYEES_CREATE)) return activities
+  if (isHrWriteRole(user.role)) return activities
 
   if (user.role === "manager") {
     const needles = new Set(

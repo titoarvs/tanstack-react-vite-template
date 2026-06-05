@@ -6,6 +6,7 @@ import { EmployeeDashboardView } from "../components/EmployeeDashboardView"
 import { HrDashboardView } from "../components/HrDashboardView"
 import { ManagerDashboardView } from "../components/ManagerDashboardView"
 import { useDashboardData } from "../hooks/useDashboardData"
+import { isHrDashboardRole } from "../lib/dashboardScope"
 
 function DashboardSkeleton() {
   return (
@@ -31,10 +32,9 @@ export function DashboardPage() {
   const { variant, isLoading, isError, teamReports, metrics, selfEmployee } =
     data
 
-  const orgCount =
-    variant === "hr_admin" || variant === "admin"
-      ? metrics.totalEmployees
-      : undefined
+  const orgCount = isHrDashboardRole(variant)
+    ? metrics.totalEmployees
+    : undefined
 
   return (
     <PageContent>
@@ -59,9 +59,7 @@ export function DashboardPage() {
         <>
           {variant === "employee" && <EmployeeDashboardView data={data} />}
           {variant === "manager" && <ManagerDashboardView data={data} />}
-          {(variant === "hr_admin" || variant === "admin") && (
-            <HrDashboardView data={data} />
-          )}
+          {isHrDashboardRole(variant) && <HrDashboardView data={data} />}
         </>
       )}
     </PageContent>

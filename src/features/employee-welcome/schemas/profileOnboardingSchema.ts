@@ -4,6 +4,7 @@ import { z } from "zod"
 export const contactStepSchema = z.object({
   phone: z.string().min(8, "Phone must be at least 8 characters"),
   address: z.string().optional(),
+  province: z.string().optional(),
   dateOfBirth: z.string().optional(),
   gender: z.string().optional(),
   nationality: z.string().optional(),

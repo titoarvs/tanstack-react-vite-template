@@ -1,7 +1,5 @@
-import { RefreshCw, Upload } from "lucide-react"
+import { Upload } from "lucide-react"
 import { useFormContext } from "react-hook-form"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
 import {
   FormControl,
   FormField,
@@ -15,8 +13,10 @@ import { EmployeeAvatar } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 import { ONBOARDING_STEPS } from "../lib/onboardingSteps"
 import type { OnboardingFormData } from "../schemas/onboardingSchema"
-import { useOnboardingWizardContext } from "../context/OnboardingWizardContext"
-import { OnboardingFormSection, OnboardingStepShell } from "./OnboardingStepShell"
+import {
+  OnboardingFormSection,
+  OnboardingStepShell,
+} from "./OnboardingStepShell"
 
 const genderOptions = [
   { value: "", label: "Select gender" },
@@ -38,10 +38,10 @@ const MAX_PHOTO_BYTES = 2 * 1024 * 1024
 const step = ONBOARDING_STEPS[0]
 
 export function PersonalInfoStep() {
-  const { regenerateEmployeeId, isRegeneratingId } = useOnboardingWizardContext()
   const form = useFormContext<OnboardingFormData>()
   const photoUrl = form.watch("photoUrl")
-  const fullName = `${form.watch("firstName")} ${form.watch("lastName")}`.trim() || "Employee"
+  const fullName =
+    `${form.watch("firstName")} ${form.watch("lastName")}`.trim() || "Employee"
   const photoError = form.formState.errors.photoUrl?.message
 
   const handlePhoto = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -57,7 +57,9 @@ export function PersonalInfoStep() {
     }
     const reader = new FileReader()
     reader.onload = () => {
-      form.setValue("photoUrl", reader.result as string, { shouldValidate: true })
+      form.setValue("photoUrl", reader.result as string, {
+        shouldValidate: true,
+      })
       form.clearErrors("photoUrl")
     }
     reader.readAsDataURL(file)
@@ -74,39 +76,11 @@ export function PersonalInfoStep() {
           control={form.control}
           name="employeeId"
           render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <FormLabel>Employee ID</FormLabel>
-                <Badge variant="secondary" className="text-[10px] font-normal">
-                  Auto-generated
-                </Badge>
-              </div>
-              <div className="flex gap-2">
-                <FormControl>
-                  <Input
-                    {...field}
-                    readOnly
-                    className="bg-muted/30 font-mono text-sm"
-                    aria-readonly
-                  />
-                </FormControl>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  className="shrink-0"
-                  disabled={isRegeneratingId}
-                  onClick={regenerateEmployeeId}
-                  aria-label="Generate new employee ID"
-                >
-                  <RefreshCw
-                    className={cn("h-4 w-4", isRegeneratingId && "animate-spin")}
-                  />
-                </Button>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Reserved for this draft until the employee is created in the directory.
-              </p>
+            <FormItem>
+              <FormLabel>Employee ID</FormLabel>
+              <FormControl>
+                <Input {...field} className="bg-card" />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
@@ -127,12 +101,38 @@ export function PersonalInfoStep() {
         />
         <FormField
           control={form.control}
+          name="middleName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Middle name</FormLabel>
+              <FormControl>
+                <Input {...field} className="bg-card" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
           name="lastName"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Last name</FormLabel>
               <FormControl>
                 <Input {...field} className="bg-card" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="suffix"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Suffix</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Jr., III" className="bg-card" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -216,6 +216,19 @@ export function PersonalInfoStep() {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="province"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Province</FormLabel>
+              <FormControl>
+                <Input {...field} className="bg-card" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </OnboardingFormSection>
 
       <section className="rounded-xl border border-border/80 bg-muted/20 p-4 sm:p-5">
@@ -223,7 +236,11 @@ export function PersonalInfoStep() {
           Profile photo
         </h3>
         <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
-          <EmployeeAvatar src={photoUrl} name={fullName} className="h-20 w-20 shrink-0 ring-2 ring-border" />
+          <EmployeeAvatar
+            src={photoUrl}
+            name={fullName}
+            className="h-20 w-20 shrink-0 ring-2 ring-border"
+          />
           <label
             className={cn(
               "flex min-h-[7rem] w-full flex-1 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-4 py-6 text-center transition-colors",
@@ -236,7 +253,9 @@ export function PersonalInfoStep() {
             <span className="text-sm font-medium text-foreground">
               Click to upload or drag a photo
             </span>
-            <span className="mt-1 text-xs text-muted-foreground">PNG or JPG, max 2MB</span>
+            <span className="mt-1 text-xs text-muted-foreground">
+              PNG or JPG, max 2MB
+            </span>
             <Input
               type="file"
               accept="image/*"

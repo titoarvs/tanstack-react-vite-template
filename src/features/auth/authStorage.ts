@@ -8,10 +8,15 @@ const STORAGE_KEY = "titohris-auth-session"
 export { DEMO_CREDENTIALS } from "./mockUsers"
 
 const LEGACY_ROLE_MAP: Record<string, AuthUser["role"]> = {
-  "people development": "admin",
-  administrator: "admin",
-  admin: "admin",
-  "hr admin": "hr_admin",
+  "people development": "hris_super_admin",
+  administrator: "hris_super_admin",
+  admin: "hris_super_admin",
+  hris_super_admin: "hris_super_admin",
+  "hr admin": "hris_admin",
+  hr_admin: "hris_admin",
+  hris_admin: "hris_admin",
+  hrbp: "hrbp",
+  system_admin: "system_admin",
   "team member": "employee",
   employee: "employee",
   manager: "manager",

@@ -75,11 +75,14 @@ export const employmentChartColors: Record<string, string> = {
   contract: chartColors.dullGreen,
 }
 
-export function getEmploymentChartColors() {
+export function getEmploymentChartColors(): Record<string, string> {
   const colors = getChartColors()
   return {
-    "full-time": colors.dullBlue,
-    internship: colors.green,
+    regular: colors.dullBlue,
+    probationary: colors.blue,
+    consultant: colors.darkGreen,
     contract: colors.dullGreen,
+    internship: colors.green,
+    "full-time": colors.dullBlue,
   }
 }

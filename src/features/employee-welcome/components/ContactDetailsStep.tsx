@@ -69,6 +69,19 @@ export function ContactDetailsStep() {
             </FormItem>
           )}
         />
+        <FormField
+          control={form.control}
+          name="province"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Province</FormLabel>
+              <FormControl>
+                <Input {...field} placeholder="Optional" className="bg-card" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </OnboardingFormSection>
 
       <OnboardingFormSection title="Personal (optional)">

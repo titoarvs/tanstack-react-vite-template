@@ -1,4 +1,5 @@
 import type { Employee, EmploymentType } from "@/features/employees/types"
+import { getEmploymentTypeLabel } from "@/features/employees/types"
 
 export interface DashboardMetrics {
   totalEmployees: number
@@ -9,11 +10,13 @@ export interface DashboardMetrics {
   employmentTypeCounts: { type: EmploymentType; count: number; label: string }[]
 }
 
-const employmentLabels: Record<EmploymentType, string> = {
-  "full-time": "Full-Time",
-  internship: "Internship",
-  contract: "Contract",
-}
+const trackedTypes: EmploymentType[] = [
+  "regular",
+  "probationary",
+  "consultant",
+  "contract",
+  "internship",
+]
 
 export function computeDashboardMetrics(employees: Employee[]): DashboardMetrics {
   const now = new Date()
@@ -49,13 +52,11 @@ export function computeDashboardMetrics(employees: Employee[]): DashboardMetrics
     .map(([department, count]) => ({ department, count }))
     .sort((a, b) => b.count - a.count)
 
-  const employmentTypeCounts = (["full-time", "internship", "contract"] as const).map(
-    type => ({
-      type,
-      count: typeMap.get(type) ?? 0,
-      label: employmentLabels[type],
-    })
-  )
+  const employmentTypeCounts = trackedTypes.map(type => ({
+    type,
+    count: typeMap.get(type) ?? 0,
+    label: getEmploymentTypeLabel(type),
+  }))
 
   return {
     totalEmployees: employees.length,
