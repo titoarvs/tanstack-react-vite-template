@@ -35,3 +35,79 @@ export function getPostLoginPath(
   if (needsEmployeeWelcomeOnboarding(user)) return "/welcome"
   return "/dashboard"
 }
+
+/** Typed navigate target for TanStack Router (avoids `to: string` param errors). */
+export type PostLoginNavigateTarget =
+  | { to: "/welcome" }
+  | { to: "/dashboard" }
+  | { to: "/settings" }
+  | { to: "/billing" }
+  | { to: "/users-access" }
+  | { to: "/audit-log" }
+  | { to: "/employees/directory" }
+  | { to: "/employees/onboarding" }
+  | { to: "/employees/pre-employment" }
+  | { to: "/employees/pre-employment/$inviteId"; params: { inviteId: string } }
+  | { to: "/employees/$employeeId"; params: { employeeId: string } }
+  | { to: "/modules/$moduleId"; params: { moduleId: string } }
+  | { to: "/audit-log/$entryId"; params: { entryId: string } }
+
+function parseAppNavigateTarget(path: string): PostLoginNavigateTarget {
+  switch (path) {
+    case "/welcome":
+      return { to: "/welcome" }
+    case "/dashboard":
+      return { to: "/dashboard" }
+    case "/settings":
+      return { to: "/settings" }
+    case "/billing":
+      return { to: "/billing" }
+    case "/users-access":
+      return { to: "/users-access" }
+    case "/audit-log":
+      return { to: "/audit-log" }
+    case "/employees/directory":
+      return { to: "/employees/directory" }
+    case "/employees/onboarding":
+      return { to: "/employees/onboarding" }
+    case "/employees/pre-employment":
+      return { to: "/employees/pre-employment" }
+    default:
+      break
+  }
+
+  const preEmploymentReview = /^\/employees\/pre-employment\/([^/]+)$/.exec(path)
+  if (preEmploymentReview) {
+    return {
+      to: "/employees/pre-employment/$inviteId",
+      params: { inviteId: preEmploymentReview[1] },
+    }
+  }
+
+  const moduleMatch = /^\/modules\/([^/]+)$/.exec(path)
+  if (moduleMatch) {
+    return { to: "/modules/$moduleId", params: { moduleId: moduleMatch[1] } }
+  }
+
+  const auditEntry = /^\/audit-log\/([^/]+)$/.exec(path)
+  if (auditEntry) {
+    return { to: "/audit-log/$entryId", params: { entryId: auditEntry[1] } }
+  }
+
+  const employeeMatch = /^\/employees\/([^/]+)$/.exec(path)
+  if (employeeMatch) {
+    return {
+      to: "/employees/$employeeId",
+      params: { employeeId: employeeMatch[1] },
+    }
+  }
+
+  return { to: "/dashboard" }
+}
+
+export function resolvePostLoginNavigation(
+  user: AuthUser | null | undefined,
+  redirect?: string
+): PostLoginNavigateTarget {
+  return parseAppNavigateTarget(getPostLoginPath(user, redirect))
+}

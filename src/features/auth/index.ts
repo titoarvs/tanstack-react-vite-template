@@ -23,7 +23,7 @@ export {
   isDirectReport,
 } from "./accessPolicy"
 export { ForbiddenError, requireSessionPermission, requireSessionUser } from "./authErrors"
-export { DEMO_ACCOUNTS, DEMO_CREDENTIALS, findDemoAccount } from "./mockUsers"
+export { DEMO_ACCOUNTS, DEMO_CREDENTIALS, DEMO_PICKER_ENTRIES, findDemoAccount } from "./mockUsers"
 export { AuthProvider } from "./AuthProvider"
 export { useAuth } from "./useAuth"
 export { RoleBadge } from "./components/RoleBadge"

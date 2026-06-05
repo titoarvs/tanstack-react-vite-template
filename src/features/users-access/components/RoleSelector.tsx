@@ -37,7 +37,7 @@ function RoleButton({
       onClick={() => onSelect(role)}
       aria-current={selected ? "true" : undefined}
       className={cn(
-        "flex w-full items-center justify-between gap-2 rounded-lg border text-left text-sm transition-colors",
+        "relative z-10 flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border text-left text-sm transition-colors",
         layout === "mobile" && "shrink-0 px-3 py-2.5",
         layout === "desktop" && "px-3 py-2.5",
         selected
@@ -87,11 +87,11 @@ export function RoleSelector({ roles, selectedRole, onSelect }: RoleSelectorProp
         </div>
       </div>
 
-      <nav aria-label="Application roles" className="hidden lg:block">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+      <nav aria-label="Application roles" className="hidden min-h-0 lg:flex lg:flex-1 lg:flex-col">
+        <p className="mb-3 shrink-0 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
           Roles
         </p>
-        <div className="sticky top-6 space-y-1.5">
+        <div className="scroll-area min-h-0 flex-1 space-y-1.5 overflow-y-auto overscroll-contain pr-1">
           {roles.map(role => (
             <RoleButton
               key={role}

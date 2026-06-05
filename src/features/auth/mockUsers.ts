@@ -1,10 +1,22 @@
 import type { AuthUser } from "./types"
 import type { UserRole } from "./types"
+import { getRoleLabel, ROLE_DESCRIPTIONS, ROLE_RANK } from "./roles"
 
 export interface DemoAccount {
   email: string
   password: string
   user: AuthUser
+}
+
+/** Curated login picker — one entry per demo scenario (avoids duplicate role buttons). */
+export interface DemoPickerEntry {
+  id: string
+  email: string
+  password: string
+  role: UserRole
+  name: string
+  label: string
+  description: string
 }
 
 const DEMO_PASSWORD = "titohris"
@@ -95,6 +107,41 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     ),
   },
 ]
+
+const PICKER_SCENARIO_OVERRIDES: Partial<
+  Record<string, Pick<DemoPickerEntry, "label" | "description">>
+> = {
+  "newhire@titohris.com": {
+    label: "New hire",
+    description: "Employee with welcome onboarding still pending",
+  },
+}
+
+export const DEMO_PICKER_ENTRIES: DemoPickerEntry[] = DEMO_ACCOUNTS.filter(
+  account => account.email !== "admin@titohris.com"
+)
+  .map(account => {
+    const override = PICKER_SCENARIO_OVERRIDES[account.email]
+    const role = account.user.role
+
+    return {
+      id: account.user.id,
+      email: account.email,
+      password: account.password,
+      role,
+      name: account.user.name,
+      label: override?.label ?? getRoleLabel(role),
+      description:
+        override?.description ??
+        (account.email === "employee@titohris.com"
+          ? "Standard employee self-service and own profile"
+          : ROLE_DESCRIPTIONS[role]),
+    }
+  })
+  .sort(
+    (left, right) =>
+      ROLE_RANK[right.role] - ROLE_RANK[left.role] || left.label.localeCompare(right.label)
+  )
 
 /** Default account shown on login form */
 export const DEMO_CREDENTIALS = {

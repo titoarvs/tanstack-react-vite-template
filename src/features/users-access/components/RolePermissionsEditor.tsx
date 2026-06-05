@@ -159,7 +159,7 @@ export function RolePermissionsEditor({ role, onSaved }: RolePermissionsEditorPr
         ))}
       </div>
 
-      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 px-4 py-3 backdrop-blur supports-[backdrop-filter]:bg-background/80 lg:static lg:inset-auto lg:z-auto lg:border-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
+      <div className="fixed inset-x-0 bottom-0 z-20 border-t border-border bg-background/95 px-4 py-3 backdrop-blur supports-backdrop-filter:bg-background/80 xl:static xl:inset-auto xl:z-auto xl:border-0 xl:bg-transparent xl:px-0 xl:py-0 xl:backdrop-blur-none">
         <div className="flex w-full flex-col gap-2 sm:flex-row sm:items-center">
           <Button type="button" onClick={handleSave} disabled={!isDirty} className="sm:min-w-44">
             Save role permissions

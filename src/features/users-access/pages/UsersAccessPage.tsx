@@ -30,8 +30,8 @@ export function UsersAccessPage() {
       />
 
       <div className="grid min-h-0 flex-1 gap-6 xl:grid-cols-[17rem_minmax(0,1fr)] xl:gap-8">
-        <Card className="h-fit border-border/80 xl:sticky xl:top-6">
-          <CardContent className="p-4">
+        <Card className="flex max-h-[calc(100vh-8rem)] flex-col border-border/80 xl:sticky xl:top-6">
+          <CardContent className="flex min-h-0 flex-1 flex-col p-4">
             <RoleSelector
               roles={RBAC_ROLES}
               selectedRole={selectedRole}
