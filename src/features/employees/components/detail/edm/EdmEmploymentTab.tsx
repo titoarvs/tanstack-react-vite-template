@@ -1,6 +1,15 @@
 import { Briefcase, CalendarRange } from "lucide-react"
+import { useAuth } from "@/features/auth/useAuth"
+import { EmploymentDetailsEditor } from "../../employment/EmploymentDetailsEditor"
+import {
+  getEmploymentTypeLabel,
+  getFullStatusLabel,
+  getWorkLocationLabel,
+} from "../../../data/masterData"
+import { canEditEmploymentDetails } from "../../../edm/fieldPolicy"
+import { useEmployees } from "../../../hooks/useEmployees"
 import type { Employee } from "../../../types"
-import { getWorkLocationLabel } from "../../../data/masterData"
+import { getFullName } from "../../../types"
 import { ProfileFieldGrid } from "../EmployeeProfileFields"
 import { ProfileInfoCard } from "../ProfileInfoCard"
 import { EdmProfileField } from "./EdmProfileField"
@@ -9,9 +18,65 @@ interface EdmEmploymentTabProps {
   employee: Employee
 }
 
-export function EdmEmploymentTab({ employee }: EdmEmploymentTabProps) {
+function EmploymentDetailsView({ employee }: { employee: Employee }) {
+  const { data: employees } = useEmployees()
+  const manager = employees?.find(e => e.id === employee.managerId)
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
+      <ProfileInfoCard title="Role & team" icon={Briefcase}>
+        <ProfileFieldGrid>
+          <EdmProfileField
+            employee={employee}
+            fieldKey="employeeStatus"
+            label="Status"
+            value={getFullStatusLabel(employee.status, employee.statusDetail)}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="departmentPosition"
+            label="Department"
+            value={employee.department}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="departmentPosition"
+            label="Position"
+            value={employee.position}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="departmentPosition"
+            label="Job title"
+            value={employee.jobTitle}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="departmentPosition"
+            label="Is manager"
+            value={employee.isManager ? "Yes" : "No"}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="supervisor"
+            label="Manager"
+            value={manager ? getFullName(manager) : undefined}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="workLocation"
+            label="Work location"
+            value={getWorkLocationLabel(employee.workLocation)}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="employmentType"
+            label="Employment type"
+            value={getEmploymentTypeLabel(employee.employmentType)}
+          />
+        </ProfileFieldGrid>
+      </ProfileInfoCard>
+
       <ProfileInfoCard title="Organisation" icon={Briefcase}>
         <ProfileFieldGrid>
           <EdmProfileField
@@ -32,16 +97,10 @@ export function EdmEmploymentTab({ employee }: EdmEmploymentTabProps) {
             label="Cost center"
             value={employee.costCenter}
           />
-          <EdmProfileField
-            employee={employee}
-            fieldKey="workLocation"
-            label="Work location"
-            value={getWorkLocationLabel(employee.workLocation)}
-          />
         </ProfileFieldGrid>
       </ProfileInfoCard>
 
-      <ProfileInfoCard title="Employment dates" icon={CalendarRange}>
+      <ProfileInfoCard title="Employment dates" icon={CalendarRange} className="lg:col-span-2">
         <ProfileFieldGrid>
           <EdmProfileField
             employee={employee}
@@ -95,4 +154,15 @@ export function EdmEmploymentTab({ employee }: EdmEmploymentTabProps) {
       </ProfileInfoCard>
     </div>
   )
+}
+
+export function EdmEmploymentTab({ employee }: EdmEmploymentTabProps) {
+  const { user } = useAuth()
+  const canEdit = canEditEmploymentDetails(user, employee.id, employee)
+
+  if (canEdit) {
+    return <EmploymentDetailsEditor employee={employee} />
+  }
+
+  return <EmploymentDetailsView employee={employee} />
 }

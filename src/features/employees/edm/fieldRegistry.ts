@@ -71,7 +71,7 @@ export const EDM_FIELD_REGISTRY: EdmFieldDefinition[] = [
     label: "Department & Position",
     tab: "employment",
     sensitivity: "internal",
-    editAuthority: "hrbp",
+    editAuthority: "hris_admin",
     approvalRequired: true,
   },
   {
@@ -79,7 +79,7 @@ export const EDM_FIELD_REGISTRY: EdmFieldDefinition[] = [
     label: "Supervisor / Manager",
     tab: "employment",
     sensitivity: "internal",
-    editAuthority: "hrbp",
+    editAuthority: "hris_admin",
     approvalRequired: true,
   },
   {
@@ -87,7 +87,7 @@ export const EDM_FIELD_REGISTRY: EdmFieldDefinition[] = [
     label: "Manager Employee ID",
     tab: "employment",
     sensitivity: "internal",
-    editAuthority: "system",
+    editAuthority: "hris_admin",
     approvalRequired: false,
   },
   {
@@ -95,7 +95,7 @@ export const EDM_FIELD_REGISTRY: EdmFieldDefinition[] = [
     label: "Organization Level, Business Unit, Cost Center",
     tab: "employment",
     sensitivity: "internal",
-    editAuthority: "hrbp",
+    editAuthority: "hris_admin",
     approvalRequired: true,
   },
   {
@@ -103,7 +103,7 @@ export const EDM_FIELD_REGISTRY: EdmFieldDefinition[] = [
     label: "Work Location",
     tab: "employment",
     sensitivity: "internal",
-    editAuthority: "hrbp",
+    editAuthority: "hris_admin",
     approvalRequired: true,
   },
   {
@@ -231,7 +231,7 @@ export const EDM_FIELD_REGISTRY: EdmFieldDefinition[] = [
     label: "Data Privacy Consent",
     tab: "compliance",
     sensitivity: "restricted",
-    editAuthority: "employee",
+    editAuthority: "hris_admin",
     approvalRequired: false,
   },
   {
@@ -239,7 +239,7 @@ export const EDM_FIELD_REGISTRY: EdmFieldDefinition[] = [
     label: "Data Subject Access Signed",
     tab: "compliance",
     sensitivity: "restricted",
-    editAuthority: "employee",
+    editAuthority: "hris_admin",
     approvalRequired: false,
   },
   {
