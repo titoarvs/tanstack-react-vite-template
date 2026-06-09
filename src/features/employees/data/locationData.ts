@@ -1,6 +1,4 @@
-import Country from "country-state-city/lib/country"
-import * as State from "country-state-city/lib/state"
-import type { ICountry, IState } from "country-state-city"
+import { Country, State, type ICountry, type IState } from "country-state-city"
 import { DEFAULT_PHONE_COUNTRY_ISO } from "./locationConstants"
 
 export interface SelectOption {
