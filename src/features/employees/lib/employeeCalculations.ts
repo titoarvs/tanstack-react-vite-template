@@ -1,4 +1,5 @@
 import type { Employee, Gender } from "../types"
+import { normalizeContactAddress } from "./address"
 import type { MasterEmploymentType, MasterEmployeeStatus } from "../data/masterData"
 import {
   PROBATION_MONTHS_DEFAULT,
@@ -92,7 +93,8 @@ export function normalizeEmployee(raw: Employee): Employee {
     contractSignedDate: raw.contractSignedDate ?? raw.lifecycle.hireDate,
     contact: {
       ...raw.contact,
-      province: raw.contact.province,
+      address: normalizeContactAddress(raw.contact) ?? raw.contact.address,
+      province: undefined,
     },
     orgLevel: raw.orgLevel,
     businessUnit: raw.businessUnit,

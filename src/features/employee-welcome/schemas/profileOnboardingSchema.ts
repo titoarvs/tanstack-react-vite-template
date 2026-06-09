@@ -1,10 +1,10 @@
 import { z } from "zod"
+import { addressSchema } from "@/features/employees/lib/address"
 
 /** Required contact fields — HR may have pre-filled work email */
 export const contactStepSchema = z.object({
   phone: z.string().min(8, "Phone must be at least 8 characters"),
-  address: z.string().optional(),
-  province: z.string().optional(),
+  address: addressSchema.optional(),
   dateOfBirth: z.string().optional(),
   gender: z.string().optional(),
   nationality: z.string().optional(),

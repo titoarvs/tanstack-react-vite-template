@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/form"
 import { FormSelectField } from "@/components/ui/form-select-field"
 import { Input } from "@/components/ui/input"
+import { AddressFields } from "@/features/employees/components/address/AddressFields"
 import {
   OnboardingFormSection,
   OnboardingStepShell,
@@ -42,7 +43,7 @@ export function ContactDetailsStep() {
       title={step.label}
       description={step.description}
     >
-      <OnboardingFormSection title="Contact (required phone)">
+      <OnboardingFormSection title="Contact (required phone)" cols={3}>
         <FormField
           control={form.control}
           name="phone"
@@ -56,32 +57,10 @@ export function ContactDetailsStep() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-              <FormLabel>Home address</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="Optional" className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="province"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Province</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="Optional" className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      </OnboardingFormSection>
+
+      <OnboardingFormSection title="Home address" cols={3}>
+        <AddressFields />
       </OnboardingFormSection>
 
       <OnboardingFormSection title="Personal (optional)">
@@ -98,11 +77,7 @@ export function ContactDetailsStep() {
             </FormItem>
           )}
         />
-        <FormSelectField
-          name="gender"
-          label="Gender"
-          options={genderOptions}
-        />
+        <FormSelectField name="gender" label="Gender" options={genderOptions} />
         <FormField
           control={form.control}
           name="nationality"
@@ -144,7 +119,12 @@ export function ContactDetailsStep() {
             <FormItem>
               <FormLabel>Contact phone</FormLabel>
               <FormControl>
-                <Input {...field} type="tel" placeholder="Optional" className="bg-card" />
+                <Input
+                  {...field}
+                  type="tel"
+                  placeholder="Optional"
+                  className="bg-card"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -157,7 +137,11 @@ export function ContactDetailsStep() {
             <FormItem>
               <FormLabel>Relationship</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="e.g. Spouse, Parent" className="bg-card" />
+                <Input
+                  {...field}
+                  placeholder="e.g. Spouse, Parent"
+                  className="bg-card"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

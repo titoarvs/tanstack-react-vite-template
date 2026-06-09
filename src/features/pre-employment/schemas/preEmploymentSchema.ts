@@ -5,6 +5,7 @@ import {
   EMPLOYMENT_TYPES,
   WORK_LOCATIONS,
 } from "@/features/employees/data/masterData"
+import { addressSchema } from "@/features/employees/lib/address"
 
 const departmentValues = DEPARTMENTS as unknown as [string, ...string[]]
 const employmentTypeValues = EMPLOYMENT_TYPES.map(t => t.value) as [
@@ -31,8 +32,7 @@ export const createInviteSchema = z.object({
 
 export const contactStepSchema = z.object({
   phone: z.string().min(8, "Phone must be at least 8 characters"),
-  address: z.string().optional(),
-  province: z.string().optional(),
+  address: addressSchema.optional(),
   dateOfBirth: z.string().optional(),
   gender: z.string().optional(),
   nationality: z.string().optional(),

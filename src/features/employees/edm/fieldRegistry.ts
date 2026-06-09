@@ -52,7 +52,7 @@ export const EDM_FIELD_REGISTRY: EdmFieldDefinition[] = [
   },
   {
     key: "address",
-    label: "Home Address & Province",
+    label: "Home Address",
     tab: "personal",
     sensitivity: "confidential",
     editAuthority: "employee",

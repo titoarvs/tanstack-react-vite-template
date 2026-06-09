@@ -17,10 +17,19 @@ export interface EmployeeDemographics {
   maritalStatus?: string
 }
 
+export interface EmployeeAddress {
+  street?: string
+  city?: string
+  state?: string
+  zipCode?: string
+  country?: string
+}
+
 export interface EmployeeContact {
   email: string
   phone: string
-  address?: string
+  address?: EmployeeAddress
+  /** @deprecated Migrated to address.state via normalizeEmployee */
   province?: string
 }
 

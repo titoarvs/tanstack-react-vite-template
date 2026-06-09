@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button"
+import { formatAddress } from "@/features/employees/lib/address"
 import type { PreEmploymentFormData, PreEmploymentInvite } from "../types"
 import { getPreEmploymentFullName } from "../types"
 
@@ -17,7 +18,7 @@ export function PreEmploymentReviewStep({
     { label: "Name", value: getPreEmploymentFullName(invite), step: 0 },
     { label: "Work email", value: invite.email, step: 0 },
     { label: "Phone", value: data.phone, step: 0 },
-    { label: "Address", value: [data.address, data.province].filter(Boolean).join(", ") || "—", step: 0 },
+    { label: "Address", value: formatAddress(data.address) || "—", step: 0 },
     {
       label: "Emergency contact",
       value: data.emergencyContactName

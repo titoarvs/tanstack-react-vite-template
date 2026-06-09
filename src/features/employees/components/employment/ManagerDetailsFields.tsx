@@ -1,7 +1,6 @@
 import { useEffect } from "react"
 import { useFormContext } from "react-hook-form"
 import {
-  FormControl,
   FormField,
   FormItem,
   FormLabel,
@@ -49,37 +48,21 @@ export function ManagerDetailsFields({
         options={managerOptions}
         placeholder="Select manager"
       />
-      <FormField
-        control={form.control}
-        name={managerIdField}
-        render={() => (
-          <FormItem>
-            <FormLabel>Manager ID</FormLabel>
-            <FormControl>
-              <Input
-                readOnly
-                value={manager?.employeeId ?? ""}
-                placeholder="Auto-populated"
-                className="bg-muted/40"
-              />
-            </FormControl>
-          </FormItem>
-        )}
-      />
+
       <div>
         <FormLabel>Manager email</FormLabel>
         <Input
           readOnly
           value={manager?.contact.email ?? ""}
           placeholder="Auto-populated"
-          className="mt-2 bg-muted/40"
+          className="bg-muted/40"
         />
       </div>
       <FormField
         control={form.control}
         name={managerIdField}
         render={() => (
-          <FormItem className="hidden">
+          <FormItem>
             <FormMessage />
           </FormItem>
         )}
