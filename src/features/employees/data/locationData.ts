@@ -1,12 +1,7 @@
 import Country from "country-state-city/lib/country"
 import * as State from "country-state-city/lib/state"
 import type { ICountry, IState } from "country-state-city"
-import {
-  DEFAULT_ADDRESS_COUNTRY,
-  DEFAULT_PHONE_COUNTRY_ISO,
-} from "./locationConstants"
-
-export { DEFAULT_ADDRESS_COUNTRY, DEFAULT_PHONE_COUNTRY_ISO } from "./locationConstants"
+import { DEFAULT_PHONE_COUNTRY_ISO } from "./locationConstants"
 
 export interface SelectOption {
   value: string
@@ -83,7 +78,9 @@ export function getPhoneCountryOptions(): PhoneCountryOption[] {
   return phoneCountriesCache
 }
 
-export function getPhoneCountryByIso(iso?: string): PhoneCountryOption | undefined {
+export function getPhoneCountryByIso(
+  iso?: string
+): PhoneCountryOption | undefined {
   if (!iso) return undefined
   return getPhoneCountryOptions().find(option => option.value === iso)
 }
