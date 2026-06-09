@@ -5,6 +5,7 @@ import {
   OnboardingStepShell,
 } from "@/features/onboarding/components/OnboardingStepShell"
 import { formatAddress } from "@/features/employees/lib/address"
+import { formatDisplayPhone } from "@/features/employees/lib/phone"
 import type { Employee } from "@/features/employees/types"
 import { getFullName } from "@/features/employees/types"
 import { PROFILE_ONBOARDING_STEPS } from "../lib/profileOnboardingSteps"
@@ -47,7 +48,10 @@ export function WelcomeReviewStep({ employee, onEditStep }: WelcomeReviewStepPro
 
       <OnboardingFormSection title="Your updates">
         <dl className="sm:col-span-2">
-          <ReviewRow label="Phone" value={values.phone} />
+          <ReviewRow
+            label="Phone"
+            value={formatDisplayPhone(values.phone) || values.phone}
+          />
           <ReviewRow
             label="Address"
             value={formatAddress(values.address) || "Not provided"}
@@ -60,7 +64,7 @@ export function WelcomeReviewStep({ employee, onEditStep }: WelcomeReviewStepPro
             label="Emergency contact"
             value={
               values.emergencyContactName
-                ? `${values.emergencyContactName}${values.emergencyContactPhone ? ` · ${values.emergencyContactPhone}` : ""}`
+                ? `${values.emergencyContactName}${values.emergencyContactPhone ? ` · ${formatDisplayPhone(values.emergencyContactPhone) || values.emergencyContactPhone}` : ""}`
                 : "Not provided"
             }
           />

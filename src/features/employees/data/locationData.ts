@@ -1,16 +1,27 @@
 import Country from "country-state-city/lib/country"
 import * as State from "country-state-city/lib/state"
 import type { ICountry, IState } from "country-state-city"
+import {
+  DEFAULT_ADDRESS_COUNTRY,
+  DEFAULT_PHONE_COUNTRY_ISO,
+} from "./locationConstants"
+
+export { DEFAULT_ADDRESS_COUNTRY, DEFAULT_PHONE_COUNTRY_ISO } from "./locationConstants"
 
 export interface SelectOption {
   value: string
   label: string
 }
 
-/** Canonical country name from country-state-city (ISO PH). */
-export const DEFAULT_ADDRESS_COUNTRY = "Philippines"
+export interface PhoneCountryOption {
+  value: string
+  label: string
+  dialCode: string
+  phonecode: string
+}
 
 let countriesCache: SelectOption[] | null = null
+let phoneCountriesCache: PhoneCountryOption[] | null = null
 
 export function getCountryOptions(): SelectOption[] {
   if (!countriesCache) {
@@ -48,6 +59,33 @@ export function getStateOptions(countryName?: string): SelectOption[] {
 
 export function shouldUseStateSelect(countryName?: string): boolean {
   return getStateOptions(countryName).length > 0
+}
+
+export function getPhoneCountryOptions(): PhoneCountryOption[] {
+  if (!phoneCountriesCache) {
+    phoneCountriesCache = Country.getAllCountries()
+      .map((country: ICountry) => ({
+        value: country.isoCode,
+        label: `${country.name} (+${country.phonecode})`,
+        dialCode: `+${country.phonecode}`,
+        phonecode: country.phonecode,
+      }))
+      .sort((a, b) => a.label.localeCompare(b.label))
+
+    const philippinesIndex = phoneCountriesCache.findIndex(
+      option => option.value === DEFAULT_PHONE_COUNTRY_ISO
+    )
+    if (philippinesIndex > 0) {
+      const [philippines] = phoneCountriesCache.splice(philippinesIndex, 1)
+      phoneCountriesCache.unshift(philippines)
+    }
+  }
+  return phoneCountriesCache
+}
+
+export function getPhoneCountryByIso(iso?: string): PhoneCountryOption | undefined {
+  if (!iso) return undefined
+  return getPhoneCountryOptions().find(option => option.value === iso)
 }
 
 export function filterSelectOptions(

@@ -7,6 +7,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { PhoneField } from "@/features/employees/components/phone/PhoneField"
 import {
   OnboardingFormSection,
   OnboardingStepShell,
@@ -35,18 +36,10 @@ export function PreEmploymentEmergencyStep() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
+        <PhoneField
           name="emergencyContactPhone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contact phone</FormLabel>
-              <FormControl>
-                <Input {...field} type="tel" placeholder="Optional" className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Contact phone"
+          placeholder="912 345 6789"
         />
         <FormField
           control={form.control}

@@ -12,15 +12,13 @@ import {
   SearchableSelect,
   type SearchableSelectOption,
 } from "@/components/ui/searchable-select"
-import {
-  DEFAULT_ADDRESS_COUNTRY,
-  type SelectOption,
-} from "../../data/addressLocationData"
+import { DEFAULT_ADDRESS_COUNTRY } from "../../data/locationConstants"
+import type { SelectOption } from "../../data/locationData"
 
-type LocationDataModule = typeof import("../../data/addressLocationData")
+type LocationDataModule = typeof import("../../data/locationData")
 
 const loadLocationData = (): Promise<LocationDataModule> =>
-  import("../../data/addressLocationData")
+  import("../../data/locationData")
 
 interface AddressFieldsProps {
   /** Form field prefix, e.g. "address" for address.street */

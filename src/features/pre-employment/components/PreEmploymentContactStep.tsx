@@ -9,6 +9,7 @@ import {
 import { FormSelectField } from "@/components/ui/form-select-field"
 import { Input } from "@/components/ui/input"
 import { AddressFields } from "@/features/employees/components/address/AddressFields"
+import { PhoneField } from "@/features/employees/components/phone/PhoneField"
 import {
   OnboardingFormSection,
   OnboardingStepShell,
@@ -40,19 +41,7 @@ export function PreEmploymentContactStep() {
   return (
     <OnboardingStepShell icon={step.icon} title={step.label} description={step.description}>
       <OnboardingFormSection title="Contact" cols={3}>
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Mobile phone *</FormLabel>
-              <FormControl>
-                <Input {...field} type="tel" className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <PhoneField name="phone" label="Mobile phone *" />
       </OnboardingFormSection>
 
       <OnboardingFormSection title="Home address" cols={3}>

@@ -9,6 +9,7 @@ import {
 import { FormSelectField } from "@/components/ui/form-select-field"
 import { Input } from "@/components/ui/input"
 import { AddressFields } from "@/features/employees/components/address/AddressFields"
+import { PhoneField } from "@/features/employees/components/phone/PhoneField"
 import {
   OnboardingFormSection,
   OnboardingStepShell,
@@ -44,19 +45,7 @@ export function ContactDetailsStep() {
       description={step.description}
     >
       <OnboardingFormSection title="Contact (required phone)" cols={3}>
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Mobile phone *</FormLabel>
-              <FormControl>
-                <Input {...field} type="tel" className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <PhoneField name="phone" label="Mobile phone *" />
       </OnboardingFormSection>
 
       <OnboardingFormSection title="Home address" cols={3}>
@@ -112,23 +101,10 @@ export function ContactDetailsStep() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
+        <PhoneField
           name="emergencyContactPhone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contact phone</FormLabel>
-              <FormControl>
-                <Input
-                  {...field}
-                  type="tel"
-                  placeholder="Optional"
-                  className="bg-card"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Contact phone"
+          placeholder="912 345 6789"
         />
         <FormField
           control={form.control}
