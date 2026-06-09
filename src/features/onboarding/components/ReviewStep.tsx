@@ -2,8 +2,14 @@ import { Pencil } from "lucide-react"
 import type { ReactNode } from "react"
 import { useFormContext } from "react-hook-form"
 import { Button } from "@/components/ui/button"
-import { getEmploymentTypeLabel, type EmploymentType } from "@/features/employees/types"
-import { useManagers } from "@/features/employees/hooks/useEmployees"
+import {
+  getEmploymentTypeLabel,
+  getFullStatusLabel,
+  getStatusDetailLabel,
+  getWorkLocationLabel,
+  type EmploymentType,
+} from "@/features/employees/types"
+import { useManagersByDepartment } from "@/features/employees/hooks/useManagersByDepartment"
 import { ONBOARDING_STEPS } from "../lib/onboardingSteps"
 import type { OnboardingFormData } from "../schemas/onboardingSchema"
 import { OnboardingStepShell } from "./OnboardingStepShell"
@@ -58,7 +64,7 @@ const step = ONBOARDING_STEPS[2]
 export function ReviewStep({ onEditStep }: ReviewStepProps) {
   const { watch } = useFormContext<OnboardingFormData>()
   const data = watch()
-  const managers = useManagers()
+  const managers = useManagersByDepartment(data.department)
   const manager = managers.find(m => m.id === data.managerId)
   const department = data.department
   const fullName = [data.firstName, data.middleName, data.lastName, data.suffix]
@@ -71,11 +77,16 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
       title={step.label}
       description={step.description}
     >
+      <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-foreground">
+        Review all details below. Employment information will require HR approval to edit after
+        submission.
+      </div>
+
       <div className="rounded-xl border border-border/80 bg-accent/25 p-6">
         <div className="min-w-0 text-center sm:text-left">
           <p className="text-lg font-bold text-foreground">{fullName || "New employee"}</p>
           <p className="text-sm text-muted-foreground">
-            {data.position || "Position"} · {department || "Department"}
+            {data.jobTitle || data.position || "Position"} · {department || "Department"}
           </p>
           <p className="mt-1 text-xs text-muted-foreground">{data.employeeId}</p>
         </div>
@@ -95,21 +106,38 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
         <ReviewBlock title="Employment" onEdit={() => onEditStep(1)}>
           <ReviewRow label="Department" value={department} />
           <ReviewRow label="Position" value={data.position} />
+          <ReviewRow label="Job title" value={data.jobTitle} />
+          <ReviewRow label="Is manager" value={data.isManager ? "Yes" : "No"} />
+          {!data.isManager && (
+            <>
+              <ReviewRow
+                label="Manager"
+                value={manager ? `${manager.firstName} ${manager.lastName}` : undefined}
+              />
+              <ReviewRow label="Manager ID" value={manager?.employeeId} />
+              <ReviewRow label="Manager email" value={manager?.contact.email} />
+            </>
+          )}
           <ReviewRow
-            label="Manager"
-            value={manager ? `${manager.firstName} ${manager.lastName}` : undefined}
-          />
-          <ReviewRow
-            label="Type"
+            label="Employment type"
             value={getEmploymentTypeLabel(data.employmentType as EmploymentType)}
           />
-          <ReviewRow label="Org level" value={data.orgLevel} />
-          <ReviewRow label="Work location" value={data.workLocation} />
-          <ReviewRow label="Office branch" value={data.officeBranch} />
+          <ReviewRow
+            label="Status"
+            value={getFullStatusLabel("active", data.statusDetail)}
+          />
+          <ReviewRow
+            label="Active status"
+            value={getStatusDetailLabel(data.statusDetail)}
+          />
+          <ReviewRow
+            label="Work location"
+            value={data.workLocation ? getWorkLocationLabel(data.workLocation) : undefined}
+          />
           <ReviewRow label="Hire date" value={data.hireDate} />
           <ReviewRow label="Probation end" value={data.probationEndDate} />
-          <ReviewRow label="Contract start" value={data.contractStartDate} />
-          <ReviewRow label="Contract end" value={data.contractEndDate} />
+          <ReviewRow label="Regularization" value={data.regularizationDate} />
+          <ReviewRow label="Contract signed" value={data.contractSignedDate} />
         </ReviewBlock>
       </div>
     </OnboardingStepShell>

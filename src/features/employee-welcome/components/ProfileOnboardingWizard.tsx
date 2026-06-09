@@ -11,7 +11,7 @@ import { employeeKeys } from "@/features/employees/hooks/useEmployees"
 import type { Employee } from "@/features/employees/types"
 import { cn } from "@/lib/utils"
 import { completeProfileOnboarding } from "../api/profileOnboardingApi"
-import { PROFILE_ONBOARDING_STEP_COUNT } from "../lib/profileOnboardingSteps"
+import { PROFILE_ONBOARDING_STEP_COUNT, PROFILE_ONBOARDING_STEPS } from "../lib/profileOnboardingSteps"
 import {
   contactStepSchema,
   policiesStepSchema,
@@ -21,7 +21,7 @@ import {
 import { ContactDetailsStep } from "./ContactDetailsStep"
 import { HrAssignedSummary } from "./HrAssignedSummary"
 import { PoliciesStep } from "./PoliciesStep"
-import { ProfileOnboardingStepper } from "./ProfileOnboardingStepper"
+import { ProfileOnboardingProgress } from "./ProfileOnboardingStepper"
 import { WelcomeReviewStep } from "./WelcomeReviewStep"
 
 function applyZodErrors(
@@ -59,7 +59,6 @@ interface ProfileOnboardingWizardProps {
 
 export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardProps) {
   const [step, setStep] = useState(0)
-  const [maxReachedStep, setMaxReachedStep] = useState(0)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -87,7 +86,6 @@ export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardPro
       return
     }
     const next = Math.min(step + 1, PROFILE_ONBOARDING_STEP_COUNT - 1)
-    setMaxReachedStep(max => Math.max(max, next))
     setStep(next)
   }
 
@@ -107,18 +105,32 @@ export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardPro
     }
   })
 
+  const currentStepDef = PROFILE_ONBOARDING_STEPS[step]
+  const isLastStep = step === PROFILE_ONBOARDING_STEP_COUNT - 1
+
   return (
     <Form {...form}>
-      <form onSubmit={onSubmit} className="space-y-6">
+      <form
+        onSubmit={onSubmit}
+        className="mx-auto flex w-full max-w-6xl flex-col gap-5 sm:gap-6"
+      >
         <HrAssignedSummary employee={employee} />
 
-        <ProfileOnboardingStepper
-          currentStep={step}
-          maxReachedStep={maxReachedStep}
-          onStepClick={goToStep}
-        />
+        <Card className="min-w-0 overflow-hidden border-border/80 shadow-sm">
+          <div className="border-b border-border/60 bg-muted/25 px-4 py-4 sm:px-6">
+            <div className="flex items-start justify-between gap-6">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground">
+                  {currentStepDef.label}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+                  {currentStepDef.description}
+                </p>
+              </div>
+              <ProfileOnboardingProgress currentStep={step} />
+            </div>
+          </div>
 
-        <Card className="border-border/80 shadow-sm">
           <CardContent className="p-4 sm:p-6 lg:p-8">
             {step === 0 && <ContactDetailsStep />}
             {step === 1 && <PoliciesStep />}
@@ -129,27 +141,51 @@ export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardPro
 
           <CardFooter
             className={cn(
-              "flex flex-col gap-3 border-t border-border bg-muted/20 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6"
+              "flex flex-col gap-3 border-t border-border bg-card p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4",
+              "sticky bottom-0 z-10 sm:static"
             )}
           >
-            <p className="text-xs text-muted-foreground">
-              Fields marked * are required. Optional sections can be left empty and updated
-              later from your profile.
-            </p>
-            <div className="flex w-full flex-wrap justify-end gap-2 sm:w-auto">
-              {step > 0 && (
-                <Button type="button" variant="outline" onClick={() => goToStep(step - 1)}>
-                  <ArrowLeft className="h-4 w-4" />
-                  Back
-                </Button>
+            {step > 0 ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full sm:w-auto"
+                onClick={() => goToStep(step - 1)}
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back
+              </Button>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                Fields marked * are required. Optional sections can be updated later from
+                your profile.
+              </p>
+            )}
+
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
+              {submitError && (
+                <p
+                  className="text-center text-sm text-destructive sm:order-first sm:mr-4 sm:text-right"
+                  role="alert"
+                >
+                  {submitError}
+                </p>
               )}
-              {step < PROFILE_ONBOARDING_STEP_COUNT - 1 ? (
-                <Button type="button" onClick={goNext}>
+              {!isLastStep ? (
+                <Button
+                  type="button"
+                  className="w-full sm:w-auto"
+                  onClick={goNext}
+                >
                   Continue
                   <ArrowRight className="h-4 w-4" />
                 </Button>
               ) : (
-                <Button type="submit" disabled={form.formState.isSubmitting}>
+                <Button
+                  type="submit"
+                  className="w-full sm:w-auto"
+                  disabled={form.formState.isSubmitting}
+                >
                   {form.formState.isSubmitting ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
@@ -166,12 +202,6 @@ export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardPro
             </div>
           </CardFooter>
         </Card>
-
-        {submitError && (
-          <p role="alert" className="text-sm text-destructive">
-            {submitError}
-          </p>
-        )}
       </form>
     </Form>
   )

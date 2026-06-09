@@ -10,13 +10,7 @@ export interface DashboardMetrics {
   employmentTypeCounts: { type: EmploymentType; count: number; label: string }[]
 }
 
-const trackedTypes: EmploymentType[] = [
-  "regular",
-  "probationary",
-  "consultant",
-  "contract",
-  "internship",
-]
+const trackedTypes: EmploymentType[] = ["full_time", "part_time", "intern"]
 
 export function computeDashboardMetrics(employees: Employee[]): DashboardMetrics {
   const now = new Date()

@@ -37,7 +37,7 @@ export function EmployeeDirectoryPage() {
     status: "all",
     department: "all",
     employmentType: "all",
-    officeBranch: "all",
+    workLocation: "all",
   })
   const debouncedSearch = useDebouncedValue(filters.search ?? "", 300)
   const effectiveFilters = useMemo(
@@ -52,7 +52,7 @@ export function EmployeeDirectoryPage() {
 
   const activeTab = viewMode === "grid" ? "directory" : "list"
   const resultCount = filtered.length
-  const filterResetKey = `${debouncedSearch}|${filters.status}|${filters.department}|${filters.employmentType}|${filters.officeBranch}`
+  const filterResetKey = `${debouncedSearch}|${filters.status}|${filters.department}|${filters.employmentType}|${filters.workLocation}`
 
   return (
     <PageContent>

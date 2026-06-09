@@ -14,7 +14,12 @@ import {
 import { usePagination } from "@/lib/pagination/usePagination"
 import { useDeleteEmployee } from "../hooks/useEmployees"
 import type { Employee } from "../types"
-import { getEmploymentTypeLabel, getEmployeeStatusLabel, getFullName } from "../types"
+import {
+  getEmploymentTypeLabel,
+  getEmployeeStatusLabel,
+  getFullName,
+  getWorkLocationLabel,
+} from "../types"
 import { EmployeeActionsMenu } from "./EmployeeActionsMenu"
 import { EmployeeDeleteDialog } from "./EmployeeDeleteDialog"
 
@@ -30,7 +35,7 @@ function EmployeeTableRow({ employee }: { employee: Employee }) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const deleteEmployee = useDeleteEmployee()
   const name = getFullName(employee)
-  const typeVariant = employee.employmentType as "full-time" | "internship" | "contract"
+  const typeVariant = employee.employmentType as "full_time" | "part_time" | "intern"
 
   return (
     <>
@@ -71,7 +76,9 @@ function EmployeeTableRow({ employee }: { employee: Employee }) {
           <Badge variant={typeVariant}>{getEmploymentTypeLabel(employee.employmentType)}</Badge>
         </TableCell>
         <TableCell className="hidden sm:table-cell">
-          <span className="whitespace-nowrap">{employee.officeBranch}</span>
+          <span className="whitespace-nowrap">
+            {getWorkLocationLabel(employee.workLocation)}
+          </span>
         </TableCell>
         <TableCell className="hidden xl:table-cell">
           <span className="whitespace-nowrap">{employee.contact.phone}</span>
@@ -117,7 +124,7 @@ export function EmployeeTable({ employees, resetKey }: EmployeeTableProps) {
           <TableHead className="hidden text-foreground md:table-cell">Role</TableHead>
           <TableHead className="text-foreground">Status</TableHead>
           <TableHead className="hidden text-foreground lg:table-cell">Type</TableHead>
-          <TableHead className="hidden text-foreground sm:table-cell">Branch</TableHead>
+          <TableHead className="hidden text-foreground sm:table-cell">Location</TableHead>
           <TableHead className="hidden text-foreground xl:table-cell">Phone</TableHead>
           <TableHead className="hidden text-foreground lg:table-cell">Email</TableHead>
           <TableHead className="text-right">

@@ -58,15 +58,16 @@ export interface ApprovePreEmploymentInput {
   employeeId: string
   department: string
   position: string
+  jobTitle: string
+  isManager: boolean
   managerId?: string
-  orgLevel?: string
-  workLocation?: string
+  workLocation: string
   employmentType: string
+  statusDetail: string
   hireDate: string
   probationEndDate?: string
-  contractStartDate?: string
-  contractEndDate?: string
-  officeBranch: string
+  regularizationDate?: string
+  contractSignedDate: string
 }
 
 export interface ApprovePreEmploymentResult {

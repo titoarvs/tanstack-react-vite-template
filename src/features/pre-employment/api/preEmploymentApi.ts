@@ -25,7 +25,12 @@ import { preEmploymentStore } from "@/lib/mock/preEmploymentStore"
 import { requireSessionPermission } from "@/features/auth/authErrors"
 import type { CreateEmployeeInput, EmploymentType } from "@/features/employees/types"
 import type { WorkLocation } from "@/features/employees/data/masterData"
-import { toGender } from "@/features/employees/lib/normalizeEmployee"
+import {
+  computeProbationEnd,
+  computeRegularizationDate,
+  toGender,
+} from "@/features/employees/lib/employeeCalculations"
+import { resolveStatusForCreate } from "@/features/employees/lib/employmentStatus"
 import type {
   ApprovePreEmploymentInput,
   ApprovePreEmploymentResult,
@@ -185,18 +190,38 @@ export async function approvePreEmploymentInvite(
     emergencyContact: emergency,
     department: employment.department,
     position: employment.position,
-    managerId: employment.managerId || undefined,
-    orgLevel: employment.orgLevel,
-    workLocation: employment.workLocation as WorkLocation | undefined,
+    jobTitle: employment.jobTitle,
+    isManager: employment.isManager,
+    managerId: employment.isManager ? undefined : employment.managerId || undefined,
+    workLocation: employment.workLocation as WorkLocation,
     employmentType: employment.employmentType as EmploymentType,
     lifecycle: {
       hireDate: employment.hireDate,
-      probationEndDate: employment.probationEndDate || undefined,
-      contractStartDate: employment.contractStartDate || undefined,
-      contractEndDate: employment.contractEndDate || undefined,
+      probationEndDate:
+        employment.probationEndDate ??
+        computeProbationEnd(employment.hireDate) ??
+        undefined,
+      regularizationDate:
+        employment.regularizationDate ??
+        computeRegularizationDate(
+          employment.hireDate,
+          employment.probationEndDate ?? computeProbationEnd(employment.hireDate)
+        ) ??
+        undefined,
     },
-    status: "active",
-    officeBranch: employment.officeBranch,
+    status: resolveStatusForCreate(
+      employment.statusDetail as "regular" | "probationary"
+    ).status,
+    statusDetail: resolveStatusForCreate(
+      employment.statusDetail as "regular" | "probationary"
+    ).statusDetail,
+    contractSignedDate: employment.contractSignedDate,
+    regularizationDate:
+      employment.regularizationDate ??
+      computeRegularizationDate(
+        employment.hireDate,
+        employment.probationEndDate ?? computeProbationEnd(employment.hireDate)
+      ),
     compliance: {
       privacyConsentSigned: payload.acknowledgePrivacy,
       privacyConsentDate: payload.acknowledgePrivacy ? now.slice(0, 10) : undefined,

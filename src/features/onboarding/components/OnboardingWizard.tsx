@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "@tanstack/react-router"
-import { ArrowLeft, ArrowRight, Loader2, UserPlus } from "lucide-react"
+import { ArrowLeft, ArrowRight, UserPlus } from "lucide-react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { Button } from "@/components/ui/button"
@@ -14,9 +14,17 @@ import {
   resolveOrganizationName,
 } from "@/features/billing/organization"
 import { useAuth } from "@/features/auth/useAuth"
-import { toGender } from "@/features/employees/lib/normalizeEmployee"
-import type { CreateEmployeeInput, EmploymentType } from "@/features/employees/types"
-import type { WorkLocation } from "@/features/employees/data/masterData"
+import { toGender } from "@/features/employees/lib/employeeCalculations"
+import {
+  computeProbationEnd,
+  computeRegularizationDate,
+} from "@/features/employees/lib/employeeCalculations"
+import { resolveStatusForCreate } from "@/features/employees/lib/employmentStatus"
+import type {
+  CreateEmployeeInput,
+  EmploymentType,
+} from "@/features/employees/types"
+import type { ActiveStatusDetail, WorkLocation } from "@/features/employees/data/masterData"
 import { cn } from "@/lib/utils"
 import {
   employmentInfoSchema,
@@ -27,7 +35,8 @@ import {
 } from "../schemas/onboardingSchema"
 import { ONBOARDING_STEP_COUNT, ONBOARDING_STEPS } from "../lib/onboardingSteps"
 import { EmploymentInfoStep } from "./EmploymentInfoStep"
-import { OnboardingStepper } from "./OnboardingStepper"
+import { OnboardingConfirmDialog } from "./OnboardingConfirmDialog"
+import { OnboardingProgress } from "./OnboardingStepper"
 import { PersonalInfoStep } from "./PersonalInfoStep"
 import { ReviewStep } from "./ReviewStep"
 
@@ -43,11 +52,13 @@ function applyZodErrors(
 
 export function OnboardingWizard() {
   const [step, setStep] = useState(0)
-  const [maxReachedStep, setMaxReachedStep] = useState(0)
+  const [confirmOpen, setConfirmOpen] = useState(false)
   const navigate = useNavigate()
   const { user } = useAuth()
   const createEmployee = useCreateEmployee()
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const today = new Date().toISOString().slice(0, 10)
 
   const form = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
@@ -57,7 +68,10 @@ export function OnboardingWizard() {
       firstName: "",
       lastName: "",
       email: "",
-      hireDate: new Date().toISOString().slice(0, 10),
+      position: "",
+      jobTitle: "",
+      hireDate: today,
+      contractSignedDate: today,
     },
     mode: "onBlur",
   })
@@ -77,15 +91,30 @@ export function OnboardingWizard() {
       return
     }
     const next = Math.min(step + 1, ONBOARDING_STEP_COUNT - 1)
-    setMaxReachedStep(max => Math.max(max, next))
+    if (next === ONBOARDING_STEP_COUNT - 1) {
+      form.setValue("employeeId", suggestEmployeeId())
+    }
     setStep(next)
   }
 
   const onSubmit = form.handleSubmit(async data => {
     setSubmitError(null)
 
+    const employeeId = suggestEmployeeId()
+    form.setValue("employeeId", employeeId)
+
+    const probationEndDate =
+      data.probationEndDate ?? computeProbationEnd(data.hireDate) ?? undefined
+    const regularizationDate =
+      data.regularizationDate ??
+      computeRegularizationDate(data.hireDate, probationEndDate) ??
+      undefined
+    const { status, statusDetail } = resolveStatusForCreate(
+      data.statusDetail as ActiveStatusDetail
+    )
+
     const input: CreateEmployeeInput = {
-      employeeId: data.employeeId,
+      employeeId,
       firstName: data.firstName,
       middleName: data.middleName || undefined,
       lastName: data.lastName,
@@ -102,18 +131,20 @@ export function OnboardingWizard() {
       },
       department: data.department,
       position: data.position,
-      managerId: data.managerId || undefined,
-      orgLevel: data.orgLevel,
-      workLocation: data.workLocation as WorkLocation | undefined,
+      jobTitle: data.jobTitle,
+      isManager: data.isManager,
+      managerId: data.isManager ? undefined : data.managerId || undefined,
+      workLocation: data.workLocation as WorkLocation,
       employmentType: data.employmentType as EmploymentType,
       lifecycle: {
         hireDate: data.hireDate,
-        probationEndDate: data.probationEndDate || undefined,
-        contractStartDate: data.contractStartDate || undefined,
-        contractEndDate: data.contractEndDate || undefined,
+        probationEndDate,
+        regularizationDate,
       },
-      status: "onboarding",
-      officeBranch: data.officeBranch,
+      status,
+      statusDetail,
+      contractSignedDate: data.contractSignedDate,
+      regularizationDate,
       profileOnboardingComplete: false,
     }
 
@@ -128,6 +159,7 @@ export function OnboardingWizard() {
           organizationName: resolveOrganizationName(user),
         })
       }
+      setConfirmOpen(false)
       navigate({ to: "/employees/directory" })
     } catch (e) {
       setSubmitError(
@@ -142,23 +174,22 @@ export function OnboardingWizard() {
   return (
     <Form {...form}>
       <form
-        onSubmit={onSubmit}
-        className="mx-auto flex w-full max-w-4xl flex-col gap-5 sm:gap-6"
+        onSubmit={e => e.preventDefault()}
+        className="mx-auto flex w-full max-w-6xl flex-col gap-5 sm:gap-6"
       >
-        <OnboardingStepper
-          currentStep={step}
-          maxReachedStep={maxReachedStep}
-          onStepClick={goToStep}
-        />
-
         <Card className="min-w-0 overflow-hidden border-border/80 shadow-sm">
-          <div className="border-b border-border/60 bg-muted/25 px-4 py-3 sm:px-6">
-            <p className="text-sm font-medium text-foreground">
-              {currentStepDef.label}
-            </p>
-            <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
-              {currentStepDef.description}
-            </p>
+          <div className="border-b border-border/60 bg-muted/25 px-4 py-4 sm:px-6">
+            <div className="flex items-start justify-between gap-6">
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-medium text-foreground">
+                  {currentStepDef.label}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground sm:text-sm">
+                  {currentStepDef.description}
+                </p>
+              </div>
+              <OnboardingProgress currentStep={step} />
+            </div>
           </div>
 
           <CardContent className="p-4 sm:p-6 lg:p-8">
@@ -207,26 +238,25 @@ export function OnboardingWizard() {
                 </Button>
               ) : (
                 <Button
-                  type="submit"
+                  type="button"
                   className="w-full sm:w-auto"
                   disabled={createEmployee.isPending}
+                  onClick={() => setConfirmOpen(true)}
                 >
-                  {createEmployee.isPending ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Creating…
-                    </>
-                  ) : (
-                    <>
-                      <UserPlus className="h-4 w-4" />
-                      Create employee
-                    </>
-                  )}
+                  <UserPlus className="h-4 w-4" />
+                  Create employee
                 </Button>
               )}
             </div>
           </CardFooter>
         </Card>
+
+        <OnboardingConfirmDialog
+          open={confirmOpen}
+          onOpenChange={setConfirmOpen}
+          onConfirm={onSubmit}
+          isSubmitting={createEmployee.isPending}
+        />
       </form>
     </Form>
   )

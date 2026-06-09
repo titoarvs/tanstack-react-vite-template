@@ -9,15 +9,17 @@ import {
 } from "@/components/ui/form"
 import { FormSelectField } from "@/components/ui/form-select-field"
 import { Input } from "@/components/ui/input"
+import { ManagerDetailsFields } from "@/features/employees/components/employment/ManagerDetailsFields"
+import { ProbationDatesDisplay } from "@/features/employees/components/employment/ProbationDatesDisplay"
 import {
   DEPARTMENTS,
   EMPLOYMENT_TYPES,
+  getJobTitlesForDepartment,
   getPositionsForDepartment,
-  OFFICE_BRANCHES,
-  ORG_LEVELS,
   WORK_LOCATIONS,
-} from "@/features/employees/api/employeeApi"
-import { useManagers } from "@/features/employees/hooks/useEmployees"
+} from "@/features/employees/data/masterData"
+import { getCreateFormStatusDetailOptions } from "@/features/employees/lib/employmentStatus"
+import { useManatalPrefill } from "@/features/integrations/manatal/useManatalPrefill"
 import { ONBOARDING_STEPS } from "../lib/onboardingSteps"
 import type { OnboardingFormData } from "../schemas/onboardingSchema"
 import { OnboardingFormSection, OnboardingStepShell } from "./OnboardingStepShell"
@@ -27,39 +29,65 @@ const employmentTypeOptions = EMPLOYMENT_TYPES.map(t => ({
   value: t.value,
   label: t.label,
 }))
-const branchOptions = OFFICE_BRANCHES.map(b => ({ value: b, label: b }))
-const orgLevelOptions = ORG_LEVELS.map(o => ({ value: o, label: o }))
 const workLocationOptions = WORK_LOCATIONS.map(w => ({
   value: w.value,
   label: w.label,
 }))
+const statusDetailOptions = getCreateFormStatusDetailOptions()
+const isManagerOptions = [
+  { value: "false", label: "No" },
+  { value: "true", label: "Yes" },
+]
 const step = ONBOARDING_STEPS[1]
 
 export function EmploymentInfoStep() {
   const form = useFormContext<OnboardingFormData>()
-  const employmentType = form.watch("employmentType")
   const department = form.watch("department")
-  const managers = useManagers()
+  const manatalPrefill = useManatalPrefill()
 
   const positionOptions = getPositionsForDepartment(department).map(p => ({
     value: p,
     label: p,
   }))
+  const jobTitleOptions = getJobTitlesForDepartment(department).map(t => ({
+    value: t,
+    label: t,
+  }))
 
   useEffect(() => {
-    const current = form.getValues("position")
-    if (current && !positionOptions.some(o => o.value === current)) {
+    const defaults = manatalPrefill
+    const current = form.getValues()
+    if (!current.position && defaults.position) {
+      form.setValue("position", defaults.position)
+    }
+    if (!current.jobTitle && defaults.jobTitle) {
+      form.setValue("jobTitle", defaults.jobTitle)
+    }
+    if (!current.workLocation && defaults.workLocation) {
+      form.setValue("workLocation", defaults.workLocation)
+    }
+    if (!current.employmentType && defaults.employmentType) {
+      form.setValue("employmentType", defaults.employmentType)
+    }
+    if (!current.statusDetail && defaults.statusDetail) {
+      form.setValue("statusDetail", defaults.statusDetail)
+    }
+    if (!current.contractSignedDate && defaults.contractSignedDate) {
+      form.setValue("contractSignedDate", defaults.contractSignedDate)
+    }
+  }, [form, manatalPrefill])
+
+  useEffect(() => {
+    const currentPosition = form.getValues("position")
+    if (currentPosition && !positionOptions.some(o => o.value === currentPosition)) {
       form.setValue("position", positionOptions[0]?.value ?? "")
     }
-  }, [department, form, positionOptions])
-
-  const managerOptions = [
-    { value: "", label: "No manager" },
-    ...managers.map(m => ({
-      value: m.id,
-      label: `${m.firstName} ${m.lastName} — ${m.position}`,
-    })),
-  ]
+    const currentJobTitle = form.getValues("jobTitle")
+    if (currentJobTitle && !jobTitleOptions.some(o => o.value === currentJobTitle)) {
+      form.setValue("jobTitle", jobTitleOptions[0]?.value ?? "")
+    }
+    form.setValue("managerId", "")
+  }, [department, form, positionOptions, jobTitleOptions])
 
   return (
     <OnboardingStepShell
@@ -79,15 +107,40 @@ export function EmploymentInfoStep() {
           options={positionOptions}
         />
         <FormSelectField<OnboardingFormData>
-          name="managerId"
-          label="Manager"
-          options={managerOptions}
+          name="jobTitle"
+          label="Job title"
+          options={jobTitleOptions}
         />
-        <FormSelectField<OnboardingFormData>
-          name="orgLevel"
-          label="Organization level"
-          options={orgLevelOptions}
+        <FormField
+          control={form.control}
+          name="isManager"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Is manager?</FormLabel>
+              <FormControl>
+                <select
+                  className="flex h-10 w-full rounded-md border border-input bg-card px-3 py-2 text-sm"
+                  value={field.value ? "true" : "false"}
+                  onChange={e => field.onChange(e.target.value === "true")}
+                >
+                  {isManagerOptions.map(o => (
+                    <option key={o.value} value={o.value}>
+                      {o.label}
+                    </option>
+                  ))}
+                </select>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
+      </OnboardingFormSection>
+
+      <OnboardingFormSection title="Manager details">
+        <ManagerDetailsFields />
+      </OnboardingFormSection>
+
+      <OnboardingFormSection title="Employment terms">
         <FormSelectField<OnboardingFormData>
           name="workLocation"
           label="Work location"
@@ -99,13 +152,10 @@ export function EmploymentInfoStep() {
           options={employmentTypeOptions}
         />
         <FormSelectField<OnboardingFormData>
-          name="officeBranch"
-          label="Office branch"
-          options={branchOptions}
+          name="statusDetail"
+          label="Active status"
+          options={statusDetailOptions}
         />
-      </OnboardingFormSection>
-
-      <OnboardingFormSection title="Dates & lifecycle">
         <FormField
           control={form.control}
           name="hireDate"
@@ -119,51 +169,20 @@ export function EmploymentInfoStep() {
             </FormItem>
           )}
         />
-        {(employmentType === "regular" || employmentType === "probationary") && (
-          <FormField
-            control={form.control}
-            name="probationEndDate"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Probation end date</FormLabel>
-                <FormControl>
-                  <Input type="date" {...field} className="bg-card" />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        )}
-        {(employmentType === "contract" || employmentType === "internship") && (
-          <>
-            <FormField
-              control={form.control}
-              name="contractStartDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contract start date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} className="bg-card" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="contractEndDate"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Contract end date</FormLabel>
-                  <FormControl>
-                    <Input type="date" {...field} className="bg-card" />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
+        <ProbationDatesDisplay />
+        <FormField
+          control={form.control}
+          name="contractSignedDate"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Date contract signed</FormLabel>
+              <FormControl>
+                <Input type="date" {...field} className="bg-card" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
       </OnboardingFormSection>
     </OnboardingStepShell>
   )

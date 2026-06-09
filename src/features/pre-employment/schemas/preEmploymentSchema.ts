@@ -1,9 +1,8 @@
 import { z } from "zod"
 import {
+  ACTIVE_STATUS_DETAILS,
   DEPARTMENTS,
   EMPLOYMENT_TYPES,
-  OFFICE_BRANCHES,
-  ORG_LEVELS,
   WORK_LOCATIONS,
 } from "@/features/employees/data/masterData"
 
@@ -12,12 +11,14 @@ const employmentTypeValues = EMPLOYMENT_TYPES.map(t => t.value) as [
   string,
   ...string[],
 ]
-const officeValues = OFFICE_BRANCHES as unknown as [string, ...string[]]
 const workLocationValues = WORK_LOCATIONS.map(w => w.value) as [
   string,
   ...string[],
 ]
-const orgLevelValues = ORG_LEVELS as unknown as [string, ...string[]]
+const statusDetailValues = ACTIVE_STATUS_DETAILS.map(s => s.value) as [
+  string,
+  ...string[],
+]
 
 export const createInviteSchema = z.object({
   email: z.string().email("Valid email is required"),
@@ -65,32 +66,31 @@ export const approveEmploymentSchema = z
     employeeId: z.string().min(1, "Employee ID is required"),
     department: z.enum(departmentValues),
     position: z.string().min(1, "Position is required"),
+    jobTitle: z.string().min(1, "Job title is required"),
+    isManager: z.boolean(),
     managerId: z.string().optional(),
-    orgLevel: z.enum(orgLevelValues).optional(),
-    workLocation: z.enum(workLocationValues).optional(),
+    workLocation: z.enum(workLocationValues),
     employmentType: z.enum(employmentTypeValues),
+    statusDetail: z.enum(statusDetailValues),
     hireDate: z.string().min(1, "Hire date is required"),
     probationEndDate: z.string().optional(),
-    contractStartDate: z.string().optional(),
-    contractEndDate: z.string().optional(),
-    officeBranch: z.enum(officeValues),
+    regularizationDate: z.string().optional(),
+    contractSignedDate: z.string().min(1, "Date contract signed is required"),
   })
   .superRefine((data, ctx) => {
-    if (data.employmentType === "contract" || data.employmentType === "internship") {
-      if (!data.contractStartDate) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Contract start date is required",
-          path: ["contractStartDate"],
-        })
-      }
-      if (!data.contractEndDate) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: "Contract end date is required",
-          path: ["contractEndDate"],
-        })
-      }
+    if (!data.isManager && !data.managerId?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Manager is required when employee is not a manager",
+        path: ["managerId"],
+      })
+    }
+    if (data.contractSignedDate && data.hireDate && data.contractSignedDate < data.hireDate) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Contract signed date cannot be before hire date",
+        path: ["contractSignedDate"],
+      })
     }
   })
 

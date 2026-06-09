@@ -10,38 +10,61 @@ import {
   REQUIRED_DOCUMENT_TYPES,
 } from "../types/documents"
 
-type LegacyEmploymentType = "full-time" | "internship" | "contract"
+type LegacyEmploymentType =
+  | "full-time"
+  | "internship"
+  | "contract"
+  | "regular"
+  | "probationary"
+  | "consultant"
 
 function mapLegacyEmploymentType(value: unknown): MasterEmploymentType {
-  const v = String(value ?? "regular")
-  if (v === "full-time") return "regular"
-  if (v === "internship") return "internship"
-  if (v === "contract") return "contract"
-  if (
-    v === "regular" ||
-    v === "probationary" ||
-    v === "consultant" ||
-    v === "internship" ||
-    v === "contract"
-  ) {
-    return v
+  const v = String(value ?? "full_time")
+  if (v === "full-time" || v === "regular" || v === "probationary" || v === "consultant") {
+    return "full_time"
   }
-  return "regular"
+  if (v === "internship" || v === "intern") return "intern"
+  if (v === "contract" || v === "part_time" || v === "part-time") return "part_time"
+  if (v === "full_time" || v === "part_time" || v === "intern") return v
+  return "full_time"
 }
 
 function mapLegacyStatus(value: unknown): MasterEmployeeStatus {
   const v = String(value ?? "active")
-  if (v === "inactive") return "inactive"
+  if (v === "on_leave" || v === "loa" || v === "awol" || v === "resigned") return "inactive"
   if (
     v === "active" ||
-    v === "on_leave" ||
-    v === "resigned" ||
+    v === "inactive" ||
     v === "terminated" ||
-    v === "inactive"
+    v === "onboarding" ||
+    v === "pre_hire"
   ) {
     return v
   }
   return "active"
+}
+
+function mapLegacyStatusDetail(
+  status: MasterEmployeeStatus,
+  raw: Employee
+): Employee["statusDetail"] {
+  if (raw.statusDetail) return raw.statusDetail
+  const legacyStatus = String(raw.status ?? "")
+  if (legacyStatus === "on_leave") return "on_leave"
+  if (status === "active") {
+    const legacyType = String(raw.employmentType ?? "")
+    if (legacyType === "probationary") return "probationary"
+    return "regular"
+  }
+  return undefined
+}
+
+function mapLegacyWorkLocation(value: unknown, officeBranch?: string): Employee["workLocation"] {
+  const v = String(value ?? "")
+  if (v === "office") return "onsite"
+  if (v === "onsite" || v === "hybrid" || v === "remote") return v
+  if (officeBranch) return "onsite"
+  return "onsite"
 }
 
 /** Ensure nested EDM groups exist on flat or partial employee records */
@@ -50,13 +73,23 @@ export function normalizeEmployee(raw: Employee): Employee {
     raw.employmentType ?? (raw as { employmentType?: LegacyEmploymentType }).employmentType
   )
   const status = mapLegacyStatus(raw.status)
+  const statusDetail = mapLegacyStatusDetail(status, raw)
+  const workLocation = mapLegacyWorkLocation(raw.workLocation, raw.officeBranch)
+  const probationEndDate =
+    raw.lifecycle.probationEndDate ??
+    computeProbationEnd(raw.lifecycle.hireDate, PROBATION_MONTHS_DEFAULT)
 
   return {
     ...raw,
     middleName: raw.middleName,
     suffix: raw.suffix,
+    jobTitle: raw.jobTitle ?? raw.position,
+    isManager: raw.isManager ?? false,
     employmentType,
     status,
+    statusDetail,
+    workLocation,
+    contractSignedDate: raw.contractSignedDate ?? raw.lifecycle.hireDate,
     contact: {
       ...raw.contact,
       province: raw.contact.province,
@@ -64,8 +97,6 @@ export function normalizeEmployee(raw: Employee): Employee {
     orgLevel: raw.orgLevel,
     businessUnit: raw.businessUnit,
     costCenter: raw.costCenter,
-    workLocation: raw.workLocation ?? inferWorkLocation(raw.officeBranch),
-    contractSignedDate: raw.contractSignedDate,
     separationReason: raw.separationReason,
     compensation: raw.compensation ?? {},
     governmentIds: raw.governmentIds ?? {},
@@ -88,23 +119,16 @@ export function normalizeEmployee(raw: Employee): Employee {
     },
     lifecycle: {
       ...raw.lifecycle,
-      probationEndDate:
-        raw.lifecycle.probationEndDate ??
-        computeProbationEnd(raw.lifecycle.hireDate, PROBATION_MONTHS_DEFAULT),
+      probationEndDate,
     },
     regularizationDate:
       raw.regularizationDate ??
       computeRegularizationDate(
         raw.lifecycle.hireDate,
-        raw.lifecycle.probationEndDate,
+        probationEndDate,
         PROBATION_MONTHS_DEFAULT
       ),
   }
-}
-
-function inferWorkLocation(officeBranch?: string): Employee["workLocation"] {
-  if (!officeBranch) return "office"
-  return "office"
 }
 
 export function computeProbationEnd(

@@ -1,9 +1,7 @@
 import { Link } from "@tanstack/react-router"
-import { Sparkles } from "lucide-react"
 import { TitoLogo } from "@/components/branding/TitoLogo"
 import { useAuth } from "@/features/auth/useAuth"
 import { getLinkedEmployee } from "../lib/profileOnboardingPolicy"
-import { PROFILE_ONBOARDING_STEP_COUNT } from "../lib/profileOnboardingSteps"
 import { ProfileOnboardingWizard } from "../components/ProfileOnboardingWizard"
 
 export function WelcomeOnboardingPage() {
@@ -54,10 +52,6 @@ export function WelcomeOnboardingPage() {
       </header>
 
       <main className="relative mx-auto max-w-6xl px-4 py-8 sm:px-6 sm:py-10">
-        <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-          <Sparkles className="h-3.5 w-3.5 text-success" />
-          {PROFILE_ONBOARDING_STEP_COUNT}-step setup
-        </p>
         <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
           Welcome to TitoHRIS
         </h1>

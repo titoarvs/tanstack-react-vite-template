@@ -20,6 +20,7 @@ import {
   getEmploymentTypeLabel,
   getEmployeeStatusLabel,
   getFullName,
+  getWorkLocationLabel,
 } from "../../types"
 
 interface EmployeeProfileSidePanelProps {
@@ -77,7 +78,11 @@ export function EmployeeProfileSidePanel({
         <dl className="space-y-3 text-sm">
           <SideDetail icon={Hash} label="Employee ID" value={employee.employeeId} />
           <SideDetail icon={Building2} label="Department" value={employee.department} />
-          <SideDetail icon={MapPin} label="Location" value={employee.officeBranch} />
+          <SideDetail
+            icon={MapPin}
+            label="Location"
+            value={getWorkLocationLabel(employee.workLocation)}
+          />
           <SideDetail
             icon={Briefcase}
             label="Tenure"

@@ -36,11 +36,7 @@ export function EdmEmploymentTab({ employee }: EdmEmploymentTabProps) {
             employee={employee}
             fieldKey="workLocation"
             label="Work location"
-            value={
-              employee.workLocation
-                ? getWorkLocationLabel(employee.workLocation)
-                : employee.officeBranch
-            }
+            value={getWorkLocationLabel(employee.workLocation)}
           />
         </ProfileFieldGrid>
       </ProfileInfoCard>
