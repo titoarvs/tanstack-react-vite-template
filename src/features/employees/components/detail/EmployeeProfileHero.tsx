@@ -15,7 +15,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { formatDisplayDate, formatTenureDetailed } from "../../data/mockEmployeeInsights"
 import type { Employee } from "../../types"
-import { getEmploymentTypeLabel, getFullName } from "../../types"
+import { getEmploymentTypeLabel, getFullName, getWorkLocationLabel } from "../../types"
 
 interface EmployeeProfileHeroProps {
   employee: Employee
@@ -67,9 +67,9 @@ export function EmployeeProfileHero({
                 </Badge>
                 <Badge variant="outline">{getEmploymentTypeLabel(employee.employmentType)}</Badge>
               </div>
-              <p className="mt-1 text-base text-muted-foreground">{employee.position}</p>
+              <p className="mt-1 text-base text-muted-foreground">{employee.jobTitle}</p>
               <p className="text-sm text-muted-foreground">
-                {employee.department} · {employee.officeBranch}
+                {employee.department} · {employee.position}
               </p>
 
               <div className="mt-4 flex flex-wrap gap-2">
@@ -94,7 +94,11 @@ export function EmployeeProfileHero({
               value={employee.employeeId}
             />
             <HeroStat icon={Building2} label="Department" value={employee.department} />
-            <HeroStat icon={MapPin} label="Location" value={employee.officeBranch} />
+            <HeroStat
+              icon={MapPin}
+              label="Location"
+              value={getWorkLocationLabel(employee.workLocation)}
+            />
             <HeroStat
               icon={Briefcase}
               label="Tenure"

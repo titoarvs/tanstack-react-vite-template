@@ -1,5 +1,5 @@
 import type { Employee } from "@/features/employees/types"
-import { getFullName } from "@/features/employees/types"
+import { getFullName, getWorkLocationLabel } from "@/features/employees/types"
 import { Card, CardContent } from "@/components/ui/card"
 
 interface HrAssignedSummaryProps {
@@ -16,7 +16,7 @@ export function HrAssignedSummary({ employee }: HrAssignedSummaryProps) {
           </p>
           <p className="mt-1 font-medium text-foreground">{getFullName(employee)}</p>
           <p className="text-muted-foreground">
-            {employee.position} · {employee.department}
+            {employee.jobTitle} · {employee.department}
           </p>
         </div>
         <div>
@@ -25,7 +25,9 @@ export function HrAssignedSummary({ employee }: HrAssignedSummaryProps) {
           </p>
           <p className="mt-1 text-foreground">{employee.employeeId}</p>
           <p className="text-muted-foreground">{employee.contact.email}</p>
-          <p className="text-muted-foreground">{employee.officeBranch} office</p>
+          <p className="text-muted-foreground">
+            {getWorkLocationLabel(employee.workLocation)}
+          </p>
         </div>
       </CardContent>
     </Card>

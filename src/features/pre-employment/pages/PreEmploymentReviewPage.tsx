@@ -16,15 +16,17 @@ import {
 } from "@/components/ui/form"
 import { FormSelectField } from "@/components/ui/form-select-field"
 import { Input } from "@/components/ui/input"
+import { ManagerDetailsFields } from "@/features/employees/components/employment/ManagerDetailsFields"
+import { ProbationDatesDisplay } from "@/features/employees/components/employment/ProbationDatesDisplay"
 import {
   DEPARTMENTS,
   EMPLOYMENT_TYPES,
+  getJobTitlesForDepartment,
   getPositionsForDepartment,
-  OFFICE_BRANCHES,
-  ORG_LEVELS,
   WORK_LOCATIONS,
 } from "@/features/employees/data/masterData"
-import { useManagers } from "@/features/employees/hooks/useEmployees"
+import { getCreateFormStatusDetailOptions } from "@/features/employees/lib/employmentStatus"
+import { prefillEmploymentFromManatal } from "@/features/integrations/manatal/manatalPrefill"
 import {
   useApprovePreEmploymentInvite,
   usePreEmploymentInvite,
@@ -44,12 +46,15 @@ const employmentTypeOptions = EMPLOYMENT_TYPES.map(t => ({
   value: t.value,
   label: t.label,
 }))
-const branchOptions = OFFICE_BRANCHES.map(b => ({ value: b, label: b }))
-const orgLevelOptions = ORG_LEVELS.map(o => ({ value: o, label: o }))
 const workLocationOptions = WORK_LOCATIONS.map(w => ({
   value: w.value,
   label: w.label,
 }))
+const statusDetailOptions = getCreateFormStatusDetailOptions()
+const isManagerOptions = [
+  { value: "false", label: "No" },
+  { value: "true", label: "Yes" },
+]
 
 function CandidateSubmissionSummary({ payload }: { payload: Partial<PreEmploymentFormData> }) {
   const rows = [
@@ -89,7 +94,6 @@ export function PreEmploymentReviewPage() {
   const { data: suggestedId } = useSuggestEmployeeIdForApproval()
   const approve = useApprovePreEmploymentInvite()
   const reject = useRejectPreEmploymentInvite()
-  const managers = useManagers()
   const [credentials, setCredentials] = useState<{
     loginEmail: string
     tempPasswordHint: string
@@ -97,16 +101,22 @@ export function PreEmploymentReviewPage() {
   } | null>(null)
   const [rejectNote, setRejectNote] = useState("")
 
+  const today = new Date().toISOString().slice(0, 10)
+
   const form = useForm<ApproveEmploymentFormData>({
     resolver: zodResolver(approveEmploymentSchema),
     defaultValues: {
       employeeId: "",
       department: "Engineering",
       position: "",
+      jobTitle: "",
+      isManager: false,
       managerId: "",
-      employmentType: "regular",
-      hireDate: new Date().toISOString().slice(0, 10),
-      officeBranch: "Jakarta",
+      employmentType: "full_time",
+      statusDetail: "probationary",
+      hireDate: today,
+      contractSignedDate: today,
+      workLocation: "onsite",
     },
   })
 
@@ -115,26 +125,37 @@ export function PreEmploymentReviewPage() {
     value: p,
     label: p,
   }))
-  const managerOptions = [
-    { value: "", label: "No manager" },
-    ...managers.map(m => ({
-      value: m.id,
-      label: `${m.firstName} ${m.lastName} — ${m.position}`,
-    })),
-  ]
+  const jobTitleOptions = getJobTitlesForDepartment(department).map(t => ({
+    value: t,
+    label: t,
+  }))
 
   useEffect(() => {
     if (!invite) return
+    const manatal = prefillEmploymentFromManatal({
+      intendedDepartment: invite.intendedDepartment,
+      intendedPosition: invite.intendedPosition,
+      intendedHireDate: invite.intendedHireDate,
+      inviteId: invite.id,
+    })
+    const hireDate = invite.intendedHireDate ?? manatal.hireDate ?? today
     form.reset({
       employeeId: suggestedId ?? "",
-      department: (invite.intendedDepartment as ApproveEmploymentFormData["department"]) ?? "Engineering",
-      position: invite.intendedPosition ?? positionOptions[0]?.value ?? "",
+      department:
+        (invite.intendedDepartment as ApproveEmploymentFormData["department"]) ??
+        manatal.department ??
+        "Engineering",
+      position: invite.intendedPosition ?? manatal.position ?? positionOptions[0]?.value ?? "",
+      jobTitle: manatal.jobTitle ?? jobTitleOptions[0]?.value ?? "",
+      isManager: manatal.isManager ?? false,
       managerId: "",
-      employmentType: "regular",
-      hireDate: invite.intendedHireDate ?? new Date().toISOString().slice(0, 10),
-      officeBranch: "Jakarta",
+      employmentType: manatal.employmentType ?? "full_time",
+      statusDetail: manatal.statusDetail ?? "probationary",
+      hireDate,
+      contractSignedDate: manatal.contractSignedDate ?? hireDate,
+      workLocation: manatal.workLocation ?? "onsite",
     })
-  }, [invite, suggestedId, form, positionOptions])
+  }, [invite, suggestedId, form, positionOptions, jobTitleOptions, today])
 
   const onApprove = form.handleSubmit(async data => {
     const result = await approve.mutateAsync({ id: inviteId, employment: data })
@@ -242,10 +263,10 @@ export function PreEmploymentReviewPage() {
                   control={form.control}
                   name="employeeId"
                   render={({ field }) => (
-                    <FormItem>
+                    <FormItem className="sm:col-span-2">
                       <FormLabel>Employee ID</FormLabel>
                       <FormControl>
-                        <Input {...field} />
+                        <Input {...field} readOnly className="bg-muted/40" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -257,12 +278,33 @@ export function PreEmploymentReviewPage() {
                   options={departmentOptions}
                 />
                 <FormSelectField name="position" label="Position" options={positionOptions} />
-                <FormSelectField name="managerId" label="Manager" options={managerOptions} />
-                <FormSelectField
-                  name="orgLevel"
-                  label="Organization level"
-                  options={orgLevelOptions}
+                <FormSelectField name="jobTitle" label="Job title" options={jobTitleOptions} />
+                <FormField
+                  control={form.control}
+                  name="isManager"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Is manager?</FormLabel>
+                      <FormControl>
+                        <select
+                          className="flex h-10 w-full rounded-md border border-input bg-card px-3 py-2 text-sm"
+                          value={field.value ? "true" : "false"}
+                          onChange={e => field.onChange(e.target.value === "true")}
+                        >
+                          {isManagerOptions.map(o => (
+                            <option key={o.value} value={o.value}>
+                              {o.label}
+                            </option>
+                          ))}
+                        </select>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
+                <div className="sm:col-span-2">
+                  <ManagerDetailsFields />
+                </div>
                 <FormSelectField
                   name="workLocation"
                   label="Work location"
@@ -274,9 +316,9 @@ export function PreEmploymentReviewPage() {
                   options={employmentTypeOptions}
                 />
                 <FormSelectField
-                  name="officeBranch"
-                  label="Office branch"
-                  options={branchOptions}
+                  name="statusDetail"
+                  label="Active status"
+                  options={statusDetailOptions}
                 />
                 <FormField
                   control={form.control}
@@ -284,6 +326,20 @@ export function PreEmploymentReviewPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Hire date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <ProbationDatesDisplay />
+                <FormField
+                  control={form.control}
+                  name="contractSignedDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Date contract signed</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>

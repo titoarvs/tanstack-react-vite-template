@@ -5,7 +5,7 @@ export const defaultEmployeeFilters: EmployeeFilters = {
   status: "all",
   department: "all",
   employmentType: "all",
-  officeBranch: "all",
+  workLocation: "all",
 }
 
 export function countActiveFilters(filters: EmployeeFilters) {
@@ -13,6 +13,6 @@ export function countActiveFilters(filters: EmployeeFilters) {
   if (filters.status && filters.status !== "all") count += 1
   if (filters.department && filters.department !== "all") count += 1
   if (filters.employmentType && filters.employmentType !== "all") count += 1
-  if (filters.officeBranch && filters.officeBranch !== "all") count += 1
+  if (filters.workLocation && filters.workLocation !== "all") count += 1
   return count
 }

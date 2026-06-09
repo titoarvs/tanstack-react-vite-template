@@ -1,8 +1,7 @@
 import { Link } from "@tanstack/react-router"
-import { ChevronLeft, Sparkles } from "lucide-react"
+import { ChevronLeft } from "lucide-react"
 import { PageContent } from "@/components/layout/PageContent"
 import { OnboardingWizard } from "../components/OnboardingWizard"
-import { ONBOARDING_STEP_COUNT } from "../lib/onboardingSteps"
 
 export function OnboardingPage() {
   return (
@@ -24,24 +23,6 @@ export function OnboardingPage() {
           <ChevronLeft className="h-4 w-4" />
           Back to directory
         </Link>
-
-        <header className="mb-6 sm:mb-8">
-          <p className="mb-2 inline-flex items-center gap-2 rounded-full border border-border bg-card px-3 py-1 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-            <Sparkles className="h-3.5 w-3.5 text-success" />
-            {ONBOARDING_STEP_COUNT}-step wizard
-          </p>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-            Express hire
-          </h1>
-          <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-            Directly create an employee record when pre-employment data was collected offline.
-            New hires still complete welcome onboarding before HRIS access. Prefer{" "}
-            <Link to="/employees/pre-employment" className="font-medium text-primary hover:underline">
-              pre-employment invites
-            </Link>{" "}
-            for the standard flow.
-          </p>
-        </header>
 
         <OnboardingWizard />
       </div>

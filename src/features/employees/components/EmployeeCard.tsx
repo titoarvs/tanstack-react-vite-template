@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge"
 import { Card } from "@/components/ui/card"
 import { useDeleteEmployee } from "../hooks/useEmployees"
 import type { Employee } from "../types"
-import { getEmploymentTypeLabel, getFullName } from "../types"
+import { getEmploymentTypeLabel, getFullName, getWorkLocationLabel } from "../types"
 import { EmployeeCardFieldRow } from "./EmployeeFieldCells"
 import { EmployeeActionsMenu } from "./EmployeeActionsMenu"
 import { EmployeeDeleteDialog } from "./EmployeeDeleteDialog"
@@ -17,7 +17,7 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const deleteEmployee = useDeleteEmployee()
   const name = getFullName(employee)
-  const typeVariant = employee.employmentType as "full-time" | "internship" | "contract"
+  const typeVariant = employee.employmentType as "full_time" | "part_time" | "intern"
 
   return (
     <>
@@ -42,8 +42,8 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
           <h3 className="w-full truncate px-1 font-semibold" title={name}>
             {name}
           </h3>
-          <p className="mt-1 w-full truncate px-1 text-sm text-muted-foreground" title={`${employee.position} | ${employee.department}`}>
-            {employee.position} | {employee.department}
+          <p className="mt-1 w-full truncate px-1 text-sm text-muted-foreground" title={`${employee.jobTitle} | ${employee.department}`}>
+            {employee.jobTitle} | {employee.department}
           </p>
           <Badge variant={typeVariant} className="mt-3">
             {getEmploymentTypeLabel(employee.employmentType)}
@@ -51,7 +51,10 @@ export function EmployeeCard({ employee }: EmployeeCardProps) {
         </div>
 
         <div className="mt-auto space-y-3 border-t pt-4">
-          <EmployeeCardFieldRow label="Office Branch" value={employee.officeBranch} />
+          <EmployeeCardFieldRow
+            label="Work location"
+            value={getWorkLocationLabel(employee.workLocation)}
+          />
           <EmployeeCardFieldRow label="Phone Number" value={employee.contact.phone} />
           <EmployeeCardFieldRow label="Email" value={employee.contact.email} />
         </div>

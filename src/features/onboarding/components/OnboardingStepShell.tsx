@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils"
 import type { LucideIcon } from "lucide-react"
 import type { ReactNode } from "react"
 
@@ -35,9 +36,11 @@ export function OnboardingStepShell({
 export function OnboardingFormSection({
   title,
   children,
+  cols = 2,
 }: {
   title?: string
   children: ReactNode
+  cols?: number
 }) {
   return (
     <section className="rounded-xl border border-border/80 bg-muted/20 p-4 sm:p-5">
@@ -46,7 +49,7 @@ export function OnboardingFormSection({
           {title}
         </h3>
       )}
-      <div className="grid gap-4 sm:grid-cols-2">{children}</div>
+      <div className={cn("grid gap-4", `sm:grid-cols-${cols}`)}>{children}</div>
     </section>
   )
 }

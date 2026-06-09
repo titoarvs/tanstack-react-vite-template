@@ -6,13 +6,17 @@ interface EmployeeJobTabProps {
   employment: {
     department: string
     position: string
+    jobTitle: string
+    isManager: boolean
     managerName?: string
-    officeBranch: string
+    workLocation: string
+    employmentType: string
+    status: string
+    statusDetail?: string
     hireDate: string
     probationEndDate?: string
-    contractStartDate?: string
-    contractEndDate?: string
-    status: string
+    regularizationDate?: string
+    contractSignedDate?: string
   }
 }
 
@@ -24,8 +28,11 @@ export function EmployeeJobTab({ employment }: EmployeeJobTabProps) {
           <ProfileField label="Status" value={employment.status} />
           <ProfileField label="Department" value={employment.department} />
           <ProfileField label="Position" value={employment.position} />
+          <ProfileField label="Job title" value={employment.jobTitle} />
+          <ProfileField label="Is manager" value={employment.isManager ? "Yes" : "No"} />
           <ProfileField label="Manager" value={employment.managerName} />
-          <ProfileField label="Office branch" value={employment.officeBranch} />
+          <ProfileField label="Work location" value={employment.workLocation} />
+          <ProfileField label="Employment type" value={employment.employmentType} />
         </ProfileFieldGrid>
       </ProfileInfoCard>
 
@@ -33,8 +40,8 @@ export function EmployeeJobTab({ employment }: EmployeeJobTabProps) {
         <ProfileFieldGrid>
           <ProfileField label="Hire date" value={employment.hireDate} />
           <ProfileField label="Probation end" value={employment.probationEndDate} />
-          <ProfileField label="Contract start" value={employment.contractStartDate} />
-          <ProfileField label="Contract end" value={employment.contractEndDate} />
+          <ProfileField label="Regularization" value={employment.regularizationDate} />
+          <ProfileField label="Contract signed" value={employment.contractSignedDate} />
         </ProfileFieldGrid>
       </ProfileInfoCard>
     </div>

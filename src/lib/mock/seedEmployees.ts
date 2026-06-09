@@ -7,6 +7,11 @@ function emp(
 ): Employee {
   return {
     profileOnboardingComplete: true,
+    jobTitle: partial.jobTitle ?? partial.position,
+    isManager: partial.isManager ?? false,
+    workLocation: partial.workLocation ?? "onsite",
+    contractSignedDate: partial.contractSignedDate ?? partial.lifecycle.hireDate,
+    statusDetail: partial.statusDetail ?? "regular",
     ...partial,
     createdAt: partial.createdAt ?? now,
     updatedAt: partial.updatedAt ?? now,
@@ -122,9 +127,12 @@ export const seedEmployees: Employee[] = [
     contact: { email: "citra.wijaya@company.com", phone: "081987654321" },
     department: "Engineering",
     position: "Engineering Manager",
+    jobTitle: "Engineering Manager",
+    isManager: true,
     employmentType: "regular",
     lifecycle: { hireDate: "2018-02-10" },
     status: "active",
+    statusDetail: "regular",
     officeBranch: "Jakarta",
   }),
   emp({
@@ -205,6 +213,7 @@ export const seedEmployees: Employee[] = [
     employmentType: "regular",
     lifecycle: { hireDate: "2022-09-01", probationEndDate: "2023-03-01" },
     status: "inactive",
+    statusDetail: "on_leave",
     officeBranch: "Bandung",
     managerId: "1",
   }),

@@ -212,9 +212,9 @@ export function filterEmployees(
     )
       return false
     if (
-      filters.officeBranch &&
-      filters.officeBranch !== "all" &&
-      e.officeBranch !== filters.officeBranch
+      filters.workLocation &&
+      filters.workLocation !== "all" &&
+      e.workLocation !== filters.workLocation
     )
       return false
     if (!search) return true
@@ -223,6 +223,7 @@ export function filterEmployees(
       getFullName(e),
       e.contact.email,
       e.position,
+      e.jobTitle,
       e.department,
     ]
       .join(" ")

@@ -1,4 +1,9 @@
-import type { MasterEmploymentType, MasterEmployeeStatus, WorkLocation } from "./data/masterData"
+import type {
+  MasterEmploymentType,
+  MasterEmployeeStatus,
+  StatusDetail,
+  WorkLocation,
+} from "./data/masterData"
 import type { ChecklistItem, EmployeeDocument } from "./types/documents"
 
 export type EmploymentType = MasterEmploymentType
@@ -85,16 +90,20 @@ export interface Employee {
   photoUrl?: string
   department: string
   position: string
+  jobTitle: string
+  isManager: boolean
   managerId?: string
   orgLevel?: string
   businessUnit?: string
   costCenter?: string
-  workLocation?: WorkLocation
+  workLocation: WorkLocation
   employmentType: EmploymentType
   lifecycle: EmployeeLifecycle
   status: EmployeeStatus
-  officeBranch: string
-  contractSignedDate?: string
+  statusDetail?: StatusDetail
+  /** @deprecated Use workLocation; kept for legacy records */
+  officeBranch?: string
+  contractSignedDate: string
   regularizationDate?: string
   separationReason?: string
   compensation?: EmployeeCompensation
@@ -121,7 +130,7 @@ export interface EmployeeFilters {
   status?: EmployeeStatus | "all"
   department?: string | "all"
   employmentType?: EmploymentType | "all"
-  officeBranch?: string | "all"
+  workLocation?: WorkLocation | "all"
 }
 
 export function getFullName(
@@ -140,27 +149,12 @@ export function getDisplayName(employee: Employee) {
   return employee.preferredName?.trim() || getFullName(employee)
 }
 
-export function getEmploymentTypeLabel(type: EmploymentType) {
-  const labels: Record<EmploymentType, string> = {
-    regular: "Regular",
-    probationary: "Probationary",
-    consultant: "Consultant",
-    contract: "Contract",
-    internship: "Internship",
-  }
-  return labels[type] ?? type
-}
-
-export function getEmployeeStatusLabel(status: EmployeeStatus) {
-  const labels: Record<EmployeeStatus, string> = {
-    active: "Active",
-    onboarding: "Onboarding",
-    on_leave: "On Leave",
-    resigned: "Resigned",
-    terminated: "Terminated",
-    inactive: "Inactive",
-  }
-  return labels[status] ?? status
-}
+export {
+  getEmploymentTypeLabel,
+  getEmployeeStatusLabel,
+  getFullStatusLabel,
+  getStatusDetailLabel,
+  getWorkLocationLabel,
+} from "./data/masterData"
 
 export type { EmployeeDocument, ChecklistItem, DocumentType } from "./types/documents"

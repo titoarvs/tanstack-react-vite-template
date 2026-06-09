@@ -15,7 +15,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet"
-import { DEPARTMENTS, OFFICE_BRANCHES } from "../api/employeeApi"
+import { DEPARTMENTS, EMPLOYMENT_TYPES, WORK_LOCATIONS } from "../api/employeeApi"
 import { defaultEmployeeFilters } from "../lib/filterUtils"
 import type { EmployeeFilters as Filters } from "../types"
 
@@ -68,7 +68,7 @@ export function EmployeeFiltersDrawer({
         <SheetHeader>
           <SheetTitle>Filter employees</SheetTitle>
           <SheetDescription>
-            Narrow the directory by status, department, employment type, and branch.
+            Narrow the directory by status, department, employment type, and work location.
           </SheetDescription>
         </SheetHeader>
 
@@ -81,6 +81,9 @@ export function EmployeeFiltersDrawer({
               { value: "all", label: "All statuses" },
               { value: "active", label: "Active" },
               { value: "inactive", label: "Inactive" },
+              { value: "pre_hire", label: "Pre-hire" },
+              { value: "terminated", label: "Terminated" },
+              { value: "onboarding", label: "Onboarding" },
             ]}
           />
           <FilterSelect
@@ -100,18 +103,16 @@ export function EmployeeFiltersDrawer({
             }
             options={[
               { value: "all", label: "All types" },
-              { value: "full-time", label: "Full-Time" },
-              { value: "internship", label: "Internship" },
-              { value: "contract", label: "Contract" },
+              ...EMPLOYMENT_TYPES.map(t => ({ value: t.value, label: t.label })),
             ]}
           />
           <FilterSelect
-            label="Office branch"
-            value={filters.officeBranch ?? "all"}
-            onValueChange={v => onChange({ ...filters, officeBranch: v })}
+            label="Work location"
+            value={filters.workLocation ?? "all"}
+            onValueChange={v => onChange({ ...filters, workLocation: v as Filters["workLocation"] })}
             options={[
-              { value: "all", label: "All branches" },
-              ...OFFICE_BRANCHES.map(b => ({ value: b, label: b })),
+              { value: "all", label: "All locations" },
+              ...WORK_LOCATIONS.map(w => ({ value: w.value, label: w.label })),
             ]}
           />
         </div>
