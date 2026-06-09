@@ -103,8 +103,20 @@ export function runFieldPolicyTests() {
     "Employee can view own payroll history"
   )
   assert(
-    !canViewField(managerUser, "separationReason", "9", directReport),
-    "Manager must not view separation reason"
+    !canEditField(employeeUser, "departmentPosition", "1", sampleEmployee),
+    "Employee must not edit employment details"
+  )
+  assert(
+    !canEditField(managerUser, "departmentPosition", "1", sampleEmployee),
+    "Manager must not edit report employment details"
+  )
+  assert(
+    canEditField(hrAdminUser, "departmentPosition", "1", sampleEmployee),
+    "HR admin should edit employment details"
+  )
+  assert(
+    !canEditField(managerUser, "departmentPosition", "9", directReport),
+    "Manager must not edit direct report employment details"
   )
 
   return "All EDM field policy tests passed."

@@ -13,6 +13,7 @@ import { useManagersByDepartment } from "@/features/employees/hooks/useManagersB
 import { ONBOARDING_STEPS } from "../lib/onboardingSteps"
 import type { OnboardingFormData } from "../schemas/onboardingSchema"
 import { OnboardingStepShell } from "./OnboardingStepShell"
+import { cn } from "@/lib/utils"
 
 function formatGender(value?: string) {
   if (!value) return undefined
@@ -35,7 +36,13 @@ function ReviewBlock({
     <div className="rounded-xl border border-border/80 bg-muted/20">
       <div className="flex items-center justify-between gap-2 border-b border-border/60 px-4 py-3">
         <h3 className="text-sm font-semibold text-foreground">{title}</h3>
-        <Button type="button" variant="ghost" size="sm" className="h-8 gap-1.5 px-2" onClick={onEdit}>
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          className="h-8 gap-1.5 px-2"
+          onClick={onEdit}
+        >
           <Pencil className="h-3.5 w-3.5" />
           Edit
         </Button>
@@ -45,12 +52,27 @@ function ReviewBlock({
   )
 }
 
-function ReviewRow({ label, value }: { label: string; value?: string }) {
+function ReviewRow({
+  label,
+  value,
+  className,
+}: {
+  label: string
+  value?: string
+  className?: string
+}) {
   if (!value) return null
   return (
-    <div className="grid gap-1 py-3 sm:grid-cols-[minmax(0,8rem)_1fr] sm:gap-4">
+    <div
+      className={cn(
+        "grid gap-1 py-3 sm:grid-cols-[minmax(0,8rem)_1fr] sm:gap-4",
+        className
+      )}
+    >
       <dt className="text-sm text-muted-foreground">{label}</dt>
-      <dd className="break-words text-sm font-medium text-foreground sm:text-right">{value}</dd>
+      <dd className="break-words text-sm font-medium text-foreground sm:text-right">
+        {value}
+      </dd>
     </div>
   )
 }
@@ -78,17 +100,22 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
       description={step.description}
     >
       <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-3 text-sm text-foreground">
-        Review all details below. Employment information will require HR approval to edit after
-        submission.
+        Review all details below. Employment information will require HR
+        approval to edit after submission.
       </div>
 
       <div className="rounded-xl border border-border/80 bg-accent/25 p-6">
         <div className="min-w-0 text-center sm:text-left">
-          <p className="text-lg font-bold text-foreground">{fullName || "New employee"}</p>
-          <p className="text-sm text-muted-foreground">
-            {data.jobTitle || data.position || "Position"} · {department || "Department"}
+          <p className="text-lg font-bold text-foreground">
+            {fullName || "New employee"}
           </p>
-          <p className="mt-1 text-xs text-muted-foreground">{data.employeeId}</p>
+          <p className="text-sm text-muted-foreground">
+            {data.jobTitle || data.position || "Position"} ·{" "}
+            {department || "Department"}
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {data.employeeId}
+          </p>
         </div>
       </div>
 
@@ -112,15 +139,20 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
             <>
               <ReviewRow
                 label="Manager"
-                value={manager ? `${manager.firstName} ${manager.lastName}` : undefined}
+                value={
+                  manager
+                    ? `${manager.firstName} ${manager.lastName}`
+                    : undefined
+                }
               />
-              <ReviewRow label="Manager ID" value={manager?.employeeId} />
               <ReviewRow label="Manager email" value={manager?.contact.email} />
             </>
           )}
           <ReviewRow
             label="Employment type"
-            value={getEmploymentTypeLabel(data.employmentType as EmploymentType)}
+            value={getEmploymentTypeLabel(
+              data.employmentType as EmploymentType
+            )}
           />
           <ReviewRow
             label="Status"
@@ -132,7 +164,11 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
           />
           <ReviewRow
             label="Work location"
-            value={data.workLocation ? getWorkLocationLabel(data.workLocation) : undefined}
+            value={
+              data.workLocation
+                ? getWorkLocationLabel(data.workLocation)
+                : undefined
+            }
           />
           <ReviewRow label="Hire date" value={data.hireDate} />
           <ReviewRow label="Probation end" value={data.probationEndDate} />

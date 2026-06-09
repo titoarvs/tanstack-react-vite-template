@@ -17,6 +17,7 @@ import {
   useSavePreEmploymentProgress,
   useSubmitPreEmploymentForm,
 } from "../hooks/usePreEmployment"
+import { normalizeAddressInput } from "@/features/employees/lib/address"
 import { PRE_EMPLOYMENT_STEP_COUNT } from "../lib/preEmploymentSteps"
 import type { PreEmploymentFormData, PreEmploymentInvite } from "../types"
 import { InviteSummary } from "./InviteSummary"
@@ -40,8 +41,10 @@ function buildDefaultValues(invite: PreEmploymentInvite): PreEmploymentFormData 
   const p = invite.candidatePayload
   return {
     phone: p.phone ?? "",
-    address: p.address ?? "",
-    province: p.province ?? "",
+    address: normalizeAddressInput(
+      p.address,
+      (p as { province?: string }).province
+    ),
     dateOfBirth: p.dateOfBirth ?? "",
     gender: p.gender ?? "",
     nationality: p.nationality ?? "",

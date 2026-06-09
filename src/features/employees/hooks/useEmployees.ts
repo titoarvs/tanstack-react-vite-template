@@ -4,8 +4,10 @@ import {
   deleteEmployee,
   fetchEmployee,
   fetchEmployees,
+  updateEmployeeEmployment,
 } from "../api/employeeApi"
 import type { CreateEmployeeInput } from "../types"
+import type { EmploymentEditFormData } from "../schemas/employmentEditSchema"
 
 export const employeeKeys = {
   all: ["employees"] as const,
@@ -49,6 +51,19 @@ export function useDeleteEmployee() {
   return useMutation({
     mutationFn: deleteEmployee,
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: employeeKeys.all })
+    },
+    retry: false,
+  })
+}
+
+export function useUpdateEmployeeEmployment(employeeId: string) {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: (data: EmploymentEditFormData) =>
+      updateEmployeeEmployment(employeeId, data),
+    onSuccess: updated => {
+      queryClient.setQueryData(employeeKeys.detail(employeeId), updated)
       queryClient.invalidateQueries({ queryKey: employeeKeys.all })
     },
     retry: false,

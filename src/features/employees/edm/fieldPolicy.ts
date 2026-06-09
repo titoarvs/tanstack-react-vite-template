@@ -126,6 +126,19 @@ export function canEditField(
   return resolveFieldAccess(user, fieldKey, targetEmployeeId, employee).canEdit
 }
 
+/** Employment tab fields are editable by HRIS admins only. */
+export function canEditEmploymentDetails(
+  user: AuthUser | null | undefined,
+  targetEmployeeId: string,
+  employee?: Employee
+): boolean {
+  if (!user) return false
+  if (user.role !== "hris_admin" && user.role !== "hris_super_admin") {
+    return false
+  }
+  return canEditField(user, "departmentPosition", targetEmployeeId, employee)
+}
+
 export function getVisibleFieldsForTab(
   user: AuthUser | null | undefined,
   tab: EdmTab,

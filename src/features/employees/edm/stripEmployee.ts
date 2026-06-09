@@ -56,7 +56,6 @@ export function stripEmployeeForViewer(
     stripped.contact = {
       ...stripped.contact,
       address: undefined,
-      province: undefined,
     }
   }
   if (!canViewField(user, "emergencyContact", targetId, employee)) {

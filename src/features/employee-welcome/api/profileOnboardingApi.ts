@@ -4,6 +4,7 @@ import { ForbiddenError, requireSessionUser } from "@/features/auth/authErrors"
 import { needsEmployeeWelcomeOnboarding } from "../lib/profileOnboardingPolicy"
 import type { ProfileOnboardingFormData } from "../schemas/profileOnboardingSchema"
 import { toGender } from "@/features/employees/lib/normalizeEmployee"
+import { toStoredAddress } from "@/features/employees/lib/address"
 import type { Employee } from "@/features/employees/types"
 
 export async function completeProfileOnboarding(
@@ -34,8 +35,7 @@ export async function completeProfileOnboarding(
     {
       contact: {
         phone: data.phone,
-        address: data.address?.trim() || undefined,
-        province: data.province?.trim() || undefined,
+        address: toStoredAddress(data.address),
       },
       demographics: {
         dateOfBirth: data.dateOfBirth || undefined,

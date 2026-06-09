@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router"
+import { Link, useNavigate } from "@tanstack/react-router"
 import { TitoLogo } from "@/components/branding/TitoLogo"
 import { useAuth } from "@/features/auth/useAuth"
 import { getLinkedEmployee } from "../lib/profileOnboardingPolicy"
@@ -7,6 +7,7 @@ import { ProfileOnboardingWizard } from "../components/ProfileOnboardingWizard"
 export function WelcomeOnboardingPage() {
   const { user, logout } = useAuth()
   const employee = getLinkedEmployee(user)
+  const navigate = useNavigate()
 
   if (!employee) {
     return (
@@ -16,7 +17,10 @@ export function WelcomeOnboardingPage() {
         </p>
         <button
           type="button"
-          onClick={() => logout()}
+          onClick={() => {
+            logout()
+            navigate({ to: "/login" })
+          }}
           className="mt-4 text-sm font-medium text-primary hover:underline"
         >
           Sign out
@@ -43,7 +47,10 @@ export function WelcomeOnboardingPage() {
           </Link>
           <button
             type="button"
-            onClick={() => logout()}
+            onClick={() => {
+              logout()
+              navigate({ to: "/login" })
+            }}
             className="text-sm text-muted-foreground hover:text-foreground"
           >
             Sign out
@@ -56,8 +63,9 @@ export function WelcomeOnboardingPage() {
           Welcome to TitoHRIS
         </h1>
         <p className="mt-2 max-w-2xl text-sm text-muted-foreground sm:text-base">
-          Complete your profile before accessing the workspace. HR has already added your role —
-          confirm your contact details and required policies below.
+          Complete your profile before accessing the workspace. HR has already
+          added your role — confirm your contact details and required policies
+          below.
         </p>
 
         <div className="mt-8">

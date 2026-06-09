@@ -1,5 +1,9 @@
 import type { Employee, Gender } from "../types"
-import type { MasterEmploymentType, MasterEmployeeStatus } from "../data/masterData"
+import { normalizeContactAddress } from "./address"
+import type {
+  MasterEmploymentType,
+  MasterEmployeeStatus,
+} from "../data/masterData"
 import {
   PROBATION_MONTHS_DEFAULT,
   RETENTION_YEARS_DEFAULT,
@@ -20,18 +24,25 @@ type LegacyEmploymentType =
 
 function mapLegacyEmploymentType(value: unknown): MasterEmploymentType {
   const v = String(value ?? "full_time")
-  if (v === "full-time" || v === "regular" || v === "probationary" || v === "consultant") {
+  if (
+    v === "full-time" ||
+    v === "regular" ||
+    v === "probationary" ||
+    v === "consultant"
+  ) {
     return "full_time"
   }
   if (v === "internship" || v === "intern") return "intern"
-  if (v === "contract" || v === "part_time" || v === "part-time") return "part_time"
+  if (v === "contract" || v === "part_time" || v === "part-time")
+    return "part_time"
   if (v === "full_time" || v === "part_time" || v === "intern") return v
   return "full_time"
 }
 
 function mapLegacyStatus(value: unknown): MasterEmployeeStatus {
   const v = String(value ?? "active")
-  if (v === "on_leave" || v === "loa" || v === "awol" || v === "resigned") return "inactive"
+  if (v === "on_leave" || v === "loa" || v === "awol" || v === "resigned")
+    return "inactive"
   if (
     v === "active" ||
     v === "inactive" ||
@@ -59,7 +70,10 @@ function mapLegacyStatusDetail(
   return undefined
 }
 
-function mapLegacyWorkLocation(value: unknown, officeBranch?: string): Employee["workLocation"] {
+function mapLegacyWorkLocation(
+  value: unknown,
+  officeBranch?: string
+): Employee["workLocation"] {
   const v = String(value ?? "")
   if (v === "office") return "onsite"
   if (v === "onsite" || v === "hybrid" || v === "remote") return v
@@ -70,7 +84,9 @@ function mapLegacyWorkLocation(value: unknown, officeBranch?: string): Employee[
 /** Ensure nested EDM groups exist on flat or partial employee records */
 export function normalizeEmployee(raw: Employee): Employee {
   const employmentType = mapLegacyEmploymentType(
-    raw.employmentType ?? (raw as { employmentType?: LegacyEmploymentType }).employmentType
+    raw.employmentType ??
+      (raw as unknown as { employmentType?: LegacyEmploymentType })
+        .employmentType
   )
   const status = mapLegacyStatus(raw.status)
   const statusDetail = mapLegacyStatusDetail(status, raw)
@@ -92,7 +108,7 @@ export function normalizeEmployee(raw: Employee): Employee {
     contractSignedDate: raw.contractSignedDate ?? raw.lifecycle.hireDate,
     contact: {
       ...raw.contact,
-      province: raw.contact.province,
+      address: normalizeContactAddress(raw.contact),
     },
     orgLevel: raw.orgLevel,
     businessUnit: raw.businessUnit,
@@ -106,13 +122,15 @@ export function normalizeEmployee(raw: Employee): Employee {
       ...raw.compliance,
       dataDeletionDate:
         raw.compliance?.dataDeletionDate ??
-        computeDataDeletionDate(raw.lifecycle.terminationDate, RETENTION_YEARS_DEFAULT),
+        computeDataDeletionDate(
+          raw.lifecycle.terminationDate,
+          RETENTION_YEARS_DEFAULT
+        ),
     },
     systemAccess: raw.systemAccess ?? { systems: [] },
     documents: raw.documents ?? [],
     onboardingChecklist:
-      raw.onboardingChecklist ??
-      deriveChecklistStatus(raw.documents ?? []),
+      raw.onboardingChecklist ?? deriveChecklistStatus(raw.documents ?? []),
     audit: {
       createdBy: raw.audit?.createdBy ?? "system",
       updatedBy: raw.audit?.updatedBy ?? "system",
@@ -168,7 +186,9 @@ export function computeDataDeletionDate(
   return d.toISOString().slice(0, 10)
 }
 
-export function deriveChecklistStatus(documents: EmployeeDocument[]): ChecklistItem[] {
+export function deriveChecklistStatus(
+  documents: EmployeeDocument[]
+): ChecklistItem[] {
   const byType = new Map(documents.map(d => [d.type, d]))
   const now = new Date()
 
@@ -209,5 +229,7 @@ export function deriveChecklistStatus(documents: EmployeeDocument[]): ChecklistI
 
 export function toGender(value?: string): Gender | undefined {
   const allowed: Gender[] = ["male", "female", "other", "prefer-not-to-say"]
-  return value && allowed.includes(value as Gender) ? (value as Gender) : undefined
+  return value && allowed.includes(value as Gender)
+    ? (value as Gender)
+    : undefined
 }

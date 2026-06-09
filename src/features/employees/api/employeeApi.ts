@@ -30,6 +30,7 @@ import {
 } from "../../billing/subscriptionStorage"
 import {
   canViewPayrollHistory,
+  canEditEmploymentDetails,
 } from "../edm/fieldPolicy"
 import {
   stripEmployeeForViewer,
@@ -48,6 +49,8 @@ import {
 } from "../data/masterData"
 import type { CreateEmployeeInput, Employee, EmployeeFilters } from "../types"
 import { getFullName } from "../types"
+import type { EmploymentEditFormData } from "../schemas/employmentEditSchema"
+import { employmentFormToPatch } from "../lib/employmentForm"
 
 export {
   DEPARTMENTS,
@@ -106,6 +109,29 @@ export async function updateEmployeeSection(
   const updated = await employeeStore.updateEmployee(
     id,
     patch,
+    user.email
+  )
+  return stripEmployeeForViewer(user, updated)
+}
+
+export async function updateEmployeeEmployment(
+  id: string,
+  data: EmploymentEditFormData
+): Promise<Employee> {
+  const user = requireSessionUser()
+  const existing = await employeeStore.getById(id)
+  if (!existing) throw new Error("Employee not found")
+  if (!canViewEmployeeRecord(user, id, existing)) {
+    throw new ForbiddenError()
+  }
+  if (!canEditEmploymentDetails(user, id, existing)) {
+    throw new ForbiddenError(
+      "You do not have permission to edit employment details for this employee."
+    )
+  }
+  const updated = await employeeStore.updateEmployee(
+    id,
+    employmentFormToPatch(data),
     user.email
   )
   return stripEmployeeForViewer(user, updated)

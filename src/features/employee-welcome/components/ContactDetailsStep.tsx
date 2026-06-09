@@ -8,6 +8,8 @@ import {
 } from "@/components/ui/form"
 import { FormSelectField } from "@/components/ui/form-select-field"
 import { Input } from "@/components/ui/input"
+import { AddressFields } from "@/features/employees/components/address/AddressFields"
+import { PhoneField } from "@/features/employees/components/phone/PhoneField"
 import {
   OnboardingFormSection,
   OnboardingStepShell,
@@ -42,46 +44,12 @@ export function ContactDetailsStep() {
       title={step.label}
       description={step.description}
     >
-      <OnboardingFormSection title="Contact (required phone)">
-        <FormField
-          control={form.control}
-          name="phone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Mobile phone *</FormLabel>
-              <FormControl>
-                <Input {...field} type="tel" className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem className="sm:col-span-2">
-              <FormLabel>Home address</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="Optional" className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="province"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Province</FormLabel>
-              <FormControl>
-                <Input {...field} placeholder="Optional" className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+      <OnboardingFormSection title="Contact (required phone)" cols={3}>
+        <PhoneField name="phone" label="Mobile phone *" />
+      </OnboardingFormSection>
+
+      <OnboardingFormSection title="Home address" cols={3}>
+        <AddressFields />
       </OnboardingFormSection>
 
       <OnboardingFormSection title="Personal (optional)">
@@ -98,11 +66,7 @@ export function ContactDetailsStep() {
             </FormItem>
           )}
         />
-        <FormSelectField
-          name="gender"
-          label="Gender"
-          options={genderOptions}
-        />
+        <FormSelectField name="gender" label="Gender" options={genderOptions} />
         <FormField
           control={form.control}
           name="nationality"
@@ -137,18 +101,10 @@ export function ContactDetailsStep() {
             </FormItem>
           )}
         />
-        <FormField
-          control={form.control}
+        <PhoneField
           name="emergencyContactPhone"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Contact phone</FormLabel>
-              <FormControl>
-                <Input {...field} type="tel" placeholder="Optional" className="bg-card" />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
+          label="Contact phone"
+          placeholder="912 345 6789"
         />
         <FormField
           control={form.control}
@@ -157,7 +113,11 @@ export function ContactDetailsStep() {
             <FormItem>
               <FormLabel>Relationship</FormLabel>
               <FormControl>
-                <Input {...field} placeholder="e.g. Spouse, Parent" className="bg-card" />
+                <Input
+                  {...field}
+                  placeholder="e.g. Spouse, Parent"
+                  className="bg-card"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

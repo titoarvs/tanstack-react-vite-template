@@ -24,6 +24,8 @@ export type EmployeeUpdatePatch = {
   photoUrl?: string
   department?: string
   position?: string
+  jobTitle?: string
+  isManager?: boolean
   managerId?: string
   orgLevel?: string
   businessUnit?: string
@@ -31,6 +33,7 @@ export type EmployeeUpdatePatch = {
   workLocation?: Employee["workLocation"]
   employmentType?: Employee["employmentType"]
   status?: Employee["status"]
+  statusDetail?: Employee["statusDetail"]
   officeBranch?: string
   contractSignedDate?: string
   regularizationDate?: string

@@ -11,7 +11,7 @@ interface EmployeePersonalTabProps {
     maritalStatus?: string
     email: string
     phone: string
-    address?: string
+    formattedAddress?: string
   }
 }
 
@@ -40,7 +40,11 @@ export function EmployeePersonalTab({ personal }: EmployeePersonalTabProps) {
         <ProfileFieldGrid>
           <ProfileField label="Email" value={personal.email} />
           <ProfileField label="Phone" value={personal.phone} />
-          <ProfileField label="Address" value={personal.address} className="sm:col-span-2" />
+          <ProfileField
+            label="Address"
+            value={personal.formattedAddress}
+            className="sm:col-span-2"
+          />
         </ProfileFieldGrid>
       </ProfileInfoCard>
     </div>

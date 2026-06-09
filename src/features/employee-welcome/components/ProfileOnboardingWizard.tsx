@@ -10,6 +10,7 @@ import { useQueryClient } from "@tanstack/react-query"
 import { employeeKeys } from "@/features/employees/hooks/useEmployees"
 import type { Employee } from "@/features/employees/types"
 import { cn } from "@/lib/utils"
+import { normalizeAddressInput } from "@/features/employees/lib/address"
 import { completeProfileOnboarding } from "../api/profileOnboardingApi"
 import { PROFILE_ONBOARDING_STEP_COUNT, PROFILE_ONBOARDING_STEPS } from "../lib/profileOnboardingSteps"
 import {
@@ -37,7 +38,7 @@ function applyZodErrors(
 function buildDefaultValues(employee: Employee): ProfileOnboardingFormData {
   return {
     phone: employee.contact.phone ?? "",
-    address: employee.contact.address ?? "",
+    address: normalizeAddressInput(employee.contact.address, employee.contact.province),
     dateOfBirth: employee.demographics.dateOfBirth ?? "",
     gender: employee.demographics.gender ?? "",
     nationality: employee.demographics.nationality ?? "",

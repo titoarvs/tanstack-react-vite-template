@@ -27,10 +27,11 @@ export interface PreEmploymentInvite {
   expiresAt?: string
 }
 
+import type { EmployeeAddress } from "@/features/employees/types"
+
 export interface PreEmploymentFormData {
   phone: string
-  address?: string
-  province?: string
+  address?: EmployeeAddress
   dateOfBirth?: string
   gender?: string
   nationality?: string

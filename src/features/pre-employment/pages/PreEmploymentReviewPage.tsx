@@ -25,6 +25,7 @@ import {
   getPositionsForDepartment,
   WORK_LOCATIONS,
 } from "@/features/employees/data/masterData"
+import { formatAddress } from "@/features/employees/lib/address"
 import { getCreateFormStatusDetailOptions } from "@/features/employees/lib/employmentStatus"
 import { prefillEmploymentFromManatal } from "@/features/integrations/manatal/manatalPrefill"
 import {
@@ -59,7 +60,7 @@ const isManagerOptions = [
 function CandidateSubmissionSummary({ payload }: { payload: Partial<PreEmploymentFormData> }) {
   const rows = [
     ["Phone", payload.phone],
-    ["Address", [payload.address, payload.province].filter(Boolean).join(", ")],
+    ["Address", formatAddress(payload.address)],
     ["Emergency", payload.emergencyContactName],
     ["Preferred name", payload.preferredName],
     [

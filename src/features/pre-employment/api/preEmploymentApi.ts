@@ -23,7 +23,10 @@ import {
 import { employeeStore } from "@/lib/mock/employeeStore"
 import { preEmploymentStore } from "@/lib/mock/preEmploymentStore"
 import { requireSessionPermission } from "@/features/auth/authErrors"
-import type { CreateEmployeeInput, EmploymentType } from "@/features/employees/types"
+import type {
+  CreateEmployeeInput,
+  EmploymentType,
+} from "@/features/employees/types"
 import type { WorkLocation } from "@/features/employees/data/masterData"
 import {
   computeProbationEnd,
@@ -31,6 +34,7 @@ import {
   toGender,
 } from "@/features/employees/lib/employeeCalculations"
 import { resolveStatusForCreate } from "@/features/employees/lib/employmentStatus"
+import { toStoredAddress } from "@/features/employees/lib/address"
 import type {
   ApprovePreEmploymentInput,
   ApprovePreEmploymentResult,
@@ -42,7 +46,9 @@ import type {
 const MOCK_TEMP_PASSWORD_HINT =
   "Use any password with at least 4 characters (mock portal login)."
 
-function getOrgSubscriptionForUser(user: ReturnType<typeof requireSessionUser>) {
+function getOrgSubscriptionForUser(
+  user: ReturnType<typeof requireSessionUser>
+) {
   const organizationId = resolveOrganizationId(user)
   const organizationName = resolveOrganizationName(user)
   return (
@@ -53,12 +59,16 @@ function getOrgSubscriptionForUser(user: ReturnType<typeof requireSessionUser>) 
   )
 }
 
-export async function listPreEmploymentInvites(): Promise<PreEmploymentInvite[]> {
+export async function listPreEmploymentInvites(): Promise<
+  PreEmploymentInvite[]
+> {
   requireSessionPermission(PERMISSIONS.EMPLOYEES_CREATE)
   return preEmploymentStore.list()
 }
 
-export async function getPreEmploymentInvite(id: string): Promise<PreEmploymentInvite> {
+export async function getPreEmploymentInvite(
+  id: string
+): Promise<PreEmploymentInvite> {
   requireSessionPermission(PERMISSIONS.EMPLOYEES_CREATE)
   const invite = await preEmploymentStore.getById(id)
   if (!invite) throw new Error("Invite not found")
@@ -164,7 +174,8 @@ export async function approvePreEmploymentInvite(
       ? {
           name: payload.emergencyContactName?.trim() || undefined,
           phone: payload.emergencyContactPhone?.trim() || undefined,
-          relationship: payload.emergencyContactRelationship?.trim() || undefined,
+          relationship:
+            payload.emergencyContactRelationship?.trim() || undefined,
         }
       : undefined
 
@@ -181,8 +192,7 @@ export async function approvePreEmploymentInvite(
     contact: {
       email: invite.email,
       phone: payload.phone,
-      address: payload.address?.trim() || undefined,
-      province: payload.province?.trim() || undefined,
+      address: toStoredAddress(payload.address),
     },
     photoUrl: payload.photoUrl || undefined,
     preferredName: payload.preferredName?.trim() || undefined,
@@ -192,7 +202,9 @@ export async function approvePreEmploymentInvite(
     position: employment.position,
     jobTitle: employment.jobTitle,
     isManager: employment.isManager,
-    managerId: employment.isManager ? undefined : employment.managerId || undefined,
+    managerId: employment.isManager
+      ? undefined
+      : employment.managerId || undefined,
     workLocation: employment.workLocation as WorkLocation,
     employmentType: employment.employmentType as EmploymentType,
     lifecycle: {
@@ -205,7 +217,8 @@ export async function approvePreEmploymentInvite(
         employment.regularizationDate ??
         computeRegularizationDate(
           employment.hireDate,
-          employment.probationEndDate ?? computeProbationEnd(employment.hireDate)
+          employment.probationEndDate ??
+            computeProbationEnd(employment.hireDate)
         ) ??
         undefined,
     },
@@ -224,7 +237,9 @@ export async function approvePreEmploymentInvite(
       ),
     compliance: {
       privacyConsentSigned: payload.acknowledgePrivacy,
-      privacyConsentDate: payload.acknowledgePrivacy ? now.slice(0, 10) : undefined,
+      privacyConsentDate: payload.acknowledgePrivacy
+        ? now.slice(0, 10)
+        : undefined,
       dataSubjectAccessSigned: payload.acknowledgePrivacy,
     },
     profileOnboardingComplete: true,

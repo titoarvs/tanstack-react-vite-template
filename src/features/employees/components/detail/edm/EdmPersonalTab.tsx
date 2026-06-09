@@ -17,6 +17,8 @@ interface EdmPersonalTabProps {
 }
 
 export function EdmPersonalTab({ employee }: EdmPersonalTabProps) {
+  const address = employee.contact.address
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <ProfileInfoCard title="Demographics" icon={UserRound}>
@@ -53,20 +55,42 @@ export function EdmPersonalTab({ employee }: EdmPersonalTabProps) {
           <EdmProfileField
             employee={employee}
             fieldKey="address"
-            label="Home address"
-            value={employee.contact.address}
+            label="Street"
+            value={address?.street}
             className="sm:col-span-2"
           />
           <EdmProfileField
             employee={employee}
             fieldKey="address"
-            label="Province"
-            value={employee.contact.province}
+            label="City"
+            value={address?.city}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="address"
+            label="State"
+            value={address?.state}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="address"
+            label="Zip code"
+            value={address?.zipCode}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="address"
+            label="Country"
+            value={address?.country}
           />
         </ProfileFieldGrid>
       </ProfileInfoCard>
 
-      <ProfileInfoCard title="Emergency contact" icon={Phone} className="lg:col-span-2">
+      <ProfileInfoCard
+        title="Emergency contact"
+        icon={Phone}
+        className="lg:col-span-2"
+      >
         <ProfileFieldGrid>
           <EdmProfileField
             employee={employee}
