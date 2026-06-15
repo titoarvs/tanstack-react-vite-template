@@ -140,6 +140,22 @@ Preference is stored in `localStorage` (`titohris-theme`) and applied via `data-
 3. Typecheck: `npm run typecheck`
 4. Build: `npm run build`
 
+## Deploying to Vercel
+
+This app is a client-side SPA (TanStack Router). Vercel must serve `index.html` for deep routes so refresh and direct URL access work.
+
+**Project settings:**
+
+| Setting | Value |
+|---------|-------|
+| Build Command | `npm run build` |
+| Output Directory | `dist` |
+| Framework Preset | Vite (or Other) |
+
+**SPA fallback:** [`vercel.json`](vercel.json) rewrites extensionless paths to `/index.html` while leaving `/assets/*` and other static files untouched.
+
+After deploy, verify hard refresh on `/dashboard` and direct navigation to `/employees/directory` — both should load the app, not Vercel's NOT_FOUND page.
+
 ## ❓ Why `Caddy` for serving the app?
 
 See: https://github.com/brody192/vite-react-template#-why-use-caddy-when-deploying-to-railway
