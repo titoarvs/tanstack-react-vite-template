@@ -2,7 +2,6 @@ import type { UserRole } from "@/features/auth/types"
 import {
   HR_OPS_ROLES,
   HR_STAFF_ROLES,
-  PRIVILEGED_ADMIN_ROLES,
   WORKSPACE_ROLES,
 } from "@/features/auth/roles"
 
@@ -114,7 +113,9 @@ export const STATIC_MODULES: Record<string, StaticModuleMeta> = {
   },
 }
 
-export function getStaticModule(moduleId: string): StaticModuleMeta | undefined {
+export function getStaticModule(
+  moduleId: string
+): StaticModuleMeta | undefined {
   return STATIC_MODULES[moduleId]
 }
 

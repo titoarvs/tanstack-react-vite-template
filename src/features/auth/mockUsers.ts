@@ -51,12 +51,24 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   {
     email: "hr@titohris.com",
     password: DEMO_PASSWORD,
-    user: demoUser("user-hr", "hr@titohris.com", "Dorothy Chou", "hris_admin", "3"),
+    user: demoUser(
+      "user-hr",
+      "hr@titohris.com",
+      "Dorothy Chou",
+      "hris_admin",
+      "3"
+    ),
   },
   {
     email: "hrbp@titohris.com",
     password: DEMO_PASSWORD,
-    user: demoUser("user-hrbp", "hrbp@titohris.com", "Carlos Mendoza", "hrbp", "3"),
+    user: demoUser(
+      "user-hrbp",
+      "hrbp@titohris.com",
+      "Carlos Mendoza",
+      "hrbp",
+      "3"
+    ),
   },
   {
     email: "sysadmin@titohris.com",
@@ -71,7 +83,13 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
   {
     email: "manager@titohris.com",
     password: DEMO_PASSWORD,
-    user: demoUser("user-manager", "manager@titohris.com", "Budi Santoso", "manager", "2"),
+    user: demoUser(
+      "user-manager",
+      "manager@titohris.com",
+      "Budi Santoso",
+      "manager",
+      "2"
+    ),
   },
   {
     email: "employee@titohris.com",
@@ -85,11 +103,11 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
     ),
   },
   {
-    email: "newhire@titohris.com",
+    email: "prehire@titohris.com",
     password: DEMO_PASSWORD,
     user: demoUser(
-      "user-newhire",
-      "newhire@titohris.com",
+      "user-prehire",
+      "prehire@titohris.com",
       "Rina Wijaya",
       "employee",
       "11"
@@ -111,9 +129,10 @@ export const DEMO_ACCOUNTS: DemoAccount[] = [
 const PICKER_SCENARIO_OVERRIDES: Partial<
   Record<string, Pick<DemoPickerEntry, "label" | "description">>
 > = {
-  "newhire@titohris.com": {
-    label: "New hire",
-    description: "Employee — privacy consent modal then welcome onboarding pending",
+  "prehire@titohris.com": {
+    label: "Pre-hire",
+    description:
+      "Employee — privacy consent modal then welcome onboarding pending",
   },
 }
 
@@ -140,7 +159,8 @@ export const DEMO_PICKER_ENTRIES: DemoPickerEntry[] = DEMO_ACCOUNTS.filter(
   })
   .sort(
     (left, right) =>
-      ROLE_RANK[right.role] - ROLE_RANK[left.role] || left.label.localeCompare(right.label)
+      ROLE_RANK[right.role] - ROLE_RANK[left.role] ||
+      left.label.localeCompare(right.label)
   )
 
 /** Default account shown on login form */
@@ -149,7 +169,10 @@ export const DEMO_CREDENTIALS = {
   password: DEMO_PASSWORD,
 } as const
 
-export function findDemoAccount(email: string, password: string): AuthUser | null {
+export function findDemoAccount(
+  email: string,
+  password: string
+): AuthUser | null {
   const normalizedEmail = email.trim().toLowerCase()
   const match = DEMO_ACCOUNTS.find(
     a => a.email === normalizedEmail && a.password === password
