@@ -113,7 +113,7 @@ const PICKER_SCENARIO_OVERRIDES: Partial<
 > = {
   "newhire@titohris.com": {
     label: "New hire",
-    description: "Employee — privacy gate then welcome onboarding pending",
+    description: "Employee — privacy consent modal then welcome onboarding pending",
   },
 }
 

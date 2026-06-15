@@ -24,14 +24,13 @@ export function getPostLoginPath(
   user: AuthUser | null | undefined,
   redirect?: string
 ): string {
-  if (needsPrivacyConsent(user)) return "/privacy-consent"
+  if (needsPrivacyConsent(user)) return "/welcome"
 
   if (
     typeof redirect === "string" &&
     redirect.startsWith("/") &&
     redirect !== "/login" &&
-    redirect !== "/welcome" &&
-    redirect !== "/privacy-consent"
+    redirect !== "/welcome"
   ) {
     if (needsEmployeeWelcomeOnboarding(user)) return "/welcome"
     return redirect
@@ -42,7 +41,6 @@ export function getPostLoginPath(
 
 /** Typed navigate target for TanStack Router (avoids `to: string` param errors). */
 export type PostLoginNavigateTarget =
-  | { to: "/privacy-consent" }
   | { to: "/welcome" }
   | { to: "/dashboard" }
   | { to: "/settings" }
@@ -59,8 +57,6 @@ export type PostLoginNavigateTarget =
 
 function parseAppNavigateTarget(path: string): PostLoginNavigateTarget {
   switch (path) {
-    case "/privacy-consent":
-      return { to: "/privacy-consent" }
     case "/welcome":
       return { to: "/welcome" }
     case "/dashboard":
