@@ -3,18 +3,6 @@ import { needsPrivacyConsent } from "@/features/compliance/lib/privacyConsentPol
 import { getSession } from "@/features/auth/authStorage"
 import { getPostLoginPath, needsEmployeeWelcomeOnboarding } from "./lib/profileOnboardingPolicy"
 
-export function requirePrivacyConsentAccess() {
-  return () => {
-    const user = getSession()
-    if (!user) {
-      throw redirect({ to: "/login", search: { redirect: "/privacy-consent" } })
-    }
-    if (!needsPrivacyConsent(user)) {
-      throw redirect({ to: getPostLoginPath(user) })
-    }
-  }
-}
-
 /** Block app shell and welcome until privacy notice is acknowledged. */
 export function requirePrivacyConsentComplete({
   location,
@@ -23,9 +11,9 @@ export function requirePrivacyConsentComplete({
 }) {
   const user = getSession()
   if (!user) return
-  if (location.pathname.startsWith("/privacy-consent")) return
+  if (location.pathname.startsWith("/welcome")) return
   if (needsPrivacyConsent(user)) {
-    throw redirect({ to: "/privacy-consent" })
+    throw redirect({ to: "/welcome" })
   }
 }
 
@@ -35,9 +23,7 @@ export function requireWelcomeOnboardingAccess() {
     if (!user) {
       throw redirect({ to: "/login", search: { redirect: "/welcome" } })
     }
-    if (needsPrivacyConsent(user)) {
-      throw redirect({ to: "/privacy-consent" })
-    }
+    if (needsPrivacyConsent(user)) return
     if (!needsEmployeeWelcomeOnboarding(user)) {
       throw redirect({ to: "/dashboard" })
     }
@@ -52,10 +38,9 @@ export function requireEmployeeWelcomeComplete({
 }) {
   const user = getSession()
   if (!user) return
-  if (location.pathname.startsWith("/privacy-consent")) return
   if (location.pathname.startsWith("/welcome")) return
   if (needsPrivacyConsent(user)) {
-    throw redirect({ to: "/privacy-consent" })
+    throw redirect({ to: "/welcome" })
   }
   if (needsEmployeeWelcomeOnboarding(user)) {
     throw redirect({ to: "/welcome" })

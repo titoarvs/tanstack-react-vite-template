@@ -1,17 +1,32 @@
 import { Link, useNavigate } from "@tanstack/react-router"
+import { useState } from "react"
 import { TitoLogo } from "@/components/branding/TitoLogo"
+import { PrivacyConsentDialog } from "@/features/compliance/components/PrivacyConsentDialog"
+import { needsPrivacyConsent } from "@/features/compliance/lib/privacyConsentPolicy"
 import { useAuth } from "@/features/auth/useAuth"
-import { getLinkedEmployee } from "../lib/profileOnboardingPolicy"
+import {
+  getLinkedEmployee,
+  needsEmployeeWelcomeOnboarding,
+} from "../lib/profileOnboardingPolicy"
 import { ProfileOnboardingWizard } from "../components/ProfileOnboardingWizard"
 
 export function WelcomeOnboardingPage() {
   const { user, requestLogout } = useAuth()
   const employee = getLinkedEmployee(user)
   const navigate = useNavigate()
+  const [consentComplete, setConsentComplete] = useState(() => !needsPrivacyConsent(user))
+  const showPrivacyConsent = !consentComplete && needsPrivacyConsent(user)
+
+  const handleConsentComplete = () => {
+    setConsentComplete(true)
+    if (!needsEmployeeWelcomeOnboarding(user)) {
+      navigate({ to: "/dashboard" })
+    }
+  }
 
   if (!employee) {
     return (
-      <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background px-4">
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-4">
         <p className="text-center text-sm text-muted-foreground">
           No employee record is linked to your account. Please contact HR.
         </p>
@@ -28,8 +43,33 @@ export function WelcomeOnboardingPage() {
     )
   }
 
+  if (showPrivacyConsent) {
+    return (
+      <div className="min-h-dvh bg-background">
+        <header className="border-b border-dashed border-border">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4 sm:px-6">
+            <Link to="/">
+              <TitoLogo size="md" />
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                requestLogout(() => navigate({ to: "/login" }))
+              }}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Sign out
+            </button>
+          </div>
+        </header>
+
+        <PrivacyConsentDialog open onComplete={handleConsentComplete} />
+      </div>
+    )
+  }
+
   return (
-    <div className="min-h-[100dvh] bg-background">
+    <div className="min-h-dvh bg-background">
       <div
         className="pointer-events-none absolute inset-0 opacity-40"
         aria-hidden

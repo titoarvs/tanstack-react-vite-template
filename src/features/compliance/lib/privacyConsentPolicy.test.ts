@@ -39,8 +39,8 @@ assert(needsPrivacyConsent(employeeWithConsent) === false, "established employee
 assert(needsPrivacyConsent(hrAdmin) === false, "HR admin never needs privacy consent")
 
 assert(
-  getPostLoginPath(employeeWithoutConsent) === "/privacy-consent",
-  "post-login routes to privacy gate before welcome"
+  getPostLoginPath(employeeWithoutConsent) === "/welcome",
+  "post-login routes to welcome for privacy consent modal"
 )
 
 const onboardingEmployee = employeeStore.getByIdSync("11")

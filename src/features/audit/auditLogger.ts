@@ -246,7 +246,7 @@ export function recordPrivacyConsent(
     category: "compliance",
     action: "compliance.privacy_consent",
     summary: "Acknowledged Data Privacy Notice",
-    pathname: "/privacy-consent",
+    pathname: "/welcome",
     metadata: {
       employeeId,
       version: details.version,

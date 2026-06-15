@@ -13,9 +13,7 @@ import { DashboardPage } from "../features/dashboard/pages/DashboardPage"
 import { EmployeeDetailPage } from "../features/employees/pages/EmployeeDetailPage"
 import { EmployeeDirectoryPage } from "../features/employees/pages/EmployeeDirectoryPage"
 import { LandingPage } from "../features/marketing/pages/LandingPage"
-import { PrivacyConsentPage } from "../features/compliance/pages/PrivacyConsentPage"
 import {
-  requirePrivacyConsentAccess,
   requireWelcomeOnboardingAccess,
 } from "../features/employee-welcome/routeGuards"
 import { WelcomeOnboardingPage } from "../features/employee-welcome/pages/WelcomeOnboardingPage"
@@ -43,6 +41,7 @@ import { PricingPage } from "../features/billing/pages/PricingPage"
 import { CheckoutPage } from "../features/billing/pages/CheckoutPage"
 import { BillingPage } from "../features/billing/pages/BillingPage"
 import { EmployeesIndexRedirect } from "./employeesRedirect"
+import { PrivacyConsentRedirect } from "./privacyConsentRedirect"
 import { RootLayout } from "./rootLayout"
 
 export const rootRoute = new RootRoute({
@@ -74,8 +73,7 @@ export const loginRoute = new Route({
 export const privacyConsentRoute = new Route({
   getParentRoute: () => rootRoute,
   path: "/privacy-consent",
-  component: PrivacyConsentPage,
-  beforeLoad: requirePrivacyConsentAccess(),
+  component: PrivacyConsentRedirect,
 })
 
 export const welcomeRoute = new Route({

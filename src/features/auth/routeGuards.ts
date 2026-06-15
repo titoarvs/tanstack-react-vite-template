@@ -27,7 +27,7 @@ import { getSession, isAuthenticated } from "./authStorage"
 import type { SubscriptionFeature } from "@/features/billing/types"
 import { canManageRbac } from "./rbac/rbacPolicy"
 
-const SUBSCRIPTION_EXEMPT_PREFIXES = ["/billing", "/checkout", "/settings", "/welcome", "/privacy-consent", "/join"]
+const SUBSCRIPTION_EXEMPT_PREFIXES = ["/billing", "/checkout", "/settings", "/welcome", "/join"]
 
 function getOrgSubscriptionForSession() {
   const user = getSession()
