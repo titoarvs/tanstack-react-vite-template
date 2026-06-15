@@ -35,6 +35,28 @@ export function EdmComplianceTab({ employee }: EdmComplianceTabProps) {
           />
           <EdmProfileField
             employee={employee}
+            fieldKey="privacyConsent"
+            label="Consent timestamp"
+            value={
+              compliance?.privacyConsentAt
+                ? new Date(compliance.privacyConsentAt).toLocaleString()
+                : undefined
+            }
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="privacyConsent"
+            label="IP address"
+            value={compliance?.privacyConsentIpAddress}
+          />
+          <EdmProfileField
+            employee={employee}
+            fieldKey="privacyConsent"
+            label="Notice version"
+            value={compliance?.privacyNoticeVersion}
+          />
+          <EdmProfileField
+            employee={employee}
             fieldKey="dataSubjectAccess"
             label="Data subject access signed"
             value={

@@ -13,8 +13,12 @@ import { DashboardPage } from "../features/dashboard/pages/DashboardPage"
 import { EmployeeDetailPage } from "../features/employees/pages/EmployeeDetailPage"
 import { EmployeeDirectoryPage } from "../features/employees/pages/EmployeeDirectoryPage"
 import { LandingPage } from "../features/marketing/pages/LandingPage"
+import { PrivacyConsentPage } from "../features/compliance/pages/PrivacyConsentPage"
+import {
+  requirePrivacyConsentAccess,
+  requireWelcomeOnboardingAccess,
+} from "../features/employee-welcome/routeGuards"
 import { WelcomeOnboardingPage } from "../features/employee-welcome/pages/WelcomeOnboardingPage"
-import { requireWelcomeOnboardingAccess } from "../features/employee-welcome/routeGuards"
 import { JoinPortalPage } from "../features/pre-employment/pages/JoinPortalPage"
 import { JoinSubmittedPage } from "../features/pre-employment/pages/JoinSubmittedPage"
 import {
@@ -65,6 +69,13 @@ export const loginRoute = new Route({
     redirect: typeof search.redirect === "string" ? search.redirect : undefined,
   }),
   beforeLoad: redirectIfAuthenticated,
+})
+
+export const privacyConsentRoute = new Route({
+  getParentRoute: () => rootRoute,
+  path: "/privacy-consent",
+  component: PrivacyConsentPage,
+  beforeLoad: requirePrivacyConsentAccess(),
 })
 
 export const welcomeRoute = new Route({
@@ -214,6 +225,7 @@ export const routeTree = rootRoute.addChildren([
   indexRoute,
   pricingRoute,
   loginRoute,
+  privacyConsentRoute,
   welcomeRoute,
   joinRoute,
   joinSubmittedRoute,

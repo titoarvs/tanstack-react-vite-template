@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/form"
 import { EmployeeAvatar } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import { RequiredMark } from "@/components/ui/required-mark"
 import {
   OnboardingFormSection,
   OnboardingStepShell,
@@ -99,7 +100,7 @@ export function PreEmploymentPoliciesStep({ invite }: PreEmploymentPoliciesStepP
               </FormControl>
               <div className="space-y-1">
                 <FormLabel className="font-normal leading-snug">
-                  I have read and agree to the employee handbook *
+                  I have read and agree to the employee handbook <RequiredMark />
                 </FormLabel>
                 <FormMessage />
               </div>
@@ -121,7 +122,7 @@ export function PreEmploymentPoliciesStep({ invite }: PreEmploymentPoliciesStepP
               </FormControl>
               <div className="space-y-1">
                 <FormLabel className="font-normal leading-snug">
-                  I acknowledge how my personal data will be processed *
+                  I acknowledge how my personal data will be processed <RequiredMark />
                 </FormLabel>
                 <FormMessage />
               </div>

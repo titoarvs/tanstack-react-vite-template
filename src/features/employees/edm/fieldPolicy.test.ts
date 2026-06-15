@@ -40,7 +40,7 @@ const hrAdminUser: AuthUser = {
 
 const sampleEmployee: Employee = {
   id: "1",
-  employeeId: "EMP-001",
+  employeeId: "TSPI-001",
   firstName: "Angela",
   lastName: "Raharja",
   demographics: {},

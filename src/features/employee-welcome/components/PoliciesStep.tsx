@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { EmployeeAvatar } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
+import { RequiredMark } from "@/components/ui/required-mark"
 import {
   OnboardingFormSection,
   OnboardingStepShell,
@@ -131,29 +132,7 @@ export function PoliciesStep() {
               </FormControl>
               <div className="space-y-1">
                 <FormLabel className="font-normal leading-snug">
-                  I have read and agree to the employee handbook *
-                </FormLabel>
-                <FormMessage />
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="acknowledgePrivacy"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start gap-3 sm:col-span-2">
-              <FormControl>
-                <input
-                  type="checkbox"
-                  checked={field.value === true}
-                  onChange={e => field.onChange(e.target.checked)}
-                  className="mt-1 h-4 w-4 rounded border-input"
-                />
-              </FormControl>
-              <div className="space-y-1">
-                <FormLabel className="font-normal leading-snug">
-                  I acknowledge how my personal data will be processed *
+                  I have read and agree to the employee handbook <RequiredMark />
                 </FormLabel>
                 <FormMessage />
               </div>

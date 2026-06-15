@@ -135,19 +135,13 @@ export function ReviewStep({ onEditStep }: ReviewStepProps) {
           <ReviewRow label="Position" value={data.position} />
           <ReviewRow label="Job title" value={data.jobTitle} />
           <ReviewRow label="Is manager" value={data.isManager ? "Yes" : "No"} />
-          {!data.isManager && (
-            <>
-              <ReviewRow
-                label="Manager"
-                value={
-                  manager
-                    ? `${manager.firstName} ${manager.lastName}`
-                    : undefined
-                }
-              />
-              <ReviewRow label="Manager email" value={manager?.contact.email} />
-            </>
-          )}
+          <ReviewRow
+            label="Manager"
+            value={
+              manager ? `${manager.firstName} ${manager.lastName}` : undefined
+            }
+          />
+          <ReviewRow label="Manager email" value={manager?.contact.email} />
           <ReviewRow
             label="Employment type"
             value={getEmploymentTypeLabel(

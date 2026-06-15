@@ -7,6 +7,7 @@ export type AuditCategory =
   | "billing"
   | "settings"
   | "security"
+  | "compliance"
 
 export type AuditAction =
   | "page.view"
@@ -25,6 +26,7 @@ export type AuditAction =
   | "pre_employment.submitted"
   | "pre_employment.approved"
   | "rbac.updated"
+  | "compliance.privacy_consent"
 
 export interface AuditLogEntry {
   id: string

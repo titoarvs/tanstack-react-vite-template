@@ -7,7 +7,8 @@ export interface AuthContextValue {
   user: AuthUser | null
   isAuthenticated: boolean
   login: (email: string, password: string) => { ok: true } | { ok: false; message: string }
-  logout: () => void
+  /** Opens a confirmation dialog before signing out. */
+  requestLogout: (afterLogout?: () => void) => void
   /** Current role, if signed in */
   role: UserRole | null
   can: (permission: Permission) => boolean

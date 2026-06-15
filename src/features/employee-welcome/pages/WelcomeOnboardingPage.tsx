@@ -5,7 +5,7 @@ import { getLinkedEmployee } from "../lib/profileOnboardingPolicy"
 import { ProfileOnboardingWizard } from "../components/ProfileOnboardingWizard"
 
 export function WelcomeOnboardingPage() {
-  const { user, logout } = useAuth()
+  const { user, requestLogout } = useAuth()
   const employee = getLinkedEmployee(user)
   const navigate = useNavigate()
 
@@ -18,8 +18,7 @@ export function WelcomeOnboardingPage() {
         <button
           type="button"
           onClick={() => {
-            logout()
-            navigate({ to: "/login" })
+            requestLogout(() => navigate({ to: "/login" }))
           }}
           className="mt-4 text-sm font-medium text-primary hover:underline"
         >
@@ -48,8 +47,7 @@ export function WelcomeOnboardingPage() {
           <button
             type="button"
             onClick={() => {
-              logout()
-              navigate({ to: "/login" })
+              requestLogout(() => navigate({ to: "/login" }))
             }}
             className="text-sm text-muted-foreground hover:text-foreground"
           >

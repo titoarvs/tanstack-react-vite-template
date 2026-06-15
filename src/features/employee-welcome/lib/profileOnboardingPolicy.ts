@@ -1,6 +1,7 @@
 import { employeeStore } from "@/lib/mock/employeeStore"
 import type { AuthUser } from "@/features/auth/types"
 import type { Employee } from "@/features/employees/types"
+import { needsPrivacyConsent } from "@/features/compliance/lib/privacyConsentPolicy"
 
 export function getLinkedEmployee(user: AuthUser | null | undefined): Employee | undefined {
   if (!user?.employeeId) return undefined
@@ -23,11 +24,14 @@ export function getPostLoginPath(
   user: AuthUser | null | undefined,
   redirect?: string
 ): string {
+  if (needsPrivacyConsent(user)) return "/privacy-consent"
+
   if (
     typeof redirect === "string" &&
     redirect.startsWith("/") &&
     redirect !== "/login" &&
-    redirect !== "/welcome"
+    redirect !== "/welcome" &&
+    redirect !== "/privacy-consent"
   ) {
     if (needsEmployeeWelcomeOnboarding(user)) return "/welcome"
     return redirect
@@ -38,6 +42,7 @@ export function getPostLoginPath(
 
 /** Typed navigate target for TanStack Router (avoids `to: string` param errors). */
 export type PostLoginNavigateTarget =
+  | { to: "/privacy-consent" }
   | { to: "/welcome" }
   | { to: "/dashboard" }
   | { to: "/settings" }
@@ -54,6 +59,8 @@ export type PostLoginNavigateTarget =
 
 function parseAppNavigateTarget(path: string): PostLoginNavigateTarget {
   switch (path) {
+    case "/privacy-consent":
+      return { to: "/privacy-consent" }
     case "/welcome":
       return { to: "/welcome" }
     case "/dashboard":

@@ -50,7 +50,11 @@ const isManagerOptions = [
   { value: "true", label: "Yes" },
 ]
 
-export function EmploymentDetailsForm() {
+export function EmploymentDetailsForm({
+  excludeEmployeeId,
+}: {
+  excludeEmployeeId?: string
+}) {
   const form = useFormContext<EmploymentEditFormData>()
   const department = form.watch("department")
   const status = form.watch("status")
@@ -77,7 +81,6 @@ export function EmploymentDetailsForm() {
     if (currentJobTitle && !jobTitleOptions.some(o => o.value === currentJobTitle)) {
       form.setValue("jobTitle", jobTitleOptions[0]?.value ?? "")
     }
-    form.setValue("managerId", "")
   }, [department, form, positionOptions, jobTitleOptions])
 
   return (
@@ -89,16 +92,19 @@ export function EmploymentDetailsForm() {
             name="department"
             label="Department"
             options={departmentOptions}
+            required
           />
           <FormSelectField<EmploymentEditFormData>
             name="position"
             label="Position"
             options={positionOptions}
+            required
           />
           <FormSelectField<EmploymentEditFormData>
             name="jobTitle"
             label="Job title"
             options={jobTitleOptions}
+            required
           />
           <FormField
             control={form.control}
@@ -125,7 +131,7 @@ export function EmploymentDetailsForm() {
           />
         </div>
         <div className="grid gap-4 sm:grid-cols-2">
-          <ManagerDetailsFields />
+          <ManagerDetailsFields excludeEmployeeId={excludeEmployeeId} />
         </div>
       </div>
 
@@ -159,11 +165,13 @@ export function EmploymentDetailsForm() {
             name="workLocation"
             label="Work location"
             options={workLocationOptions}
+            required
           />
           <FormSelectField<EmploymentEditFormData>
             name="employmentType"
             label="Employment type"
             options={employmentTypeOptions}
+            required
           />
         </div>
       </div>
@@ -175,6 +183,7 @@ export function EmploymentDetailsForm() {
             name="status"
             label="Employee status"
             options={statusOptions}
+            required
           />
           <FormSelectField<EmploymentEditFormData>
             name="statusDetail"
@@ -186,7 +195,7 @@ export function EmploymentDetailsForm() {
             name="hireDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Hire date</FormLabel>
+                <FormLabel required>Hire date</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} className="bg-card" />
                 </FormControl>
@@ -200,7 +209,7 @@ export function EmploymentDetailsForm() {
             name="contractSignedDate"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Date contract signed</FormLabel>
+                <FormLabel required>Date contract signed</FormLabel>
                 <FormControl>
                   <Input type="date" {...field} className="bg-card" />
                 </FormControl>

@@ -210,7 +210,7 @@ function SidebarNav({
   collapsed: boolean
   onNavigate: () => void
 }) {
-  const { user, logout, can } = useAuth()
+  const { user, requestLogout, can } = useAuth()
   const navigate = useNavigate()
   const displayName = user?.name ?? "Guest"
   const employeeNavTo = getEmployeeNavTarget(user)
@@ -228,9 +228,10 @@ function SidebarNav({
     .filter(section => section.items.length > 0)
 
   function handleLogout() {
-    logout()
-    onNavigate()
-    navigate({ to: "/login" })
+    requestLogout(() => {
+      onNavigate()
+      navigate({ to: "/login" })
+    })
   }
 
   return (

@@ -5,6 +5,7 @@ import {
   LogIn,
   Palette,
   ScrollText,
+  ShieldCheck,
   Users,
 } from "lucide-react"
 import type { AuditAction, AuditCategory } from "./types"
@@ -16,6 +17,7 @@ export const AUDIT_CATEGORY_LABELS: Record<AuditCategory, string> = {
   billing: "Billing",
   settings: "Settings",
   security: "Security",
+  compliance: "Compliance",
 }
 
 export function getCategoryIcon(category: AuditCategory): LucideIcon {
@@ -32,6 +34,8 @@ export function getCategoryIcon(category: AuditCategory): LucideIcon {
       return Palette
     case "security":
       return ScrollText
+    case "compliance":
+      return ShieldCheck
     default:
       return ScrollText
   }
@@ -51,6 +55,8 @@ export function getCategoryAccentClass(category: AuditCategory): string {
       return "border-l-accent-foreground/30 bg-accent/30"
     case "security":
       return "border-l-destructive/60 bg-destructive/5"
+    case "compliance":
+      return "border-l-chart-3 bg-chart-3/5"
     default:
       return "border-l-border bg-card"
   }

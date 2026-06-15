@@ -78,10 +78,10 @@ export const approveEmploymentSchema = z
     contractSignedDate: z.string().min(1, "Date contract signed is required"),
   })
   .superRefine((data, ctx) => {
-    if (!data.isManager && !data.managerId?.trim()) {
+    if (!data.managerId?.trim()) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Manager is required when employee is not a manager",
+        message: "Supervisor / manager is required",
         path: ["managerId"],
       })
     }

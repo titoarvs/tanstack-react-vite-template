@@ -41,7 +41,7 @@ export function PreEmploymentContactStep() {
   return (
     <OnboardingStepShell icon={step.icon} title={step.label} description={step.description}>
       <OnboardingFormSection title="Contact" cols={3}>
-        <PhoneField name="phone" label="Mobile phone *" />
+        <PhoneField name="phone" label="Mobile phone" required />
       </OnboardingFormSection>
 
       <OnboardingFormSection title="Home address" cols={3}>

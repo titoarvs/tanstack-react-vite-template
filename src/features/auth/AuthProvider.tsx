@@ -1,9 +1,10 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react"
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { can, hasAnyRole, hasRole } from "./permissions"
 import type { Permission } from "./permissions"
 import { AuthContext } from "./authContextState"
 import { RBAC_UPDATED_EVENT } from "./rbac/rbacStorage"
 import { recordLogin, recordLogout } from "@/features/audit/auditLogger"
+import { LogoutConfirmDialog } from "./components/LogoutConfirmDialog"
 import {
   clearSession,
   getSession,
@@ -16,6 +17,8 @@ import type { UserRole } from "./types"
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(() => getSession())
   const [rbacRevision, setRbacRevision] = useState(0)
+  const [logoutOpen, setLogoutOpen] = useState(false)
+  const afterLogoutRef = useRef<(() => void) | null>(null)
 
   useEffect(() => {
     const handler = () => setRbacRevision(revision => revision + 1)
@@ -37,11 +40,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return { ok: true as const }
   }, [])
 
-  const logout = useCallback(() => {
+  const performLogout = useCallback(() => {
     const current = getSession()
     if (current) recordLogout(current)
     clearSession()
     setUser(null)
+  }, [])
+
+  const requestLogout = useCallback((afterLogout?: () => void) => {
+    afterLogoutRef.current = afterLogout ?? null
+    setLogoutOpen(true)
+  }, [])
+
+  const confirmLogout = useCallback(() => {
+    performLogout()
+    setLogoutOpen(false)
+    const afterLogout = afterLogoutRef.current
+    afterLogoutRef.current = null
+    afterLogout?.()
+  }, [performLogout])
+
+  const handleLogoutOpenChange = useCallback((open: boolean) => {
+    setLogoutOpen(open)
+    if (!open) afterLogoutRef.current = null
   }, [])
 
   const value = useMemo(
@@ -49,14 +70,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       user,
       isAuthenticated: user !== null,
       login,
-      logout,
+      requestLogout,
       role: user?.role ?? null,
       can: (permission: Permission) => can(user, permission),
       hasRole: (role: UserRole) => hasRole(user, role),
       hasAnyRole: (roles: readonly UserRole[]) => hasAnyRole(user, roles),
     }),
-    [user, login, logout, rbacRevision]
+    [user, login, requestLogout, rbacRevision]
   )
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+      <LogoutConfirmDialog
+        open={logoutOpen}
+        onOpenChange={handleLogoutOpenChange}
+        onConfirm={confirmLogout}
+      />
+    </AuthContext.Provider>
+  )
 }

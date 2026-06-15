@@ -45,7 +45,7 @@ export function ContactDetailsStep() {
       description={step.description}
     >
       <OnboardingFormSection title="Contact (required phone)" cols={3}>
-        <PhoneField name="phone" label="Mobile phone *" />
+        <PhoneField name="phone" label="Mobile phone" required />
       </OnboardingFormSection>
 
       <OnboardingFormSection title="Home address" cols={3}>

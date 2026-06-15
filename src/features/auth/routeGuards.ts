@@ -2,7 +2,10 @@ import { redirect } from "@tanstack/react-router"
 import {
   getPostLoginPath,
 } from "@/features/employee-welcome/lib/profileOnboardingPolicy"
-import { requireEmployeeWelcomeComplete } from "@/features/employee-welcome/routeGuards"
+import {
+  requireEmployeeWelcomeComplete,
+  requirePrivacyConsentComplete,
+} from "@/features/employee-welcome/routeGuards"
 import { canViewEmployeeRecord, getEmployeeNavTarget } from "./accessPolicy"
 import { can, canAccessEmployeesModule, canViewEmployeeDirectory, PERMISSIONS } from "./permissions"
 import type { Permission } from "./permissions"
@@ -24,7 +27,7 @@ import { getSession, isAuthenticated } from "./authStorage"
 import type { SubscriptionFeature } from "@/features/billing/types"
 import { canManageRbac } from "./rbac/rbacPolicy"
 
-const SUBSCRIPTION_EXEMPT_PREFIXES = ["/billing", "/checkout", "/settings", "/welcome", "/join"]
+const SUBSCRIPTION_EXEMPT_PREFIXES = ["/billing", "/checkout", "/settings", "/welcome", "/privacy-consent", "/join"]
 
 function getOrgSubscriptionForSession() {
   const user = getSession()
@@ -46,6 +49,7 @@ export function requireAuth({ location }: { location: { pathname: string } }) {
       search: { redirect: location.pathname },
     })
   }
+  requirePrivacyConsentComplete({ location })
   requireEmployeeWelcomeComplete({ location })
 }
 

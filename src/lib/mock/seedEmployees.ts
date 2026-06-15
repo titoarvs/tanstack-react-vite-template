@@ -17,7 +17,7 @@ function emp(
 export const seedEmployees: Employee[] = [
   emp({
     id: "1",
-    employeeId: "EMP-001",
+    employeeId: "TSPI-001",
     firstName: "Angela",
     lastName: "Neyvitri Raharja",
     demographics: {
@@ -113,7 +113,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "2",
-    employeeId: "EMP-002",
+    employeeId: "TSPI-002",
     firstName: "Budi",
     lastName: "Santoso",
     demographics: {
@@ -136,7 +136,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "3",
-    employeeId: "EMP-003",
+    employeeId: "TSPI-003",
     firstName: "Citra",
     lastName: "Wijaya",
     demographics: {
@@ -149,6 +149,7 @@ export const seedEmployees: Employee[] = [
     position: "Engineering Manager",
     jobTitle: "Engineering Manager",
     isManager: true,
+    managerId: "5",
     employmentType: "full_time",
     lifecycle: { hireDate: "2018-02-10" },
     status: "active",
@@ -158,7 +159,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "4",
-    employeeId: "EMP-004",
+    employeeId: "TSPI-004",
     firstName: "Dewi",
     lastName: "Pratiwi",
     demographics: {
@@ -185,7 +186,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "5",
-    employeeId: "EMP-005",
+    employeeId: "TSPI-005",
     firstName: "Eko",
     lastName: "Hartono",
     demographics: {
@@ -199,6 +200,7 @@ export const seedEmployees: Employee[] = [
     employmentType: "full_time",
     jobTitle: "Marketing Director",
     isManager: true,
+    managerId: "7",
     workLocation: "onsite",
     contractSignedDate: "2016-05-20",
     lifecycle: { hireDate: "2016-05-20" },
@@ -207,7 +209,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "6",
-    employeeId: "EMP-006",
+    employeeId: "TSPI-006",
     firstName: "Farah",
     lastName: "Putri",
     demographics: {
@@ -230,7 +232,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "7",
-    employeeId: "EMP-007",
+    employeeId: "TSPI-007",
     firstName: "Gunawan",
     lastName: "Susilo",
     demographics: {
@@ -244,6 +246,7 @@ export const seedEmployees: Employee[] = [
     employmentType: "full_time",
     jobTitle: "HR Manager",
     isManager: true,
+    managerId: "1",
     workLocation: "onsite",
     contractSignedDate: "2014-08-01",
     lifecycle: { hireDate: "2014-08-01", probationEndDate: "2014-12-01" },
@@ -252,7 +255,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "8",
-    employeeId: "EMP-008",
+    employeeId: "TSPI-008",
     firstName: "Hana",
     lastName: "Melati",
     demographics: {
@@ -276,7 +279,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "9",
-    employeeId: "EMP-009",
+    employeeId: "TSPI-009",
     firstName: "Irfan",
     lastName: "Nugroho",
     demographics: {
@@ -302,7 +305,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "10",
-    employeeId: "EMP-010",
+    employeeId: "TSPI-010",
     firstName: "Jessica",
     lastName: "Lim",
     demographics: {
@@ -325,7 +328,7 @@ export const seedEmployees: Employee[] = [
   }),
   emp({
     id: "11",
-    employeeId: "EMP-011",
+    employeeId: "TSPI-011",
     firstName: "Rina",
     lastName: "Wijaya",
     demographics: { gender: "female", nationality: "Philippines" },

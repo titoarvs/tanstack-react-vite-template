@@ -50,7 +50,6 @@ function buildDefaultValues(employee: Employee): ProfileOnboardingFormData {
     personalEmail: employee.personalEmail ?? "",
     photoUrl: employee.photoUrl ?? "",
     acknowledgeHandbook: false,
-    acknowledgePrivacy: false,
   }
 }
 

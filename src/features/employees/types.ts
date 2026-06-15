@@ -64,7 +64,10 @@ export interface EmployeeGovernmentIds {
 
 export interface EmployeeCompliance {
   privacyConsentSigned?: boolean
+  privacyConsentAt?: string
   privacyConsentDate?: string
+  privacyConsentIpAddress?: string
+  privacyNoticeVersion?: string
   dataSubjectAccessSigned?: boolean
   retentionPeriodYears?: number
   dataDeletionDate?: string

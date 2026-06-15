@@ -21,9 +21,6 @@ export const policiesStepSchema = z.object({
   acknowledgeHandbook: z
     .boolean()
     .refine(v => v === true, { message: "You must acknowledge the employee handbook" }),
-  acknowledgePrivacy: z
-    .boolean()
-    .refine(v => v === true, { message: "You must acknowledge the privacy notice" }),
 })
 
 export const profileOnboardingSchema = contactStepSchema.and(policiesStepSchema)

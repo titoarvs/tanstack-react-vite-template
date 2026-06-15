@@ -46,7 +46,7 @@ export function PersonalInfoStep() {
           name="employeeId"
           render={({ field }) => (
             <FormItem className=" sm:col-span-3">
-              <FormLabel>Employee ID</FormLabel>
+              <FormLabel required>Employee ID</FormLabel>
               <FormControl>
                 <div className="flex h-10 items-center rounded-md border border-border/60 bg-muted/40 px-3">
                   <span className="font-mono text-sm font-medium text-foreground">
@@ -66,7 +66,7 @@ export function PersonalInfoStep() {
           name="lastName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Last name</FormLabel>
+              <FormLabel required>Last name</FormLabel>
               <FormControl>
                 <Input {...field} className="bg-card" />
               </FormControl>
@@ -79,7 +79,7 @@ export function PersonalInfoStep() {
           name="firstName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>First name</FormLabel>
+              <FormLabel required>First name</FormLabel>
               <FormControl>
                 <Input {...field} className="bg-card" />
               </FormControl>
@@ -145,7 +145,7 @@ export function PersonalInfoStep() {
           name="email"
           render={({ field }) => (
             <FormItem className="sm:col-span-2">
-              <FormLabel>Work email</FormLabel>
+              <FormLabel required>Work email</FormLabel>
               <FormControl>
                 <Input type="email" {...field} className="bg-card" />
               </FormControl>

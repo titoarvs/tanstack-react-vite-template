@@ -34,6 +34,7 @@ function AddressSearchableSelectField({
   emptyMessage,
   options,
   onValueChange,
+  required,
 }: {
   name: string
   label: string
@@ -42,6 +43,7 @@ function AddressSearchableSelectField({
   emptyMessage: string
   options: SearchableSelectOption[]
   onValueChange?: (value: string) => void
+  required?: boolean
 }) {
   const form = useFormContext<Record<string, unknown>>()
 
@@ -51,7 +53,7 @@ function AddressSearchableSelectField({
       name={name}
       render={({ field }) => (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <FormControl>
             <SearchableSelect
               value={typeof field.value === "string" ? field.value : ""}
@@ -77,11 +79,13 @@ function AddressTextField({
   label,
   placeholder,
   className,
+  required,
 }: {
   name: string
   label: string
   placeholder?: string
   className?: string
+  required?: boolean
 }) {
   const form = useFormContext<Record<string, unknown>>()
 
@@ -91,7 +95,7 @@ function AddressTextField({
       name={name}
       render={({ field }) => (
         <FormItem className={className}>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <FormControl>
             <Input
               {...field}
@@ -112,7 +116,7 @@ export function AddressFields({
   optional = true,
 }: AddressFieldsProps) {
   const form = useFormContext<Record<string, unknown>>()
-  const suffix = optional ? "" : ""
+  const required = !optional
   const [locationData, setLocationData] = useState<LocationDataModule | null>(
     null
   )
@@ -165,43 +169,49 @@ export function AddressFields({
     <>
       <AddressTextField
         name={`${prefix}.street`}
-        label={`Street${suffix}`}
+        label="Street"
         className="sm:col-span-2"
+        required={required}
       />
       <AddressSearchableSelectField
         name={`${prefix}.country`}
-        label={`Country${suffix}`}
+        label="Country"
         placeholder="Select country"
         searchPlaceholder="Search countries…"
         emptyMessage="No countries found"
         options={countryOptions}
         onValueChange={() => form.setValue(`${prefix}.state`, undefined)}
+        required={required}
       />
       {useStateSelect ? (
         <AddressSearchableSelectField
           name={`${prefix}.state`}
-          label={`State / province${suffix}`}
+          label="State / province"
           placeholder="Select state or province"
           searchPlaceholder="Search states…"
           emptyMessage="No states found"
           options={stateOptions}
+          required={required}
         />
       ) : (
         <AddressTextField
           name={`${prefix}.state`}
-          label={`State / province${suffix}`}
+          label="State / province"
           placeholder="Enter state or province"
+          required={required}
         />
       )}
       <AddressTextField
         name={`${prefix}.city`}
-        label={`City${suffix}`}
+        label="City"
         placeholder="Enter city"
+        required={required}
       />
       <AddressTextField
         name={`${prefix}.zipCode`}
-        label={`Zip code${suffix}`}
+        label="Zip code"
         placeholder="Enter zip or postal code"
+        required={required}
       />
     </>
   )

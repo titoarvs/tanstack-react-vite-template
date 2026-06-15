@@ -265,7 +265,7 @@ export function PreEmploymentReviewPage() {
                   name="employeeId"
                   render={({ field }) => (
                     <FormItem className="sm:col-span-2">
-                      <FormLabel>Employee ID</FormLabel>
+                      <FormLabel required>Employee ID</FormLabel>
                       <FormControl>
                         <Input {...field} readOnly className="bg-muted/40" />
                       </FormControl>
@@ -277,9 +277,20 @@ export function PreEmploymentReviewPage() {
                   name="department"
                   label="Department"
                   options={departmentOptions}
+                  required
                 />
-                <FormSelectField name="position" label="Position" options={positionOptions} />
-                <FormSelectField name="jobTitle" label="Job title" options={jobTitleOptions} />
+                <FormSelectField
+                  name="position"
+                  label="Position"
+                  options={positionOptions}
+                  required
+                />
+                <FormSelectField
+                  name="jobTitle"
+                  label="Job title"
+                  options={jobTitleOptions}
+                  required
+                />
                 <FormField
                   control={form.control}
                   name="isManager"
@@ -310,23 +321,26 @@ export function PreEmploymentReviewPage() {
                   name="workLocation"
                   label="Work location"
                   options={workLocationOptions}
+                  required
                 />
                 <FormSelectField
                   name="employmentType"
                   label="Employment type"
                   options={employmentTypeOptions}
+                  required
                 />
                 <FormSelectField
                   name="statusDetail"
                   label="Active status"
                   options={statusDetailOptions}
+                  required
                 />
                 <FormField
                   control={form.control}
                   name="hireDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Hire date</FormLabel>
+                      <FormLabel required>Hire date</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>
@@ -340,7 +354,7 @@ export function PreEmploymentReviewPage() {
                   name="contractSignedDate"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Date contract signed</FormLabel>
+                      <FormLabel required>Date contract signed</FormLabel>
                       <FormControl>
                         <Input type="date" {...field} />
                       </FormControl>

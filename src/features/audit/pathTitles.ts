@@ -5,6 +5,7 @@ export function getPathTitle(pathname: string): string {
   if (pathname === "/billing") return "Billing"
   if (pathname === "/checkout") return "Checkout"
   if (pathname === "/welcome") return "Welcome onboarding"
+  if (pathname === "/privacy-consent") return "Privacy consent"
   if (pathname === "/employees/directory") return "Employee directory"
   if (pathname === "/employees/onboarding") return "New employee onboarding"
   if (pathname.startsWith("/employees/") && pathname !== "/employees/directory") {

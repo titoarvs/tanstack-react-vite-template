@@ -41,7 +41,7 @@ export function EmploymentDetailsEditor({ employee }: EmploymentDetailsEditorPro
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-4">
-        <EmploymentDetailsForm />
+        <EmploymentDetailsForm excludeEmployeeId={employee.id} />
         {submitError ? (
           <p className="text-sm text-destructive" role="alert">
             {submitError}

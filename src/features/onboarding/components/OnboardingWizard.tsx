@@ -133,7 +133,7 @@ export function OnboardingWizard() {
       position: data.position,
       jobTitle: data.jobTitle,
       isManager: data.isManager,
-      managerId: data.isManager ? undefined : data.managerId || undefined,
+      managerId: data.managerId || undefined,
       workLocation: data.workLocation as WorkLocation,
       employmentType: data.employmentType as EmploymentType,
       lifecycle: {
