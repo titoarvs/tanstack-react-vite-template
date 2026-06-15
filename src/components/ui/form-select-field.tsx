@@ -20,6 +20,7 @@ interface FormSelectFieldProps<T extends FieldValues> {
   name: FieldPath<T>
   label: string
   placeholder?: string
+  required?: boolean
   options: { value: string; label: string }[]
 }
 
@@ -27,6 +28,7 @@ export function FormSelectField<T extends FieldValues>({
   name,
   label,
   placeholder = "Select…",
+  required,
   options,
 }: FormSelectFieldProps<T>) {
   const { control } = useFormContext<T>()
@@ -35,12 +37,19 @@ export function FormSelectField<T extends FieldValues>({
     <FormField
       control={control}
       name={name}
-      render={({ field }) => (
+      render={({ field }) => {
+        const selectedValue = field.value ? String(field.value) : ""
+        const resolvedOptions =
+          selectedValue && !options.some(option => option.value === selectedValue)
+            ? [{ value: selectedValue, label: selectedValue }, ...options]
+            : options
+
+        return (
         <FormItem>
-          <FormLabel>{label}</FormLabel>
+          <FormLabel required={required}>{label}</FormLabel>
           <Select
             onValueChange={(v: string) => field.onChange(v === EMPTY_VALUE ? "" : v)}
-            value={field.value ? String(field.value) : EMPTY_VALUE}
+            value={selectedValue || EMPTY_VALUE}
           >
             <FormControl>
               <SelectTrigger>
@@ -48,7 +57,7 @@ export function FormSelectField<T extends FieldValues>({
               </SelectTrigger>
             </FormControl>
             <SelectContent>
-              {options.map(opt => (
+              {resolvedOptions.map(opt => (
                 <SelectItem
                   key={opt.value || EMPTY_VALUE}
                   value={opt.value === "" ? EMPTY_VALUE : opt.value}
@@ -60,7 +69,8 @@ export function FormSelectField<T extends FieldValues>({
           </Select>
           <FormMessage />
         </FormItem>
-      )}
+        )
+      }}
     />
   )
 }

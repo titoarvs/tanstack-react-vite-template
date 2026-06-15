@@ -8,6 +8,10 @@ import type {
 } from "../../features/employees/types"
 import type { EmployeeDocument } from "../../features/employees/types/documents"
 import { normalizeEmployee } from "../../features/employees/lib/normalizeEmployee"
+import {
+  formatEmployeeId,
+  parseEmployeeIdSequence,
+} from "../../features/employees/lib/employeeId"
 import { seedEmployees } from "./seedEmployees"
 
 function delay(ms = 80) {
@@ -144,19 +148,16 @@ class EmployeeStore {
 
   getNextEmployeeId(reserved: string[] = []): string {
     const nums = Array.from(this.employees.values())
-      .map(e => {
-        const match = e.employeeId.match(/EMP-(\d+)/)
-        return match ? parseInt(match[1], 10) : 0
-      })
-      .filter(n => !Number.isNaN(n))
+      .map(e => parseEmployeeIdSequence(e.employeeId) ?? 0)
+      .filter(n => n > 0)
     let next = nums.length ? Math.max(...nums) + 1 : 1
-    let candidate = `EMP-${String(next).padStart(3, "0")}`
+    let candidate = formatEmployeeId(next)
     while (
       Array.from(this.employees.values()).some(e => e.employeeId === candidate) ||
       reserved.includes(candidate)
     ) {
       next += 1
-      candidate = `EMP-${String(next).padStart(3, "0")}`
+      candidate = formatEmployeeId(next)
     }
     return candidate
   }

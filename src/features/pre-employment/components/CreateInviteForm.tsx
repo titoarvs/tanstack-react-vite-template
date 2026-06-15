@@ -106,7 +106,7 @@ export function CreateInviteForm() {
               name="email"
               render={({ field }) => (
                 <FormItem className="sm:col-span-2">
-                  <FormLabel>Work email</FormLabel>
+                  <FormLabel required>Work email</FormLabel>
                   <FormControl>
                     <Input {...field} type="email" />
                   </FormControl>
@@ -119,7 +119,7 @@ export function CreateInviteForm() {
               name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>First name</FormLabel>
+                  <FormLabel required>First name</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -132,7 +132,7 @@ export function CreateInviteForm() {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Last name</FormLabel>
+                  <FormLabel required>Last name</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>

@@ -4,6 +4,7 @@ import {
   recordPreEmploymentInvited,
   recordPreEmploymentSubmitted,
 } from "@/features/audit/auditLogger"
+import { PRIVACY_NOTICE_VERSION } from "@/features/compliance/privacyNotice"
 import { ForbiddenError, requireSessionUser } from "@/features/auth/authErrors"
 import { PERMISSIONS } from "@/features/auth/permissions"
 import { provisionPortalUser } from "@/features/auth/provisionedUserStorage"
@@ -202,9 +203,7 @@ export async function approvePreEmploymentInvite(
     position: employment.position,
     jobTitle: employment.jobTitle,
     isManager: employment.isManager,
-    managerId: employment.isManager
-      ? undefined
-      : employment.managerId || undefined,
+    managerId: employment.managerId || undefined,
     workLocation: employment.workLocation as WorkLocation,
     employmentType: employment.employmentType as EmploymentType,
     lifecycle: {
@@ -237,8 +236,12 @@ export async function approvePreEmploymentInvite(
       ),
     compliance: {
       privacyConsentSigned: payload.acknowledgePrivacy,
+      privacyConsentAt: payload.acknowledgePrivacy ? now : undefined,
       privacyConsentDate: payload.acknowledgePrivacy
         ? now.slice(0, 10)
+        : undefined,
+      privacyNoticeVersion: payload.acknowledgePrivacy
+        ? PRIVACY_NOTICE_VERSION
         : undefined,
       dataSubjectAccessSigned: payload.acknowledgePrivacy,
     },

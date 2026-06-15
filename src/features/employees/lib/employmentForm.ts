@@ -35,7 +35,7 @@ export function employmentFormToPatch(
     position: data.position,
     jobTitle: data.jobTitle,
     isManager: data.isManager,
-    managerId: data.isManager ? undefined : data.managerId?.trim() || undefined,
+    managerId: data.managerId?.trim() || undefined,
     orgLevel: data.orgLevel?.trim() || undefined,
     businessUnit: data.businessUnit?.trim() || undefined,
     costCenter: data.costCenter?.trim() || undefined,

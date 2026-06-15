@@ -22,7 +22,7 @@ function assert(condition: boolean, message: string) {
 const managers: Employee[] = [
   {
     id: "m1",
-    employeeId: "EMP-100",
+    employeeId: "TSPI-100",
     firstName: "Citra",
     lastName: "Wijaya",
     demographics: {},
@@ -41,7 +41,7 @@ const managers: Employee[] = [
   },
   {
     id: "m2",
-    employeeId: "EMP-101",
+    employeeId: "TSPI-101",
     firstName: "Eko",
     lastName: "Hartono",
     demographics: {},
@@ -66,17 +66,29 @@ export function runEmploymentModelTests() {
   assert(engManagers[0].id === "m1", "Engineering manager should be Citra")
 
   const emptyDeptManagers = getManagersForDepartment(managers, "")
-  assert(emptyDeptManagers.length === 2, "Empty department falls back to all managers")
+  assert(
+    emptyDeptManagers.length === 2,
+    "Empty department falls back to all managers"
+  )
 
   const probationEnd = computeProbationEnd("2024-01-15")
-  assert(probationEnd === "2024-07-15", "Probation end should be 6 months after hire")
+  assert(
+    probationEnd === "2024-07-15",
+    "Probation end should be 6 months after hire"
+  )
 
   const regularization = computeRegularizationDate("2024-01-15", "2024-07-15")
-  assert(regularization === "2024-07-16", "Regularization is day after probation end")
+  assert(
+    regularization === "2024-07-16",
+    "Regularization is day after probation end"
+  )
 
   const resolved = resolveStatusForCreate("probationary")
   assert(resolved.status === "active", "Create form maps to active status")
-  assert(resolved.statusDetail === "probationary", "Create form keeps sub-status")
+  assert(
+    resolved.statusDetail === "probationary",
+    "Create form keeps sub-status"
+  )
 
   assert(isActiveSubStatus("regular"), "regular is active sub-status")
   assert(!isActiveSubStatus("on_leave"), "on_leave is not active sub-status")
@@ -91,25 +103,35 @@ export function runEmploymentModelTests() {
 
   const legacy = normalizeEmployee({
     id: "x",
-    employeeId: "EMP-999",
+    employeeId: "TSPI-999",
     firstName: "Legacy",
     lastName: "User",
     demographics: {},
     contact: { email: "l@co.com", phone: "9" },
     department: "Engineering",
     position: "Engineer",
-    employmentType: "regular",
+    employmentType: "full_time",
     lifecycle: { hireDate: "2020-06-01" },
-    status: "on_leave",
+    status: "inactive",
     officeBranch: "Jakarta",
+    jobTitle: "Engineer",
+    isManager: false,
+    workLocation: "onsite",
+    contractSignedDate: "2020-06-01",
     createdAt: "2020-06-01",
     updatedAt: "2020-06-01",
-  } as Employee)
+  } satisfies Employee)
 
-  assert(legacy.employmentType === "full_time", "Legacy regular maps to full_time")
+  assert(
+    legacy.employmentType === "full_time",
+    "Legacy regular maps to full_time"
+  )
   assert(legacy.status === "inactive", "Legacy on_leave maps to inactive")
   assert(legacy.statusDetail === "on_leave", "Legacy on_leave detail preserved")
-  assert(legacy.workLocation === "onsite", "Legacy office branch maps to onsite")
+  assert(
+    legacy.workLocation === "onsite",
+    "Legacy office branch maps to onsite"
+  )
   assert(legacy.jobTitle === "Engineer", "jobTitle defaults to position")
 
   console.log("employmentModel.test.ts: all assertions passed")

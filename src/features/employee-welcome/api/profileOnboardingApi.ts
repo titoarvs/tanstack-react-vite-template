@@ -18,6 +18,11 @@ export async function completeProfileOnboarding(
     throw new ForbiddenError("Profile onboarding is already complete.")
   }
 
+  const existing = employeeStore.getByIdSync(user.employeeId)
+  if (!existing) {
+    throw new ForbiddenError("No employee record linked to your account.")
+  }
+
   const now = new Date().toISOString()
   const emergency =
     data.emergencyContactName?.trim() ||
@@ -48,9 +53,7 @@ export async function completeProfileOnboarding(
       photoUrl: data.photoUrl || undefined,
       emergencyContact: emergency,
       compliance: {
-        privacyConsentSigned: data.acknowledgePrivacy,
-        privacyConsentDate: data.acknowledgePrivacy ? now.slice(0, 10) : undefined,
-        dataSubjectAccessSigned: data.acknowledgePrivacy,
+        ...existing.compliance,
       },
       profileOnboardingComplete: true,
       profileOnboardingCompletedAt: now,

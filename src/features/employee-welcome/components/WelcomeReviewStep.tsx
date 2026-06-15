@@ -81,7 +81,14 @@ export function WelcomeReviewStep({ employee, onEditStep }: WelcomeReviewStepPro
             value={values.photoUrl ? "Uploaded" : "Not provided"}
           />
           <ReviewRow label="Handbook" value={values.acknowledgeHandbook ? "Acknowledged" : "—"} />
-          <ReviewRow label="Privacy" value={values.acknowledgePrivacy ? "Acknowledged" : "—"} />
+          <ReviewRow
+            label="Privacy notice"
+            value={
+              employee.compliance?.privacyConsentSigned
+                ? `Acknowledged${employee.compliance.privacyConsentAt ? ` · ${new Date(employee.compliance.privacyConsentAt).toLocaleString()}` : ""}`
+                : "—"
+            }
+          />
         </dl>
       </OnboardingFormSection>
 

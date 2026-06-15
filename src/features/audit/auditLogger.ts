@@ -237,3 +237,20 @@ export function recordRbacUpdated(role: string, permissionCount: number) {
     },
   })
 }
+
+export function recordPrivacyConsent(
+  employeeId: string,
+  details: { version: string; ipAddress: string }
+) {
+  recordAudit({
+    category: "compliance",
+    action: "compliance.privacy_consent",
+    summary: "Acknowledged Data Privacy Notice",
+    pathname: "/privacy-consent",
+    metadata: {
+      employeeId,
+      version: details.version,
+      ipAddress: details.ipAddress,
+    },
+  })
+}

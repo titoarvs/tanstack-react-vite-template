@@ -86,7 +86,6 @@ export function EmploymentInfoStep() {
     if (currentJobTitle && !jobTitleOptions.some(o => o.value === currentJobTitle)) {
       form.setValue("jobTitle", jobTitleOptions[0]?.value ?? "")
     }
-    form.setValue("managerId", "")
   }, [department, form, positionOptions, jobTitleOptions])
 
   return (
@@ -100,16 +99,19 @@ export function EmploymentInfoStep() {
           name="department"
           label="Department"
           options={departmentOptions}
+          required
         />
         <FormSelectField<OnboardingFormData>
           name="position"
           label="Position"
           options={positionOptions}
+          required
         />
         <FormSelectField<OnboardingFormData>
           name="jobTitle"
           label="Job title"
           options={jobTitleOptions}
+          required
         />
         <FormField
           control={form.control}
@@ -145,23 +147,26 @@ export function EmploymentInfoStep() {
           name="workLocation"
           label="Work location"
           options={workLocationOptions}
+          required
         />
         <FormSelectField<OnboardingFormData>
           name="employmentType"
           label="Employment type"
           options={employmentTypeOptions}
+          required
         />
         <FormSelectField<OnboardingFormData>
           name="statusDetail"
           label="Active status"
           options={statusDetailOptions}
+          required
         />
         <FormField
           control={form.control}
           name="hireDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Hire date</FormLabel>
+              <FormLabel required>Hire date</FormLabel>
               <FormControl>
                 <Input type="date" {...field} className="bg-card" />
               </FormControl>
@@ -175,7 +180,7 @@ export function EmploymentInfoStep() {
           name="contractSignedDate"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Date contract signed</FormLabel>
+              <FormLabel required>Date contract signed</FormLabel>
               <FormControl>
                 <Input type="date" {...field} className="bg-card" />
               </FormControl>
