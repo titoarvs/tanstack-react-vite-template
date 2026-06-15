@@ -1,14 +1,18 @@
 import { Link, useNavigate } from "@tanstack/react-router"
-import { Loader2, ShieldCheck } from "lucide-react"
+import { FileText, Loader2 } from "lucide-react"
 import { useState } from "react"
 import { TitoLogo } from "@/components/branding/TitoLogo"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card } from "@/components/ui/card"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { useAuth } from "@/features/auth/useAuth"
 import { resolvePostLoginNavigation } from "@/features/employee-welcome/lib/profileOnboardingPolicy"
 import { PrivacyNoticeContent } from "../components/PrivacyNoticeContent"
 import { recordPrivacyConsent } from "../api/privacyConsentApi"
-import { RequiredMark } from "@/components/ui/required-mark"
+import {
+  PRIVACY_NOTICE_EFFECTIVE_DATE,
+  PRIVACY_NOTICE_VERSION,
+} from "../privacyNotice"
 
 export function PrivacyConsentPage() {
   const { user, requestLogout } = useAuth()
@@ -34,17 +38,8 @@ export function PrivacyConsentPage() {
 
   return (
     <div className="min-h-[100dvh] bg-background">
-      <div
-        className="pointer-events-none absolute inset-0 opacity-40"
-        aria-hidden
-        style={{
-          backgroundImage:
-            "radial-gradient(circle at 90% 10%, color-mix(in oklch, var(--tito-green) 14%, transparent) 0%, transparent 45%), radial-gradient(circle at 10% 90%, color-mix(in oklch, var(--primary) 10%, transparent) 0%, transparent 40%)",
-        }}
-      />
-
-      <header className="relative border-b border-border bg-card/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-4 py-4 sm:px-6">
+      <header className="border-b border-dashed border-border">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-4 py-4 sm:px-6">
           <Link to="/">
             <TitoLogo size="md" />
           </Link>
@@ -60,63 +55,71 @@ export function PrivacyConsentPage() {
         </div>
       </header>
 
-      <main className="relative mx-auto max-w-3xl px-4 py-8 sm:px-6 sm:py-10">
-        <div className="mb-6 flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-            <ShieldCheck className="h-5 w-5" />
-          </div>
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-              Data Privacy Notice
+      <main className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+        <Card className="p-6 shadow-none sm:p-8">
+          <div className="flex items-center gap-2">
+            <FileText className="h-4 w-4 shrink-0 text-foreground" aria-hidden />
+            <h1 className="text-base font-semibold tracking-tight text-foreground">
+              Data privacy consent
             </h1>
-            <p className="mt-2 text-sm text-muted-foreground sm:text-base">
-              Before you access the employee portal or provide personal information, please read
-              and acknowledge this notice.
-            </p>
           </div>
-        </div>
 
-        <Card>
-          <CardHeader className="border-b border-border pb-4">
-            <CardTitle className="text-base font-semibold">Privacy Notice</CardTitle>
-          </CardHeader>
-          <CardContent className="max-h-[min(50vh,28rem)] overflow-y-auto pt-6">
-            <PrivacyNoticeContent />
-          </CardContent>
-          <CardFooter className="flex flex-col items-stretch gap-4 border-t border-border pt-6">
-            <label className="flex cursor-pointer items-start gap-3">
-              <input
-                type="checkbox"
-                checked={acknowledged}
-                onChange={e => setAcknowledged(e.target.checked)}
-                className="mt-1 h-4 w-4 rounded border-input"
-              />
-              <span className="text-sm leading-snug text-foreground">
-                I acknowledge that I have read and understood the Privacy Notice{" "}
-                <RequiredMark />
-              </span>
-            </label>
-            {error ? (
-              <p className="text-sm text-destructive" role="alert">
-                {error}
-              </p>
-            ) : null}
-            <Button
-              type="button"
-              className="w-full sm:w-auto sm:self-end"
-              disabled={!acknowledged || submitting}
-              onClick={handleSubmit}
-            >
-              {submitting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Saving…
-                </>
-              ) : (
-                "Continue"
-              )}
-            </Button>
-          </CardFooter>
+          <p className="mt-3 text-sm text-muted-foreground">
+            Please review and acknowledge the Privacy Notice before continuing to your ESS profile.
+          </p>
+
+          <div className="mt-6 rounded-lg border border-dashed border-border">
+            <ScrollArea className="h-[min(50vh,20rem)]">
+              <div className="p-4">
+                <PrivacyNoticeContent />
+              </div>
+            </ScrollArea>
+          </div>
+
+          <p className="mt-3 text-xs text-muted-foreground">
+            Privacy notice version {PRIVACY_NOTICE_VERSION} · effective {PRIVACY_NOTICE_EFFECTIVE_DATE}
+          </p>
+
+          <label className="mt-6 flex cursor-pointer items-start gap-3">
+            <input
+              type="checkbox"
+              checked={acknowledged}
+              onChange={e => setAcknowledged(e.target.checked)}
+              className="mt-0.5 h-4 w-4 shrink-0 rounded border-input"
+            />
+            <span className="text-sm leading-snug text-foreground">
+              I acknowledge that I have read and understood this Privacy Notice and consent to the
+              processing of my personal data as described.
+            </span>
+          </label>
+
+          {error ? (
+            <p className="mt-4 text-sm text-destructive" role="alert">
+              {error}
+            </p>
+          ) : null}
+
+          <Button
+            type="button"
+            variant={acknowledged && !submitting ? "default" : "outline"}
+            className="mt-6 h-11 w-full"
+            disabled={!acknowledged || submitting}
+            onClick={handleSubmit}
+          >
+            {submitting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Saving…
+              </>
+            ) : (
+              "Continue to ESS portal"
+            )}
+          </Button>
+
+          <p className="mt-6 text-center text-xs text-muted-foreground">
+            Your acknowledgment is recorded with a timestamp, IP address and notice version for
+            compliance.
+          </p>
         </Card>
       </main>
     </div>

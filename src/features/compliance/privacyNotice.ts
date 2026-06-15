@@ -1,4 +1,5 @@
 export const PRIVACY_NOTICE_VERSION = "1.0"
+export const PRIVACY_NOTICE_EFFECTIVE_DATE = "1 Jan 2026"
 
 export interface PrivacyNoticeSection {
   title: string
