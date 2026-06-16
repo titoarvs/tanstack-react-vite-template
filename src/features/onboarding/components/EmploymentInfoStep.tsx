@@ -14,7 +14,7 @@ import { ProbationDatesDisplay } from "@/features/employees/components/employmen
 import {
   DEPARTMENTS,
   EMPLOYMENT_TYPES,
-  getJobTitlesForDepartment,
+  getJobTitlesForDepartmentAndPosition,
   getPositionsForDepartment,
   WORK_LOCATIONS,
 } from "@/features/employees/data/masterData"
@@ -43,13 +43,17 @@ const step = ONBOARDING_STEPS[1]
 export function EmploymentInfoStep() {
   const form = useFormContext<OnboardingFormData>()
   const department = form.watch("department")
+  const position = form.watch("position")
   const manatalPrefill = useManatalPrefill()
 
   const positionOptions = getPositionsForDepartment(department).map(p => ({
     value: p,
     label: p,
   }))
-  const jobTitleOptions = getJobTitlesForDepartment(department).map(t => ({
+  const jobTitleOptions = getJobTitlesForDepartmentAndPosition(
+    department,
+    position
+  ).map(t => ({
     value: t,
     label: t,
   }))
@@ -86,7 +90,7 @@ export function EmploymentInfoStep() {
     if (currentJobTitle && !jobTitleOptions.some(o => o.value === currentJobTitle)) {
       form.setValue("jobTitle", jobTitleOptions[0]?.value ?? "")
     }
-  }, [department, form, positionOptions, jobTitleOptions])
+  }, [department, position, form, positionOptions, jobTitleOptions])
 
   return (
     <OnboardingStepShell

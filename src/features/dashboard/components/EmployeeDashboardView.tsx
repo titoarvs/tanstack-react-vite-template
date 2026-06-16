@@ -1,14 +1,15 @@
+import { Link } from "@tanstack/react-router"
 import { CalendarClock, Clock, Palmtree, TrendingUp } from "lucide-react"
+import { getEmployeeNavTarget } from "@/features/auth/accessPolicy"
 import { formatTenure } from "@/features/employees/data/mockEmployeeInsights"
 import type { useDashboardData } from "../hooks/useDashboardData"
+import { EmployeeDocumentsChecklistFloater } from "./EmployeeDocumentsChecklistFloater"
 import { AttendanceAreaChart } from "./charts/AttendanceAreaChart"
 import { DashboardStatCard } from "./DashboardStatCard"
 import { LeaveBalancesCard } from "./LeaveBalancesCard"
 import { PersonalQuickActions } from "./PersonalQuickActions"
 import { RecentActivityList } from "./RecentActivityList"
 import { Card, CardContent } from "@/components/ui/card"
-import { Link } from "@tanstack/react-router"
-import { getEmployeeNavTarget } from "@/features/auth/accessPolicy"
 
 type DashboardData = ReturnType<typeof useDashboardData>
 
@@ -37,8 +38,9 @@ export function EmployeeDashboardView({ data }: EmployeeDashboardViewProps) {
   const profileTo = getEmployeeNavTarget(user)
 
   return (
-    <div className="space-y-6">
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <>
+      <div className="space-y-6">
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <DashboardStatCard
           label="My attendance"
           value={`${attendanceRate}%`}
@@ -93,6 +95,12 @@ export function EmployeeDashboardView({ data }: EmployeeDashboardViewProps) {
           </Card>
         </div>
       </section>
-    </div>
+      </div>
+
+      <EmployeeDocumentsChecklistFloater
+        employee={selfEmployee}
+        profileHref={profileTo}
+      />
+    </>
   )
 }
