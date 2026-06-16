@@ -1,72 +1,90 @@
 /** Configurable master lists per EDM spec */
 
-export const DEPARTMENTS = [
-  "Finance Division",
-  "Engineering",
-  "Marketing",
-  "Human Resources",
-  "Operations",
-  "Product",
-] as const
+export const DEPARTMENTS = ["Delivery", "Growth", "Operations"] as const
 
 export type Department = (typeof DEPARTMENTS)[number]
 
+/** Job titles by department and position level */
+export const JOB_TITLES_BY_DEPARTMENT_AND_POSITION: Record<
+  Department,
+  Record<string, readonly string[]>
+> = {
+  Delivery: {
+    Executive: [
+      "Chief Product Officer",
+      "Chief Technology Officer",
+      "Chief Information Officer",
+    ],
+    Senior: ["Sr. Business Analyst", "Sr. Fullstack Software Developer"],
+    Mid: [
+      "Business Analyst",
+      "Fullstack Software Developer",
+      "Quality Assurance Engineer",
+      "UI/UX Designer",
+    ],
+    Associate: [
+      "Associate Business Analyst",
+      "Associate Fullstack Software Developer",
+      "Associate Quality Assurance Engineer",
+    ],
+    Junior: [
+      "Jr. Software Developer/Engineer",
+      "Jr. Quality Assurance Engineer",
+      "Jr. JavaScript Frontend Developer",
+      "Jr. UI/UX Designer",
+    ],
+  },
+  Growth: {
+    Executive: ["Chief Executive Officer", "Chief Marketing Officer"],
+    Mid: [
+      "Business Development Executive",
+      "Social Media Marketing Officer",
+      "Virtual Assistant-GHL Expert",
+      "Media Buyer Strategist",
+      "SEO Specialist",
+      "Visual Creative Specialist",
+    ],
+    Lead: [
+      "Lead Designer",
+      "Social Media Marketing Manager",
+      "Creative & Innovation Lead",
+    ],
+    Associate: [
+      "Graphic Designer",
+      "Video Editor",
+      "Facebook Ads Media Buyer",
+    ],
+    "Assistant Manager": ["Digital Marketing Assistant Manager"],
+  },
+  Operations: {
+    Executive: ["Chief Operating Officer"],
+    Lead: ["HR & Accounting Supervisor"],
+    Mid: [
+      "HR & Accounting Officer",
+      "EOR Operations Lead",
+      "HR & Legal Compliance Officer",
+    ],
+    Associate: ["People and Culture Specialist", "Administrative Assistant"],
+    Junior: ["Operation & External Liason Associates", "Part-Time Bookkeeper"],
+    Senior: ["Senior Advisor"],
+  },
+}
+
 export const POSITIONS_BY_DEPARTMENT: Record<Department, readonly string[]> = {
-  "Finance Division": ["Accountant", "Finance Manager", "Payroll Specialist"],
-  Engineering: [
-    "Software Engineer",
-    "Senior Software Engineer",
-    "Engineering Manager",
-    "QA Engineer",
-  ],
-  Marketing: ["Marketing Intern", "Marketing Specialist", "Marketing Director"],
-  "Human Resources": ["HR Generalist", "HR Manager", "Recruiter"],
-  Operations: ["Operations Coordinator", "Operations Manager"],
-  Product: ["Product Manager", "Product Designer", "Product Analyst"],
+  Delivery: ["Executive", "Senior", "Mid", "Associate", "Junior"],
+  Growth: ["Executive", "Mid", "Lead", "Associate", "Assistant Manager"],
+  Operations: ["Executive", "Lead", "Mid", "Associate", "Junior", "Senior"],
 }
 
-export const JOB_TITLES_BY_DEPARTMENT: Record<Department, readonly string[]> = {
-  "Finance Division": [
-    "Junior Accountant",
-    "Senior Accountant",
-    "Finance Manager",
-    "Payroll Specialist",
-  ],
-  Engineering: [
-    "Software Engineer I",
-    "Software Engineer II",
-    "Senior Software Engineer",
-    "Engineering Manager",
-    "QA Engineer",
-  ],
-  Marketing: [
-    "Marketing Intern",
-    "Marketing Specialist",
-    "Senior Marketing Specialist",
-    "Marketing Director",
-  ],
-  "Human Resources": [
-    "HR Generalist",
-    "Senior HR Generalist",
-    "HR Manager",
-    "Recruiter",
-  ],
-  Operations: [
-    "Operations Coordinator",
-    "Senior Operations Coordinator",
-    "Operations Manager",
-  ],
-  Product: [
-    "Associate Product Manager",
-    "Product Manager",
-    "Senior Product Manager",
-    "Product Designer",
-    "Product Analyst",
-  ],
-}
+export const ALL_POSITIONS = [...new Set(Object.values(POSITIONS_BY_DEPARTMENT).flat())]
 
-export const ALL_POSITIONS = Object.values(POSITIONS_BY_DEPARTMENT).flat()
-export const ALL_JOB_TITLES = Object.values(JOB_TITLES_BY_DEPARTMENT).flat()
+export const ALL_JOB_TITLES = [
+  ...new Set(
+    Object.values(JOB_TITLES_BY_DEPARTMENT_AND_POSITION).flatMap(matrix =>
+      Object.values(matrix).flat()
+    )
+  ),
+]
 
 export const EMPLOYMENT_TYPES = [
   { value: "full_time", label: "Full-time" },
@@ -167,10 +185,23 @@ export function getPositionsForDepartment(department: string): string[] {
   return [...ALL_POSITIONS]
 }
 
+export function getJobTitlesForDepartmentAndPosition(
+  department: string,
+  position: string
+): string[] {
+  const dept = department as Department
+  const matrix = JOB_TITLES_BY_DEPARTMENT_AND_POSITION[dept]
+  if (matrix && position in matrix) {
+    return [...matrix[position]]
+  }
+  return getJobTitlesForDepartment(department)
+}
+
 export function getJobTitlesForDepartment(department: string): string[] {
   const key = department as Department
-  if (key in JOB_TITLES_BY_DEPARTMENT) {
-    return [...JOB_TITLES_BY_DEPARTMENT[key]]
+  const matrix = JOB_TITLES_BY_DEPARTMENT_AND_POSITION[key]
+  if (matrix) {
+    return [...new Set(Object.values(matrix).flat())]
   }
   return [...ALL_JOB_TITLES]
 }

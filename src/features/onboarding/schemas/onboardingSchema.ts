@@ -66,7 +66,11 @@ export const employmentInfoSchema = z
         path: ["hireDate"],
       })
     }
-    if (data.contractSignedDate && data.hireDate && data.contractSignedDate < data.hireDate) {
+    if (
+      data.contractSignedDate &&
+      data.hireDate &&
+      data.contractSignedDate < data.hireDate
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Contract signed date cannot be before hire date",
@@ -87,7 +91,7 @@ export const onboardingDefaults: Partial<OnboardingFormData> = {
   gender: undefined,
   managerId: "",
   isManager: false,
-  department: "Engineering",
+  department: "Delivery",
   workLocation: "onsite",
 }
 

@@ -21,7 +21,7 @@ import { ProbationDatesDisplay } from "@/features/employees/components/employmen
 import {
   DEPARTMENTS,
   EMPLOYMENT_TYPES,
-  getJobTitlesForDepartment,
+  getJobTitlesForDepartmentAndPosition,
   getPositionsForDepartment,
   WORK_LOCATIONS,
 } from "@/features/employees/data/masterData"
@@ -117,7 +117,7 @@ export function PreEmploymentReviewPage() {
     resolver: zodResolver(approveEmploymentSchema),
     defaultValues: {
       employeeId: "",
-      department: "Engineering",
+      department: "Delivery",
       position: "",
       jobTitle: "",
       isManager: false,
@@ -131,11 +131,15 @@ export function PreEmploymentReviewPage() {
   })
 
   const department = form.watch("department")
+  const position = form.watch("position")
   const positionOptions = getPositionsForDepartment(department).map(p => ({
     value: p,
     label: p,
   }))
-  const jobTitleOptions = getJobTitlesForDepartment(department).map(t => ({
+  const jobTitleOptions = getJobTitlesForDepartmentAndPosition(
+    department,
+    position
+  ).map(t => ({
     value: t,
     label: t,
   }))
@@ -154,7 +158,7 @@ export function PreEmploymentReviewPage() {
       department:
         (invite.intendedDepartment as ApproveEmploymentFormData["department"]) ??
         manatal.department ??
-        "Engineering",
+        "Delivery",
       position: invite.intendedPosition ?? manatal.position ?? positionOptions[0]?.value ?? "",
       jobTitle: manatal.jobTitle ?? jobTitleOptions[0]?.value ?? "",
       isManager: manatal.isManager ?? false,
