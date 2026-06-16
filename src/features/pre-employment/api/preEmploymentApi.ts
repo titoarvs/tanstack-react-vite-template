@@ -4,7 +4,6 @@ import {
   recordPreEmploymentInvited,
   recordPreEmploymentSubmitted,
 } from "@/features/audit/auditLogger"
-import { PRIVACY_NOTICE_VERSION } from "@/features/compliance/privacyNotice"
 import { ForbiddenError, requireSessionUser } from "@/features/auth/authErrors"
 import { PERMISSIONS } from "@/features/auth/permissions"
 import { provisionPortalUser } from "@/features/auth/provisionedUserStorage"
@@ -21,21 +20,27 @@ import {
   canAddSeat,
   hasSubscriptionFeature,
 } from "@/features/billing/subscriptionPolicy"
-import { employeeStore } from "@/lib/mock/employeeStore"
-import { preEmploymentStore } from "@/lib/mock/preEmploymentStore"
-import { requireSessionPermission } from "@/features/auth/authErrors"
+import type { WorkLocation } from "@/features/employees/data/masterData"
+import { toStoredAddress } from "@/features/employees/lib/address"
+import { buildRequirementContextFromInvite } from "@/features/employees/lib/documentRequirementPolicy"
+import {
+  computeProbationEnd,
+  computeRegularizationDate,
+  deriveChecklistStatus,
+  toGender,
+} from "@/features/employees/lib/employeeCalculations"
+import { resolveStatusForCreate } from "@/features/employees/lib/employmentStatus"
 import type {
   CreateEmployeeInput,
   EmploymentType,
 } from "@/features/employees/types"
-import type { WorkLocation } from "@/features/employees/data/masterData"
+import { employeeStore } from "@/lib/mock/employeeStore"
+import { preEmploymentStore } from "@/lib/mock/preEmploymentStore"
+import { requireSessionPermission } from "@/features/auth/authErrors"
 import {
-  computeProbationEnd,
-  computeRegularizationDate,
-  toGender,
-} from "@/features/employees/lib/employeeCalculations"
-import { resolveStatusForCreate } from "@/features/employees/lib/employmentStatus"
-import { toStoredAddress } from "@/features/employees/lib/address"
+  mapPreEmploymentToEmployeeDocuments,
+  validateInviteForApproval,
+} from "../lib/preEmploymentDocuments"
 import type {
   ApprovePreEmploymentInput,
   ApprovePreEmploymentResult,
@@ -165,6 +170,12 @@ export async function approvePreEmploymentInvite(
     throw new Error("Employee ID already exists")
   }
 
+  const hrCountersignatures = employment.hrContractCountersignatures ?? []
+  const approvalValidation = validateInviteForApproval(invite, hrCountersignatures)
+  if (!approvalValidation.valid) {
+    throw new Error(approvalValidation.errors.join(". "))
+  }
+
   const payload = invite.candidatePayload as PreEmploymentFormData
   const now = new Date().toISOString()
 
@@ -179,6 +190,19 @@ export async function approvePreEmploymentInvite(
             payload.emergencyContactRelationship?.trim() || undefined,
         }
       : undefined
+
+  const requirementCtx = buildRequirementContextFromInvite({
+    ...invite,
+    intendedEmploymentType: employment.employmentType as EmploymentType,
+    intendedWorkLocation: employment.workLocation as WorkLocation,
+    candidatePayload: payload,
+  })
+
+  const documents = mapPreEmploymentToEmployeeDocuments(
+    payload,
+    hrCountersignatures,
+    invite.email
+  )
 
   const input: CreateEmployeeInput = {
     employeeId: employment.employeeId,
@@ -234,24 +258,18 @@ export async function approvePreEmploymentInvite(
         employment.hireDate,
         employment.probationEndDate ?? computeProbationEnd(employment.hireDate)
       ),
+    documents,
+    onboardingChecklist: deriveChecklistStatus(documents, requirementCtx),
     compliance: {
-      privacyConsentSigned: payload.acknowledgePrivacy,
-      privacyConsentAt: payload.acknowledgePrivacy ? now : undefined,
-      privacyConsentDate: payload.acknowledgePrivacy
-        ? now.slice(0, 10)
-        : undefined,
-      privacyNoticeVersion: payload.acknowledgePrivacy
-        ? PRIVACY_NOTICE_VERSION
-        : undefined,
-      dataSubjectAccessSigned: payload.acknowledgePrivacy,
+      dataSubjectAccessSigned: payload.acknowledgeHandbook,
     },
-    profileOnboardingComplete: true,
-    profileOnboardingCompletedAt: now,
+    profileOnboardingComplete: false,
     preEmploymentCompletedAt: now,
   }
 
   const created = await employeeStore.create({
     ...input,
+    status: "onboarding",
     audit: { createdBy: user.email, updatedBy: user.email },
   })
 

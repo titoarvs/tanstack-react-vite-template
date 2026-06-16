@@ -41,6 +41,11 @@ import {
 import type { PreEmploymentFormData } from "../types"
 import { getPreEmploymentFullName } from "../types"
 import { InviteSummary } from "../components/InviteSummary"
+import {
+  HrContractCountersignPanel,
+  PreEmploymentSubmissionReview,
+} from "../components/PreEmploymentSubmissionReview"
+import type { ContractSignatureRecord } from "../types"
 
 const departmentOptions = DEPARTMENTS.map(d => ({ value: d, label: d }))
 const employmentTypeOptions = EMPLOYMENT_TYPES.map(t => ({
@@ -64,8 +69,8 @@ function CandidateSubmissionSummary({ payload }: { payload: Partial<PreEmploymen
     ["Emergency", payload.emergencyContactName],
     ["Preferred name", payload.preferredName],
     [
-      "Policies",
-      payload.acknowledgeHandbook && payload.acknowledgePrivacy ? "Acknowledged" : "—",
+      "Handbook",
+      payload.acknowledgeHandbook ? "Acknowledged" : "—",
     ],
   ]
 
@@ -101,6 +106,10 @@ export function PreEmploymentReviewPage() {
     employeeId: string
   } | null>(null)
   const [rejectNote, setRejectNote] = useState("")
+  const [hrCountersignatures, setHrCountersignatures] = useState<
+    ContractSignatureRecord[]
+  >([])
+  const [approveError, setApproveError] = useState<string | null>(null)
 
   const today = new Date().toISOString().slice(0, 10)
 
@@ -150,21 +159,32 @@ export function PreEmploymentReviewPage() {
       jobTitle: manatal.jobTitle ?? jobTitleOptions[0]?.value ?? "",
       isManager: manatal.isManager ?? false,
       managerId: "",
-      employmentType: manatal.employmentType ?? "full_time",
+      employmentType: invite.intendedEmploymentType ?? manatal.employmentType ?? "full_time",
       statusDetail: manatal.statusDetail ?? "probationary",
       hireDate,
       contractSignedDate: manatal.contractSignedDate ?? hireDate,
-      workLocation: manatal.workLocation ?? "onsite",
+      workLocation: invite.intendedWorkLocation ?? manatal.workLocation ?? "onsite",
     })
   }, [invite, suggestedId, form, positionOptions, jobTitleOptions, today])
 
   const onApprove = form.handleSubmit(async data => {
-    const result = await approve.mutateAsync({ id: inviteId, employment: data })
-    setCredentials({
-      loginEmail: result.loginEmail,
-      tempPasswordHint: result.tempPasswordHint,
-      employeeId: result.employeeId,
-    })
+    setApproveError(null)
+    try {
+      const result = await approve.mutateAsync({
+        id: inviteId,
+        employment: {
+          ...data,
+          hrContractCountersignatures: hrCountersignatures,
+        },
+      })
+      setCredentials({
+        loginEmail: result.loginEmail,
+        tempPasswordHint: result.tempPasswordHint,
+        employeeId: result.employeeId,
+      })
+    } catch (e) {
+      setApproveError(e instanceof Error ? e.message : "Could not approve invite")
+    }
   })
 
   const onReject = async () => {
@@ -252,6 +272,12 @@ export function PreEmploymentReviewPage() {
 
         <InviteSummary invite={invite} />
         <CandidateSubmissionSummary payload={invite.candidatePayload} />
+        <PreEmploymentSubmissionReview invite={invite} />
+        <HrContractCountersignPanel
+          invite={invite}
+          countersignatures={hrCountersignatures}
+          onChange={setHrCountersignatures}
+        />
 
         <Card className="border-border/80">
           <CardHeader>
@@ -363,6 +389,11 @@ export function PreEmploymentReviewPage() {
                   )}
                 />
                 <div className="flex flex-wrap gap-2 sm:col-span-2">
+                  {approveError && (
+                    <p className="w-full text-sm text-destructive" role="alert">
+                      {approveError}
+                    </p>
+                  )}
                   <Button type="submit" disabled={approve.isPending}>
                     {approve.isPending ? (
                       <>

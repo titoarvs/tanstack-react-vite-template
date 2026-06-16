@@ -1,8 +1,9 @@
 import {
-  ClipboardCheck,
-  Phone,
+  FileText,
+  ClipboardPen,
   ShieldCheck,
   UserRound,
+  Phone,
   type LucideIcon,
 } from "lucide-react"
 
@@ -30,10 +31,24 @@ export const PRE_EMPLOYMENT_STEPS: PreEmploymentStepDef[] = [
     icon: Phone,
   },
   {
+    id: "documents",
+    label: "Documents",
+    shortLabel: "Documents",
+    description: "Upload required pre-employment and government forms",
+    icon: FileText,
+  },
+  {
+    id: "contracts",
+    label: "Contracts",
+    shortLabel: "Contracts",
+    description: "Review and electronically sign employment contracts",
+    icon: ClipboardPen,
+  },
+  {
     id: "policies",
     label: "Policies & photo",
     shortLabel: "Policies",
-    description: "Required acknowledgements and optional profile photo",
+    description: "Employee handbook acknowledgement and optional profile photo",
     icon: ShieldCheck,
   },
   {
@@ -41,7 +56,7 @@ export const PRE_EMPLOYMENT_STEPS: PreEmploymentStepDef[] = [
     label: "Review & submit",
     shortLabel: "Review",
     description: "Confirm your details before HR review",
-    icon: ClipboardCheck,
+    icon: FileText,
   },
 ]
 

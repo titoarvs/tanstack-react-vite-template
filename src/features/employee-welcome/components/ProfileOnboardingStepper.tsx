@@ -1,20 +1,24 @@
-import { PROFILE_ONBOARDING_STEPS } from "../lib/profileOnboardingSteps"
+import type { ProfileOnboardingStepDef } from "../lib/profileOnboardingSteps"
 
 interface ProfileOnboardingProgressProps {
   currentStep: number
+  steps: ProfileOnboardingStepDef[]
 }
 
-export function ProfileOnboardingProgress({ currentStep }: ProfileOnboardingProgressProps) {
-  const progress = ((currentStep + 1) / PROFILE_ONBOARDING_STEPS.length) * 100
+export function ProfileOnboardingProgress({
+  currentStep,
+  steps,
+}: ProfileOnboardingProgressProps) {
+  const progress = ((currentStep + 1) / steps.length) * 100
 
   return (
     <div
       className="w-full max-w-[9rem] shrink-0 sm:max-w-[10.5rem]"
-      aria-label={`Step ${currentStep + 1} of ${PROFILE_ONBOARDING_STEPS.length}, ${Math.round(progress)}% complete`}
+      aria-label={`Step ${currentStep + 1} of ${steps.length}, ${Math.round(progress)}% complete`}
     >
       <div className="flex items-center justify-between gap-2 text-xs font-medium">
         <span className="text-muted-foreground">
-          Step {currentStep + 1} of {PROFILE_ONBOARDING_STEPS.length}
+          Step {currentStep + 1} of {steps.length}
         </span>
         <span className="text-foreground">{Math.round(progress)}%</span>
       </div>

@@ -69,6 +69,9 @@ export interface EmployeeCompliance {
   privacyConsentIpAddress?: string
   privacyNoticeVersion?: string
   dataSubjectAccessSigned?: boolean
+  ndaSignedAt?: string
+  nonCompeteSignedAt?: string
+  acceptableUseSignedAt?: string
   retentionPeriodYears?: number
   dataDeletionDate?: string
 }

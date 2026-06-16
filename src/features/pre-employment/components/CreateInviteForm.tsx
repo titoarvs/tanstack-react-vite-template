@@ -14,15 +14,24 @@ import {
 } from "@/components/ui/form"
 import { FormSelectField } from "@/components/ui/form-select-field"
 import { Input } from "@/components/ui/input"
-import { DEPARTMENTS } from "@/features/employees/data/masterData"
+import { DEPARTMENTS, EMPLOYMENT_TYPES, WORK_LOCATIONS } from "@/features/employees/data/masterData"
 import { buildJoinUrl } from "../api/preEmploymentApi"
 import { useCreatePreEmploymentInvite } from "../hooks/usePreEmployment"
 import {
   createInviteSchema,
   type CreateInviteFormData,
 } from "../schemas/preEmploymentSchema"
+import type { CreatePreEmploymentInviteInput } from "../types"
 
 const departmentOptions = DEPARTMENTS.map(d => ({ value: d, label: d }))
+const employmentTypeOptions = EMPLOYMENT_TYPES.map(t => ({
+  value: t.value,
+  label: t.label,
+}))
+const workLocationOptions = WORK_LOCATIONS.map(w => ({
+  value: w.value,
+  label: w.label,
+}))
 
 export function CreateInviteForm() {
   const [joinUrl, setJoinUrl] = useState<string | null>(null)
@@ -38,11 +47,20 @@ export function CreateInviteForm() {
       intendedDepartment: "Engineering",
       intendedPosition: "",
       intendedHireDate: "",
+      intendedEmploymentType: "full_time",
+      intendedWorkLocation: "onsite",
+      isAcademicInternship: false,
     },
   })
 
+  const employmentType = form.watch("intendedEmploymentType")
+
   const onSubmit = form.handleSubmit(async data => {
-    const invite = await createInvite.mutateAsync(data)
+    const invite = await createInvite.mutateAsync({
+      ...data,
+      intendedEmploymentType: data.intendedEmploymentType as CreatePreEmploymentInviteInput["intendedEmploymentType"],
+      intendedWorkLocation: data.intendedWorkLocation as CreatePreEmploymentInviteInput["intendedWorkLocation"],
+    })
     setJoinUrl(buildJoinUrl(invite.token))
   })
 
@@ -162,7 +180,7 @@ export function CreateInviteForm() {
               control={form.control}
               name="intendedHireDate"
               render={({ field }) => (
-                <FormItem className="sm:col-span-2">
+                <FormItem>
                   <FormLabel>Intended hire date</FormLabel>
                   <FormControl>
                     <Input {...field} type="date" />
@@ -171,6 +189,42 @@ export function CreateInviteForm() {
                 </FormItem>
               )}
             />
+            <FormSelectField
+              name="intendedEmploymentType"
+              label="Employment type"
+              options={employmentTypeOptions}
+              required
+            />
+            <FormSelectField
+              name="intendedWorkLocation"
+              label="Work location"
+              options={workLocationOptions}
+              required
+            />
+            {employmentType === "intern" && (
+              <FormField
+                control={form.control}
+                name="isAcademicInternship"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-start gap-3 sm:col-span-2">
+                    <FormControl>
+                      <input
+                        type="checkbox"
+                        className="mt-1 h-4 w-4 rounded border-input"
+                        checked={field.value ?? false}
+                        onChange={e => field.onChange(e.target.checked)}
+                      />
+                    </FormControl>
+                    <div>
+                      <FormLabel>Academic internship (requires MOA)</FormLabel>
+                      <p className="text-xs text-muted-foreground">
+                        Check if this internship is part of an academic program.
+                      </p>
+                    </div>
+                  </FormItem>
+                )}
+              />
+            )}
             <div className="sm:col-span-2">
               <Button type="submit" disabled={createInvite.isPending}>
                 {createInvite.isPending ? (

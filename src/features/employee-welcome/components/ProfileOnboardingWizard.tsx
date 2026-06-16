@@ -12,9 +12,13 @@ import type { Employee } from "@/features/employees/types"
 import { cn } from "@/lib/utils"
 import { normalizeAddressInput } from "@/features/employees/lib/address"
 import { completeProfileOnboarding } from "../api/profileOnboardingApi"
-import { PROFILE_ONBOARDING_STEP_COUNT, PROFILE_ONBOARDING_STEPS } from "../lib/profileOnboardingSteps"
+import {
+  getProfileOnboardingStepCount,
+  getProfileOnboardingSteps,
+} from "../lib/profileOnboardingSteps"
 import {
   contactStepSchema,
+  createComplianceStepSchema,
   policiesStepSchema,
   profileOnboardingSchema,
   type ProfileOnboardingFormData,
@@ -23,6 +27,7 @@ import { ContactDetailsStep } from "./ContactDetailsStep"
 import { HrAssignedSummary } from "./HrAssignedSummary"
 import { PoliciesStep } from "./PoliciesStep"
 import { ProfileOnboardingProgress } from "./ProfileOnboardingStepper"
+import { WelcomeComplianceStep } from "./WelcomeComplianceStep"
 import { WelcomeReviewStep } from "./WelcomeReviewStep"
 
 function applyZodErrors(
@@ -50,6 +55,9 @@ function buildDefaultValues(employee: Employee): ProfileOnboardingFormData {
     personalEmail: employee.personalEmail ?? "",
     photoUrl: employee.photoUrl ?? "",
     acknowledgeHandbook: false,
+    acknowledgeNda: false,
+    acknowledgeNonCompete: false,
+    acknowledgeAcceptableUse: false,
   }
 }
 
@@ -62,6 +70,8 @@ export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardPro
   const [submitError, setSubmitError] = useState<string | null>(null)
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const steps = useMemo(() => getProfileOnboardingSteps(employee), [employee])
+  const stepCount = getProfileOnboardingStepCount(employee)
 
   const defaultValues = useMemo(() => buildDefaultValues(employee), [employee])
 
@@ -72,20 +82,34 @@ export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardPro
   })
 
   const goToStep = (index: number) => {
-    if (index < 0 || index >= PROFILE_ONBOARDING_STEP_COUNT) return
+    if (index < 0 || index >= stepCount) return
     setSubmitError(null)
     setStep(index)
   }
 
+  const getStepSchema = (stepDef: (typeof steps)[number]) => {
+    switch (stepDef.id) {
+      case "contact":
+        return contactStepSchema
+      case "policies":
+        return policiesStepSchema
+      case "compliance":
+        return createComplianceStepSchema(employee)
+      default:
+        return profileOnboardingSchema
+    }
+  }
+
   const goNext = async () => {
     setSubmitError(null)
-    const schema = step === 0 ? contactStepSchema : policiesStepSchema
+    const stepDef = steps[step]
+    const schema = getStepSchema(stepDef)
     const result = schema.safeParse(form.getValues())
     if (!result.success) {
       applyZodErrors(form, result.error)
       return
     }
-    const next = Math.min(step + 1, PROFILE_ONBOARDING_STEP_COUNT - 1)
+    const next = Math.min(step + 1, stepCount - 1)
     setStep(next)
   }
 
@@ -105,8 +129,23 @@ export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardPro
     }
   })
 
-  const currentStepDef = PROFILE_ONBOARDING_STEPS[step]
-  const isLastStep = step === PROFILE_ONBOARDING_STEP_COUNT - 1
+  const currentStepDef = steps[step]
+  const isLastStep = step === stepCount - 1
+
+  const renderStep = () => {
+    switch (currentStepDef.id) {
+      case "contact":
+        return <ContactDetailsStep />
+      case "policies":
+        return <PoliciesStep />
+      case "compliance":
+        return <WelcomeComplianceStep employee={employee} />
+      case "review":
+        return <WelcomeReviewStep employee={employee} onEditStep={goToStep} steps={steps} />
+      default:
+        return null
+    }
+  }
 
   return (
     <Form {...form}>
@@ -127,17 +166,11 @@ export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardPro
                   {currentStepDef.description}
                 </p>
               </div>
-              <ProfileOnboardingProgress currentStep={step} />
+              <ProfileOnboardingProgress currentStep={step} steps={steps} />
             </div>
           </div>
 
-          <CardContent className="p-4 sm:p-6 lg:p-8">
-            {step === 0 && <ContactDetailsStep />}
-            {step === 1 && <PoliciesStep />}
-            {step === 2 && (
-              <WelcomeReviewStep employee={employee} onEditStep={goToStep} />
-            )}
-          </CardContent>
+          <CardContent className="p-4 sm:p-6 lg:p-8">{renderStep()}</CardContent>
 
           <CardFooter
             className={cn(
@@ -172,11 +205,7 @@ export function ProfileOnboardingWizard({ employee }: ProfileOnboardingWizardPro
                 </p>
               )}
               {!isLastStep ? (
-                <Button
-                  type="button"
-                  className="w-full sm:w-auto"
-                  onClick={goNext}
-                >
+                <Button type="button" className="w-full sm:w-auto" onClick={goNext}>
                   Continue
                   <ArrowRight className="h-4 w-4" />
                 </Button>

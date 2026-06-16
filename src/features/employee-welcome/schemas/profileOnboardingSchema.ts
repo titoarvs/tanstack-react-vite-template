@@ -1,5 +1,7 @@
 import { z } from "zod"
 import { addressSchema } from "@/features/employees/lib/address"
+import type { Employee } from "@/features/employees/types"
+import { getFirstDayRequirements } from "@/features/employees/lib/documentRequirementPolicy"
 
 /** Required contact fields — HR may have pre-filled work email */
 export const contactStepSchema = z.object({
@@ -23,7 +25,50 @@ export const policiesStepSchema = z.object({
     .refine(v => v === true, { message: "You must acknowledge the employee handbook" }),
 })
 
-export const profileOnboardingSchema = contactStepSchema.and(policiesStepSchema)
+export const complianceStepSchema = z.object({
+  acknowledgeNda: z.boolean().optional(),
+  acknowledgeNonCompete: z.boolean().optional(),
+  acknowledgeAcceptableUse: z.boolean().optional(),
+})
+
+export function createComplianceStepSchema(employee: Employee) {
+  const ctx = {
+    employmentType: employee.employmentType,
+    workLocation: employee.workLocation,
+    maritalStatus: employee.demographics?.maritalStatus,
+  }
+  const reqs = getFirstDayRequirements(ctx)
+
+  return complianceStepSchema.superRefine((data, ctxRef) => {
+    for (const req of reqs) {
+      if (req.type === "nda" && data.acknowledgeNda !== true) {
+        ctxRef.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "NDA acknowledgement is required",
+          path: ["acknowledgeNda"],
+        })
+      }
+      if (req.type === "non_compete" && data.acknowledgeNonCompete !== true) {
+        ctxRef.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Non-compete acknowledgement is required",
+          path: ["acknowledgeNonCompete"],
+        })
+      }
+      if (req.type === "acceptable_use_policy" && data.acknowledgeAcceptableUse !== true) {
+        ctxRef.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "Acceptable Use Policy acknowledgement is required",
+          path: ["acknowledgeAcceptableUse"],
+        })
+      }
+    }
+  })
+}
+
+export const profileOnboardingSchema = contactStepSchema
+  .merge(policiesStepSchema)
+  .merge(complianceStepSchema)
 
 export type ContactStepForm = z.infer<typeof contactStepSchema>
 export type PoliciesStepForm = z.infer<typeof policiesStepSchema>
