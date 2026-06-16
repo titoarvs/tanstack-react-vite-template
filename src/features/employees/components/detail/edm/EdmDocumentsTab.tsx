@@ -2,7 +2,12 @@ import { FileText, Upload } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import type { Employee } from "../../../types"
-import { DOCUMENT_TYPE_LABELS } from "../../../types/documents"
+import {
+  DOCUMENT_CATEGORY_LABELS,
+  DOCUMENT_PHASE_LABELS,
+  DOCUMENT_TYPE_LABELS,
+  type ChecklistItem,
+} from "../../../types/documents"
 import { useEdmFieldAccess } from "../../../hooks/useEdmFieldAccess"
 import { ProfileInfoCard } from "../ProfileInfoCard"
 import { EdmProfileSection } from "./EdmProfileField"
@@ -11,10 +16,28 @@ interface EdmDocumentsTabProps {
   employee: Employee
 }
 
+function groupChecklistByCategory(
+  checklist: ChecklistItem[]
+): Map<string, ChecklistItem[]> {
+  const groups = new Map<string, ChecklistItem[]>()
+  for (const item of checklist) {
+    if (item.key === "requirements_complete") continue
+    const category = item.category
+      ? DOCUMENT_CATEGORY_LABELS[item.category]
+      : "Other"
+    const list = groups.get(category) ?? []
+    list.push(item)
+    groups.set(category, list)
+  }
+  return groups
+}
+
 export function EdmDocumentsTab({ employee }: EdmDocumentsTabProps) {
   const docsAccess = useEdmFieldAccess(employee, "uploadedDocuments")
   const documents = employee.documents ?? []
   const checklist = employee.onboardingChecklist ?? []
+  const groupedChecklist = groupChecklistByCategory(checklist)
+  const summaryItem = checklist.find(i => i.key === "requirements_complete")
 
   return (
     <div className="space-y-4">
@@ -48,7 +71,9 @@ export function EdmDocumentsTab({ employee }: EdmDocumentsTabProps) {
                       <td className="py-3 pr-4">{DOCUMENT_TYPE_LABELS[doc.type]}</td>
                       <td className="py-3 pr-4 font-medium">{doc.fileName}</td>
                       <td className="py-3 pr-4 text-muted-foreground">{doc.uploadedBy}</td>
-                      <td className="py-3 pr-4 text-muted-foreground">{doc.uploadedAt}</td>
+                      <td className="py-3 pr-4 text-muted-foreground">
+                        {doc.signedAt ?? doc.uploadedAt}
+                      </td>
                       <td className="py-3">v{doc.version}</td>
                     </tr>
                   ))}
@@ -64,27 +89,52 @@ export function EdmDocumentsTab({ employee }: EdmDocumentsTabProps) {
           {checklist.length === 0 ? (
             <p className="text-sm text-muted-foreground">Checklist not started.</p>
           ) : (
-            <ul className="space-y-2">
-              {checklist.map(item => (
-                <li
-                  key={item.key}
-                  className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2"
-                >
-                  <span className="text-sm font-medium">{item.label}</span>
-                  <Badge
-                    variant={
-                      item.status === "complete"
-                        ? "default"
-                        : item.status === "expired"
-                          ? "destructive"
-                          : "secondary"
-                    }
-                  >
-                    {item.status}
-                  </Badge>
-                </li>
+            <div className="space-y-4">
+              {Array.from(groupedChecklist.entries()).map(([category, items]) => (
+                <div key={category}>
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                    {category}
+                  </p>
+                  <ul className="space-y-2">
+                    {items.map(item => (
+                      <li
+                        key={`${item.key}-${item.phase ?? "none"}`}
+                        className="flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border/60 px-3 py-2"
+                      >
+                        <div>
+                          <span className="text-sm font-medium">{item.label}</span>
+                          {item.phase && (
+                            <p className="text-xs text-muted-foreground">
+                              {DOCUMENT_PHASE_LABELS[item.phase]}
+                              {item.priority === "secondary" ? " · Secondary" : ""}
+                            </p>
+                          )}
+                        </div>
+                        <Badge
+                          variant={
+                            item.status === "complete"
+                              ? "default"
+                              : item.status === "expired"
+                                ? "destructive"
+                                : "secondary"
+                          }
+                        >
+                          {item.status}
+                        </Badge>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               ))}
-            </ul>
+              {summaryItem && (
+                <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2">
+                  <span className="text-sm font-semibold">{summaryItem.label}</span>
+                  <Badge variant={summaryItem.status === "complete" ? "default" : "secondary"}>
+                    {summaryItem.status}
+                  </Badge>
+                </div>
+              )}
+            </div>
           )}
         </ProfileInfoCard>
       </EdmProfileSection>

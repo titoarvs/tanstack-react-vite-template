@@ -1,11 +1,33 @@
 import { employeeStore } from "@/lib/mock/employeeStore"
 import type { AuthUser } from "@/features/auth/types"
 import type { Employee } from "@/features/employees/types"
+import { getFirstDayRequirements } from "@/features/employees/lib/documentRequirementPolicy"
 import { needsPrivacyConsent } from "@/features/compliance/lib/privacyConsentPolicy"
 
-export function getLinkedEmployee(user: AuthUser | null | undefined): Employee | undefined {
+export function getLinkedEmployee(
+  user: AuthUser | null | undefined
+): Employee | undefined {
   if (!user?.employeeId) return undefined
   return employeeStore.getByIdSync(user.employeeId)
+}
+
+function needsFirstDayComplianceComplete(employee: Employee): boolean {
+  const ctx = {
+    employmentType: employee.employmentType,
+    workLocation: employee.workLocation,
+    maritalStatus: employee.demographics?.maritalStatus,
+  }
+  const reqs = getFirstDayRequirements(ctx)
+  const c = employee.compliance ?? {}
+
+  for (const req of reqs) {
+    if (req.type === "nda" && !c.ndaSignedAt) return true
+    if (req.type === "non_compete" && !c.nonCompeteSignedAt) return true
+    if (req.type === "acceptable_use_policy" && !c.acceptableUseSignedAt)
+      return true
+  }
+
+  return false
 }
 
 /** New hires must finish welcome onboarding before the app shell */
@@ -15,9 +37,18 @@ export function needsEmployeeWelcomeOnboarding(
   if (!user || user.role !== "employee" || !user.employeeId) return false
   const employee = getLinkedEmployee(user)
   if (!employee) return false
+
+  if (needsPrivacyConsent(user)) return true
+  if (needsFirstDayComplianceComplete(employee)) return true
+
   if (employee.preEmploymentCompletedAt) return false
+
   if (employee.status === "onboarding") return true
   return employee.profileOnboardingComplete !== true
+}
+
+export function isPreEmploymentWelcomePath(employee: Employee): boolean {
+  return Boolean(employee.preEmploymentCompletedAt)
 }
 
 export function getPostLoginPath(
@@ -79,7 +110,9 @@ function parseAppNavigateTarget(path: string): PostLoginNavigateTarget {
       break
   }
 
-  const preEmploymentReview = /^\/employees\/pre-employment\/([^/]+)$/.exec(path)
+  const preEmploymentReview = /^\/employees\/pre-employment\/([^/]+)$/.exec(
+    path
+  )
   if (preEmploymentReview) {
     return {
       to: "/employees/pre-employment/$inviteId",

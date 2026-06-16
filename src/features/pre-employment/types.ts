@@ -1,3 +1,8 @@
+import type { EmploymentType } from "@/features/employees/types"
+import type { WorkLocation } from "@/features/employees/data/masterData"
+import type { DocumentType } from "@/features/employees/types/documents"
+import type { ContractType } from "@/features/employees/lib/documentRequirementPolicy"
+
 export type PreEmploymentStatus =
   | "invited"
   | "in_progress"
@@ -6,6 +11,27 @@ export type PreEmploymentStatus =
   | "rejected"
   | "expired"
   | "cancelled"
+
+export interface PreEmploymentDocument {
+  id: string
+  type: DocumentType
+  fileName: string
+  mimeType: string
+  uploadedAt: string
+  dataUrl?: string
+}
+
+export interface ContractSignatureRecord {
+  contractType: ContractType
+  signedName: string
+  signedAt: string
+  documentVersion: string
+  ipAddress?: string
+  signatureDataUrl?: string
+  hrCountersignedBy?: string
+  hrCountersignedAt?: string
+  hrSignatureDataUrl?: string
+}
 
 export interface PreEmploymentInvite {
   id: string
@@ -16,6 +42,9 @@ export interface PreEmploymentInvite {
   intendedDepartment?: string
   intendedPosition?: string
   intendedHireDate?: string
+  intendedEmploymentType: EmploymentType
+  intendedWorkLocation: WorkLocation
+  isAcademicInternship?: boolean
   status: PreEmploymentStatus
   candidatePayload: Partial<PreEmploymentFormData>
   rejectionNote?: string
@@ -41,9 +70,10 @@ export interface PreEmploymentFormData {
   emergencyContactRelationship?: string
   preferredName?: string
   personalEmail?: string
+  uploadedDocuments: PreEmploymentDocument[]
+  contractSignatures: ContractSignatureRecord[]
   photoUrl?: string
   acknowledgeHandbook: boolean
-  acknowledgePrivacy: boolean
 }
 
 export interface CreatePreEmploymentInviteInput {
@@ -53,6 +83,9 @@ export interface CreatePreEmploymentInviteInput {
   intendedDepartment?: string
   intendedPosition?: string
   intendedHireDate?: string
+  intendedEmploymentType: EmploymentType
+  intendedWorkLocation: WorkLocation
+  isAcademicInternship?: boolean
 }
 
 export interface ApprovePreEmploymentInput {
@@ -69,6 +102,7 @@ export interface ApprovePreEmploymentInput {
   probationEndDate?: string
   regularizationDate?: string
   contractSignedDate: string
+  hrContractCountersignatures?: ContractSignatureRecord[]
 }
 
 export interface ApprovePreEmploymentResult {
@@ -103,4 +137,10 @@ export function getPreEmploymentFullName(
   invite: Pick<PreEmploymentInvite, "firstName" | "lastName">
 ): string {
   return `${invite.firstName} ${invite.lastName}`.trim()
+}
+
+export function getPreEmploymentLegalName(
+  invite: Pick<PreEmploymentInvite, "firstName" | "lastName">
+): string {
+  return getPreEmploymentFullName(invite)
 }

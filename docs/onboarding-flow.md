@@ -8,7 +8,7 @@ Onboarding has **three connected paths**:
 
 1. **Pre-employment invite (primary)** — HR sends a link; candidate completes forms **before** any employee record or HRIS access exists.
 2. **Express hire** — HR creates an employee directly at `/employees/onboarding` when data was collected offline; hire completes `/welcome` before HRIS.
-3. **Employee welcome** — Provisioned employees finish self-service fields at `/welcome` before the app shell unlocks.
+3. **Employee welcome** — Provisioned employees finish first-day compliance (and residual profile fields for express hire) at `/welcome` before the app shell unlocks.
 
 **Mock constraints:**
 
@@ -21,17 +21,26 @@ Onboarding has **three connected paths**:
 | Step | Actor | Route | Outcome |
 |------|-------|-------|---------|
 | 1 | HR | `/employees/pre-employment` | Creates invite + copy link `/join/{token}` |
-| 2 | Candidate | `/join/{token}` | 4-step wizard; progressive save; submit |
+| 2 | Candidate | `/join/{token}` | 6-step wizard; progressive save; submit |
 | 3 | Candidate | `/join/{token}/submitted` | Waiting screen — no HRIS access |
-| 4 | HR | `/employees/pre-employment/{inviteId}` | Review submission; approve or request changes |
-| 5 | System | — | Creates employee, provisions portal login |
-| 6 | Employee | `/login` → `/dashboard` | HRIS access (welcome skipped when pre-employment captured policies) |
+| 4 | HR | `/employees/pre-employment/{inviteId}` | Review uploads + contract signatures; countersign; approve |
+| 5 | System | — | Creates employee (`status: onboarding`), maps documents, provisions login |
+| 6 | Employee | `/login` → `/welcome` | First-day compliance (NDA, AUP, privacy) then HRIS |
 
-**Demo invite:** `/join/demo-token` (candidate: Alex Rivera)
+**Demo invite:** `/join/demo-token` (candidate: Alex Rivera, full-time onsite)
 
-**HR invite fields:** email, name, intended department/position/hire date
+**HR invite fields:** email, name, intended department/position/hire date, **employment type**, **work location**, optional **academic internship** flag
 
-**Candidate portal fields:** phone, address, province, demographics, emergency contact, preferred name, personal email, photo, policy acknowledgements
+**Candidate portal steps:** Contact → Emergency → **Documents** → **Contracts (e-sign)** → Policies & photo → Review
+
+**Document requirements** are driven by [`documentRequirementPolicy.ts`](../src/features/employees/lib/documentRequirementPolicy.ts) using employment type, work location, marital status, and academic-intern flags.
+
+| Timing | Collected in | Examples |
+|--------|--------------|----------|
+| Pre-employment uploads | Candidate Documents step | Valid ID (×2 part-time), NBI (full-time), medical, gov forms before start |
+| Contract signing | Candidate Contracts step | Job offer, employment contract, MOA (academic intern) |
+| HR countersign | HR review | Verify candidate signatures; countersign each contract |
+| First day | `/welcome` compliance step | NDA, non-compete, AUP, privacy consent |
 
 ## Express hire (`/employees/onboarding`)
 
@@ -43,17 +52,21 @@ Onboarding has **three connected paths**:
 
 ## Employee welcome (`/welcome`)
 
-**When required:** Express-hire employees and legacy demo `newhire@` (`EMP-011`)
+**When required:** All `onboarding` employees until first-day compliance is complete
 
-**On submit:** Updates contact, emergency contact, preferred name, photo, compliance; sets `status: active`
+**Pre-employment hires:** Slim path — compliance + review only (contact already captured in portal)
+
+**Express hire:** Contact → policies → compliance → review
+
+**On submit:** Updates compliance timestamps; sets `status: active`, `profileOnboardingComplete: true`
 
 ## Pre-Day 0 field split (EDM)
 
 | Flow | Collects | Authority |
 |------|----------|-----------|
 | HR invite / express hire | Employee ID, name, demographics, work email, employment master data | HRIS Admin+ |
-| Pre-employment portal | Phone, address, province, emergency contact, preferred name, photo, privacy compliance | Candidate self-service |
-| Employee welcome | Residual self-service fields not yet captured | Employee self-service |
+| Pre-employment portal | Phone, address, documents, contract e-sign, handbook, photo | Candidate self-service |
+| Employee welcome | First-day NDA / non-compete / AUP / privacy; residual contact for express hire | Employee self-service |
 
 ## Demo accounts (6 EDM roles)
 
@@ -74,6 +87,7 @@ Legacy alias: `admin@titohris.com` → HRIS SuperAdmin.
 | Area | Path |
 |------|------|
 | Pre-employment | `src/features/pre-employment/` |
+| Document requirements | `src/features/employees/lib/documentRequirementPolicy.ts` |
 | EDM policy | `src/features/employees/edm/` |
 | Express hire wizard | `src/features/onboarding/` |
 | Employee welcome | `src/features/employee-welcome/` |

@@ -54,6 +54,13 @@ export async function completeProfileOnboarding(
       emergencyContact: emergency,
       compliance: {
         ...existing.compliance,
+        ndaSignedAt: data.acknowledgeNda ? now : existing.compliance?.ndaSignedAt,
+        nonCompeteSignedAt: data.acknowledgeNonCompete
+          ? now
+          : existing.compliance?.nonCompeteSignedAt,
+        acceptableUseSignedAt: data.acknowledgeAcceptableUse
+          ? now
+          : existing.compliance?.acceptableUseSignedAt,
       },
       profileOnboardingComplete: true,
       profileOnboardingCompletedAt: now,

@@ -1,3 +1,7 @@
+import {
+  EMPLOYMENT_TYPES,
+  WORK_LOCATIONS,
+} from "@/features/employees/data/masterData"
 import type { PreEmploymentInvite } from "../types"
 import { getPreEmploymentFullName } from "../types"
 import { Card, CardContent } from "@/components/ui/card"
@@ -7,6 +11,13 @@ interface InviteSummaryProps {
 }
 
 export function InviteSummary({ invite }: InviteSummaryProps) {
+  const employmentLabel =
+    EMPLOYMENT_TYPES.find(t => t.value === invite.intendedEmploymentType)?.label ??
+    invite.intendedEmploymentType
+  const locationLabel =
+    WORK_LOCATIONS.find(w => w.value === invite.intendedWorkLocation)?.label ??
+    invite.intendedWorkLocation
+
   return (
     <Card className="border-border/80 bg-muted/20">
       <CardContent className="grid gap-3 p-4 text-sm sm:grid-cols-2 sm:p-5">
@@ -29,6 +40,10 @@ export function InviteSummary({ invite }: InviteSummaryProps) {
           <p className="text-muted-foreground">
             {invite.intendedDepartment ?? "Department pending"}
             {invite.intendedHireDate ? ` · Start ${invite.intendedHireDate}` : ""}
+          </p>
+          <p className="mt-1 text-muted-foreground">
+            {employmentLabel} · {locationLabel}
+            {invite.isAcademicInternship ? " · Academic internship" : ""}
           </p>
         </div>
         {invite.status === "rejected" && invite.rejectionNote && (

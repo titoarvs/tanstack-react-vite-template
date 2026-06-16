@@ -10,9 +10,9 @@ import {
 } from "../data/masterData"
 import type { ChecklistItem, EmployeeDocument } from "../types/documents"
 import {
-  DOCUMENT_TYPE_LABELS,
-  REQUIRED_DOCUMENT_TYPES,
-} from "../types/documents"
+  deriveChecklistFromPolicy,
+  type DocumentRequirementContext,
+} from "./documentRequirementPolicy"
 
 type LegacyEmploymentType =
   | "full-time"
@@ -130,7 +130,12 @@ export function normalizeEmployee(raw: Employee): Employee {
     systemAccess: raw.systemAccess ?? { systems: [] },
     documents: raw.documents ?? [],
     onboardingChecklist:
-      raw.onboardingChecklist ?? deriveChecklistStatus(raw.documents ?? []),
+      raw.onboardingChecklist ??
+      deriveChecklistStatus(raw.documents ?? [], {
+        employmentType,
+        workLocation,
+        maritalStatus: raw.demographics?.maritalStatus,
+      }, raw.compliance),
     audit: {
       createdBy: raw.audit?.createdBy ?? "system",
       updatedBy: raw.audit?.updatedBy ?? "system",
@@ -187,44 +192,14 @@ export function computeDataDeletionDate(
 }
 
 export function deriveChecklistStatus(
-  documents: EmployeeDocument[]
+  documents: EmployeeDocument[],
+  ctx: DocumentRequirementContext = {
+    employmentType: "full_time",
+    workLocation: "onsite",
+  },
+  compliance?: Parameters<typeof deriveChecklistFromPolicy>[2]
 ): ChecklistItem[] {
-  const byType = new Map(documents.map(d => [d.type, d]))
-  const now = new Date()
-
-  const items: ChecklistItem[] = REQUIRED_DOCUMENT_TYPES.map(type => {
-    const doc = byType.get(type)
-    if (!doc) {
-      return {
-        key: type,
-        label: DOCUMENT_TYPE_LABELS[type],
-        status: "pending",
-      }
-    }
-    if (doc.expiryDate && new Date(doc.expiryDate) < now) {
-      return {
-        key: type,
-        label: DOCUMENT_TYPE_LABELS[type],
-        status: "expired",
-        completedAt: doc.uploadedAt,
-      }
-    }
-    return {
-      key: type,
-      label: DOCUMENT_TYPE_LABELS[type],
-      status: "complete",
-      completedAt: doc.uploadedAt,
-    }
-  })
-
-  const allComplete = items.every(i => i.status === "complete")
-  items.push({
-    key: "requirements_complete",
-    label: "All requirements complete",
-    status: allComplete ? "complete" : "pending",
-  })
-
-  return items
+  return deriveChecklistFromPolicy(documents, ctx, compliance)
 }
 
 export function toGender(value?: string): Gender | undefined {

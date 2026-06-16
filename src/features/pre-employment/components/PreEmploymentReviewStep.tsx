@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button"
 import { formatAddress } from "@/features/employees/lib/address"
 import { formatDisplayPhone } from "@/features/employees/lib/phone"
+import { CONTRACT_TITLES } from "../lib/contractTemplates"
 import type { PreEmploymentFormData, PreEmploymentInvite } from "../types"
 import { getPreEmploymentFullName } from "../types"
 
@@ -15,6 +16,10 @@ export function PreEmploymentReviewStep({
   data,
   onEditStep,
 }: PreEmploymentReviewStepProps) {
+  const docCount = data.uploadedDocuments?.length ?? 0
+  const signedContracts =
+    data.contractSignatures?.map(s => CONTRACT_TITLES[s.contractType]).join(", ") || "—"
+
   const rows: { label: string; value: string; step: number }[] = [
     { label: "Name", value: getPreEmploymentFullName(invite), step: 0 },
     { label: "Work email", value: invite.email, step: 0 },
@@ -28,12 +33,19 @@ export function PreEmploymentReviewStep({
       step: 1,
     },
     {
-      label: "Policies",
-      value:
-        data.acknowledgeHandbook && data.acknowledgePrivacy
-          ? "Handbook & privacy acknowledged"
-          : "Incomplete",
+      label: "Documents uploaded",
+      value: docCount > 0 ? `${docCount} file(s)` : "None",
       step: 2,
+    },
+    {
+      label: "Contracts signed",
+      value: signedContracts,
+      step: 3,
+    },
+    {
+      label: "Handbook",
+      value: data.acknowledgeHandbook ? "Acknowledged" : "Incomplete",
+      step: 4,
     },
   ]
 

@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { useNavigate } from "@tanstack/react-router"
 import { ArrowLeft, ArrowRight, Loader2, Send } from "lucide-react"
 import { useMemo, useState } from "react"
@@ -9,6 +8,8 @@ import { Form } from "@/components/ui/form"
 import { cn } from "@/lib/utils"
 import {
   contactStepSchema,
+  createContractsStepSchema,
+  createDocumentsStepSchemaWithMarital,
   emergencyStepSchema,
   policiesStepSchema,
   preEmploymentFormSchema,
@@ -22,6 +23,8 @@ import { PRE_EMPLOYMENT_STEP_COUNT } from "../lib/preEmploymentSteps"
 import type { PreEmploymentFormData, PreEmploymentInvite } from "../types"
 import { InviteSummary } from "./InviteSummary"
 import { PreEmploymentContactStep } from "./PreEmploymentContactStep"
+import { PreEmploymentContractsStep } from "./PreEmploymentContractsStep"
+import { PreEmploymentDocumentsStep } from "./PreEmploymentDocumentsStep"
 import { PreEmploymentEmergencyStep } from "./PreEmploymentEmergencyStep"
 import { PreEmploymentPoliciesStep } from "./PreEmploymentPoliciesStep"
 import { PreEmploymentReviewStep } from "./PreEmploymentReviewStep"
@@ -54,9 +57,10 @@ function buildDefaultValues(invite: PreEmploymentInvite): PreEmploymentFormData 
     emergencyContactRelationship: p.emergencyContactRelationship ?? "",
     preferredName: p.preferredName ?? "",
     personalEmail: p.personalEmail ?? "",
+    uploadedDocuments: p.uploadedDocuments ?? [],
+    contractSignatures: p.contractSignatures ?? [],
     photoUrl: p.photoUrl ?? "",
     acknowledgeHandbook: p.acknowledgeHandbook ?? false,
-    acknowledgePrivacy: p.acknowledgePrivacy ?? false,
   }
 }
 
@@ -76,7 +80,6 @@ export function PreEmploymentWizard({ invite, token }: PreEmploymentWizardProps)
   const defaultValues = useMemo(() => buildDefaultValues(invite), [invite])
 
   const form = useForm<PreEmploymentFormData>({
-    resolver: zodResolver(preEmploymentFormSchema),
     defaultValues,
     mode: "onBlur",
   })
@@ -91,10 +94,27 @@ export function PreEmploymentWizard({ invite, token }: PreEmploymentWizardProps)
     await saveProgress.mutateAsync(form.getValues())
   }
 
+  const getStepSchema = (stepIndex: number) => {
+    const values = form.getValues()
+    switch (stepIndex) {
+      case 0:
+        return contactStepSchema
+      case 1:
+        return emergencyStepSchema
+      case 2:
+        return createDocumentsStepSchemaWithMarital(invite, values.maritalStatus)
+      case 3:
+        return createContractsStepSchema(invite)
+      case 4:
+        return policiesStepSchema
+      default:
+        return preEmploymentFormSchema
+    }
+  }
+
   const goNext = async () => {
     setSubmitError(null)
-    const schema =
-      step === 0 ? contactStepSchema : step === 1 ? emergencyStepSchema : policiesStepSchema
+    const schema = getStepSchema(step)
     const result = schema.safeParse(form.getValues())
     if (!result.success) {
       applyZodErrors(form, result.error)
@@ -112,6 +132,14 @@ export function PreEmploymentWizard({ invite, token }: PreEmploymentWizardProps)
 
   const onSubmit = form.handleSubmit(async data => {
     setSubmitError(null)
+    const full = preEmploymentFormSchema
+      .merge(createDocumentsStepSchemaWithMarital(invite, data.maritalStatus))
+      .merge(createContractsStepSchema(invite))
+    const result = full.safeParse(data)
+    if (!result.success) {
+      applyZodErrors(form, result.error)
+      return
+    }
     try {
       await submitForm.mutateAsync(data)
       navigate({ to: "/join/$token/submitted", params: { token } })
@@ -137,8 +165,10 @@ export function PreEmploymentWizard({ invite, token }: PreEmploymentWizardProps)
           <CardContent className="p-4 sm:p-6 lg:p-8">
             {step === 0 && <PreEmploymentContactStep />}
             {step === 1 && <PreEmploymentEmergencyStep />}
-            {step === 2 && <PreEmploymentPoliciesStep invite={invite} />}
-            {step === 3 && (
+            {step === 2 && <PreEmploymentDocumentsStep invite={invite} />}
+            {step === 3 && <PreEmploymentContractsStep invite={invite} />}
+            {step === 4 && <PreEmploymentPoliciesStep invite={invite} />}
+            {step === 5 && (
               <PreEmploymentReviewStep
                 invite={invite}
                 data={form.getValues()}
